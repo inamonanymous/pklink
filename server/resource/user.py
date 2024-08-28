@@ -7,28 +7,13 @@ class UserAuth(Resource):
     post_req = reqparse.RequestParser()
     post_req.add_argument("req_user_email" , type=str, required=True, help='Email Address is required')
     post_req.add_argument("req_user_password" , type=str, required=True, help='Password is required')
-    post_req.add_argument("req_user_auth_type" , type=str, required=True, help='Authentication type is required')
-    post_req.add_argument("req_user_firstname" , type=str)
-    post_req.add_argument("req_user_middlename" , type=str)
-    post_req.add_argument("req_user_lastname" , type=str)
+
+    def delete(self):
+        session.clear()
+        abort(400, message="Logged out")
 
     def post(self): 
         args = self.post_req.parse_args()
-        
-        if not 'req_user_auth_type' in args:
-            abort(401, message="No action type provided")
-
-        if args['req_user_auth_type'] not in ('login', 'register'):
-            abort(400, message="Invalid action type provided")    
-        if args['req_user_auth_type'] == 'login':
-            return self.login(args)
-        elif args['req_user_auth_type'] == 'register':
-            self.register(args)
-
-        abort(400, message="Post Request Complete")
-
-    
-    def login(self, args):
         current_user = User.check_login(
             args['req_user_email'].strip(), 
             args['req_user_password'].strip()
@@ -42,10 +27,18 @@ class UserAuth(Resource):
             "session": session.get('user_email')
         }
         return user_data, 200
-    
-    def register(self, args):
-        if not (args['req_user_firstname'] or args['req_user_middlename'] or args['req_user_lastname']):
-            return jsonify({"message": "Names cannot be empty"}), 401
+
+
+class UserRegistration(Resource):
+    post_req = reqparse.RequestParser()
+    post_req.add_argument("req_user_email" , type=str, required=True, help='Email Address is required')
+    post_req.add_argument("req_user_password" , type=str, required=True, help='Password is required')
+    post_req.add_argument("req_user_firstname" , type=str, required=True, help='Firstname is required')
+    post_req.add_argument("req_user_middlename" , type=str, required=True, help='Middlename is required')
+    post_req.add_argument("req_user_lastname" , type=str, required=True, help='Lastname is required')
+
+    def post(self):
+        args = self.post_req.parse_args()
         user_entry = User.insert_user(
             email = args['req_user_email'].strip(),
             firstname = args['req_user_firstname'].strip(),
@@ -55,6 +48,4 @@ class UserAuth(Resource):
         )
         if not user_entry:
             abort(401, message="Email already exists")
-        return user_entry, 201
-
-            
+        return {"message": "registration success"}, 201

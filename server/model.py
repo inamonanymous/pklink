@@ -23,10 +23,10 @@ class User(db.Model):
         return user
     
     @classmethod
-    def insert_user(cls, email, firstname, middlename, lastname, password):
+    def insert_user(cls, email, firstname, middlename, lastname, password) -> object:
         check_user = cls.query.filter_by(email=email).first()
         if check_user:
-            return False
+            return None
         user_entry = cls(email=email,
                          firstname=firstname,
                          middlename=middlename,
