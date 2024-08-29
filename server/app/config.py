@@ -1,4 +1,4 @@
-from model import db
+from app.model import db
 class ApplicationConfig:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///sqlite.db'
     SECRET_KEY = 'T^R,dWiKCP_a'

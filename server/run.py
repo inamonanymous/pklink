@@ -1,20 +1,6 @@
-from flask import Flask
-from config import ApplicationConfig
-from model import db
-from resource.user import UserAuth, UserRegistration
-from flask_session import Session
-from flask_restful import Api
-from flask_cors import CORS
+from app import create_app
 
-app = Flask(__name__)
-app.config.from_object(ApplicationConfig)
-db.init_app(app)
-api = Api(app)
-sess = Session(app)
-CORS(app, resources={r"/user/*": {"origins": ["*"]}})
-
-api.add_resource(UserAuth, '/user/auth')
-api.add_resource(UserRegistration, '/user/registration')
+app = create_app()
 
 if __name__ == "__main__":
     app.run(
