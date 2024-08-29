@@ -1,25 +1,34 @@
 from flask_restful import Resource, abort, reqparse
 from flask import session , jsonify
-from model import User
+from app.model import Users, VerifiedUsers
+from .functions import require_user_session
 
-#User login and registration
+#User data
+class UserData(Resource):
+    @require_user_session
+    def get(self):
+        users = Users.get_all_user()
+        return users
+        
+#User login
 class UserAuth(Resource):
     post_req = reqparse.RequestParser()
     post_req.add_argument("req_user_email" , type=str, required=True, help='Email Address is required')
     post_req.add_argument("req_user_password" , type=str, required=True, help='Password is required')
 
+    @require_user_session
     def delete(self):
         session.clear()
-        abort(400, message="Logged out")
+        abort(410, message="Logged out")
 
     def post(self): 
         args = self.post_req.parse_args()
-        current_user = User.check_login(
+        current_user = Users.check_login(
             args['req_user_email'].strip(), 
             args['req_user_password'].strip()
         )
         if current_user is None:
-            abort(401, message="Wrong credentials")
+            abort(406, message="Wrong credentials")
         session['user_email'] = current_user.email
         user_data = {
             "res_user_email": current_user.email,
@@ -28,7 +37,7 @@ class UserAuth(Resource):
         }
         return user_data, 200
 
-
+#User registration
 class UserRegistration(Resource):
     post_req = reqparse.RequestParser()
     post_req.add_argument("req_user_email" , type=str, required=True, help='Email Address is required')
@@ -39,7 +48,7 @@ class UserRegistration(Resource):
 
     def post(self):
         args = self.post_req.parse_args()
-        user_entry = User.insert_user(
+        user_entry = Users.insert_user(
             email = args['req_user_email'].strip(),
             firstname = args['req_user_firstname'].strip(),
             middlename = args['req_user_middlename'].strip(),
@@ -47,5 +56,25 @@ class UserRegistration(Resource):
             password = args['req_user_password'].strip()
         )
         if not user_entry:
-            abort(401, message="Email already exists")
+            abort(409, message="Email already exists")
         return {"message": "registration success"}, 201
+
+
+#User verification
+class UserVerification(Resource):
+    post_req = reqparse.RequestParser()
+    post_req.add_argument("req_user_email", type=str, required=True, help="Email Address is required")
+
+    @require_user_session
+    def post(self):
+        args = self.post_req.parse_args()
+        user_email = args['req_user_email'].strip()
+        user_entry = VerifiedUsers.insert_verified_user(user_email)
+        if user_entry is None:
+            abort(409, message="Email already exists")
+        return {"message": "verification success"}, 201
+    
+    @require_user_session
+    def get(self):
+        verified_users = VerifiedUsers.get_all_users_with_verification()
+        return verified_users
