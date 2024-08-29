@@ -24,8 +24,8 @@ class UserAuth(Resource):
     def post(self): 
         args = self.post_req.parse_args()
         current_user = Users.check_login(
-            args['req_user_email'].strip(), 
-            args['req_user_password'].strip()
+            args['req_user_email'], 
+            args['req_user_password']
         )
         if current_user is None:
             abort(406, message="Wrong credentials")
@@ -49,32 +49,15 @@ class UserRegistration(Resource):
     def post(self):
         args = self.post_req.parse_args()
         user_entry = Users.insert_user(
-            email = args['req_user_email'].strip(),
-            firstname = args['req_user_firstname'].strip(),
-            middlename = args['req_user_middlename'].strip(),
-            lastname = args['req_user_lastname'].strip(),
-            password = args['req_user_password'].strip()
+            email = args['req_user_email'],
+            firstname = args['req_user_firstname'],
+            middlename = args['req_user_middlename'],
+            lastname = args['req_user_lastname'],
+            password = args['req_user_password']
         )
         if not user_entry:
             abort(409, message="Email already exists")
         return {"message": "registration success"}, 201
 
 
-#User verification
-class UserVerification(Resource):
-    post_req = reqparse.RequestParser()
-    post_req.add_argument("req_user_email", type=str, required=True, help="Email Address is required")
 
-    @require_user_session
-    def post(self):
-        args = self.post_req.parse_args()
-        user_email = args['req_user_email'].strip()
-        user_entry = VerifiedUsers.insert_verified_user(user_email)
-        if user_entry is None:
-            abort(409, message="Email already exists")
-        return {"message": "verification success"}, 201
-    
-    @require_user_session
-    def get(self):
-        verified_users = VerifiedUsers.get_all_users_with_verification()
-        return verified_users
