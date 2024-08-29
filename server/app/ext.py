@@ -3,3 +3,5 @@ from flask_cors import CORS
 
 cors = CORS()
 sess = Session()
+
+_ADMIN=1024
