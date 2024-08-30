@@ -1,7 +1,7 @@
 from flask import session
 from flask_restful import abort
 from functools import wraps
-from app.model import db, Users, VerifiedUsers, SuperAdmin
+from app.model import db, Users, VerifiedUsers, Admin
 
 #returns -1 if user is not found
 #returns 1 id user found in admin table
@@ -13,11 +13,11 @@ def check_user_type(email:str):
         return -1
     
     check_in_verified_users = VerifiedUsers.query.filter_by(user_email=email).first() is not None
-    check_in_super_admin = SuperAdmin.query.filter_by(user_email=email).first() is not None
+    check_in_admin = Admin.query.filter_by(user_email=email).first() is not None
     
     user_role = 0
     
-    if check_in_super_admin:
+    if check_in_admin:
         user_role = 1024
     elif check_in_verified_users:
         user_role = 1

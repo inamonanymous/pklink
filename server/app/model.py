@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import aliased
 from uuid import uuid4
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime as dt
@@ -50,6 +51,28 @@ class Users(db.Model):
     @classmethod
     def get_all_user(cls):
         query = cls.query.order_by(cls.lastname.asc()).all()
+        users = [{
+            'user_id': i.id,
+            'user_email': i.email,
+            'user_firstname': i.firstname,
+            'user_middlename': i.middlename,
+            'user_lastname': i.lastname,
+            'user_date_created': i.date_created.isoformat()
+        } for i in query]
+
+        return users
+    @classmethod
+    def get_all_unverified_users(cls):
+        #fetch all rows from <Users> table 
+        # IF email 
+        # NOT registered in <VerifiedUsers> table
+        verified_alias = aliased(VerifiedUsers)
+        query = cls.query.outerjoin(
+            verified_alias, Users.email == verified_alias.user_email
+        ).filter(
+            verified_alias.user_email == None
+        ).all()
+
         users = [{
             'user_id': i.id,
             'user_email': i.email,
@@ -114,10 +137,18 @@ class VerifiedUsers(db.Model):
         
         return users
     
-class SuperAdmin(db.Model):
-    __tablename__ = 'super_admin'
+    @classmethod
+    def get_verified_user_by_email(cls, email:str):
+        return cls.query.filter_by(user_email=email).first()
+    
+class Admin(db.Model):
+    __tablename__ = 'admin'
     id = db.Column(db.String(32), primary_key=True, default=get_uuid)
     user_email = db.Column(db.String(255), db.ForeignKey('users.email'), unique=True, nullable=False)
 
-    users = db.relationship('Users', backref=db.backref('super_admin', lazy=True))
+    users = db.relationship('Users', backref=db.backref('admin', lazy=True))
+
+    @classmethod
+    def get_admin_by_email(cls, email:str):
+        return cls.query.filter_by(user_email=email).first()
     
