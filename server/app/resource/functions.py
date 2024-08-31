@@ -1,7 +1,9 @@
-from flask import session
-from flask_restful import abort
+from app.resource import abort, session
+from app.model import db
+from app.model.m_Users import Users
+from app.model.m_VerifiedUsers import VerifiedUsers
+from app.model.m_Admin import Admin
 from functools import wraps
-from app.model import db, Users, VerifiedUsers, Admin
 
 #returns -1 if user is not found
 #returns 1 id user found in admin table

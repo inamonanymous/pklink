@@ -1,7 +1,8 @@
-from flask_restful import Resource, abort, reqparse
-from flask import session
-from app.model import Users, VerifiedUsers, Admin
+from app.resource import Resource, abort, reqparse, session
 from .functions import require_user_session
+from app.model.m_Users import Users
+from app.model.m_VerifiedUsers import VerifiedUsers
+from app.model.m_Admin import Admin
         
 #User authentication api
 class UserAuth(Resource):

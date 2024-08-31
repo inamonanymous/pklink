@@ -3,8 +3,8 @@ from flask_restful import Api
 from app.config import ApplicationConfig
 from app.model import db
 from app.ext import sess, cors
-from app.resource.user import UserAuth, UserRegistration
-from app.resource.admin import UserVerification, UnverifiedUserData 
+from app.resource.r_user import UserAuth, UserRegistration
+from app.resource.r_admin import UserVerification, UnverifiedUserData 
 
 def create_app():
     #create app instance
@@ -23,8 +23,8 @@ def create_app():
     api.add_resource(UnverifiedUserData, '/api/admin/unverified_users')
     api.add_resource(UserVerification, '/api/admin/verify')
 
-    with app.app_context():
-        db.create_all()
+    """ with app.app_context():
+        db.create_all() """
 
     return app
     
