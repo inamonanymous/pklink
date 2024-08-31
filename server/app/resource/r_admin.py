@@ -1,6 +1,7 @@
-from flask_restful import Resource, abort, reqparse
-from flask import session , jsonify
-from app.model import VerifiedUsers, Users
+from app.resource import Resource, abort, reqparse
+
+from app.model.m_Users import Users
+from app.model.m_VerifiedUsers import VerifiedUsers
 from app.ext import _ADMIN
 from .functions import require_user_session, check_user_type, get_current_user_email
 
@@ -8,7 +9,7 @@ class UnverifiedUserData(Resource):
     @require_user_session
     #GET request for fetching all <Unverified Users>
     def get(self):
-        users = Users.get_all_unverified_users()
+        users = VerifiedUsers.get_all_unverified_users()
         return users
 
 #User verification
