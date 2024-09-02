@@ -1,28 +1,31 @@
-from app.model import db, get_uuid, dt, aliased
+from app.ext import db
+from app.model import get_uuid, dt, aliased
 from app.model.m_Users import Users
 
 class VerifiedUsers(db.Model):
-    __tablename__ = 'verified_users'
+    __tablename__ = 'verifiedusers'
     id = db.Column(db.String(32), primary_key=True, default=get_uuid)
-    user_email = db.Column(db.String(255), db.ForeignKey('users.email'), unique=True, nullable=False)
+    user_username = db.Column(db.String(255), db.ForeignKey('users.username'), unique=True, nullable=False)
     date_verified = db.Column(db.DateTime, default=dt.datetime.now())
 
+    users = db.relationship('Users', backref=db.backref('verifiedusers', lazy=True))
+
     @classmethod
-    def insert_verified_user(cls, email) -> object:
-        #check if that email already in <VerifiedUsers> table 
+    def insert_verified_user(cls, username) -> object:
+        #check if that username already in <VerifiedUsers> table 
         check_v_user = cls.query.filter_by(
-            user_email=email
+            user_username=username
         ).first() is not None
 
-        #check if that email is not in the <Users> table
+        #check if that username is not in the <Users> table
         check_user = Users.query.filter_by(
-            email=email
+            username=username
         ).first() is None
 
         if check_v_user or check_user: 
             return None
         user_entry = cls(
-            user_email=email.strip()
+            user_username=username.strip()
         )
         db.session.add(user_entry)
         db.session.commit()
@@ -30,20 +33,20 @@ class VerifiedUsers(db.Model):
     
     @classmethod
     def get_all_users_with_verification(cls):
-        #fetch all rows from <Users> table 
+        # fetch all rows from <Users> table 
         # COMBINED WITH rows inside <VerifiedUsers> table 
-        # IF email registered in <VerifiedUsers> table
+        # IF username registered in <VerifiedUsers> table
         query = db.session.query(
             Users,
             cls.date_verified
         ).outerjoin(
-            Users, Users.email == cls.user_email
+            Users, Users.username == cls.user_username
         ).order_by(Users.lastname.asc()).all()
 
         users = [{
             'status': 'verified',
             'user_id': i[0].id,
-            'user_email': i[0].email,
+            'user_username': i[0].username,
             'user_firstname': i[0].firstname,
             'user_middlename': i[0].middlename,
             'user_lastname': i[0].lastname,
@@ -56,23 +59,23 @@ class VerifiedUsers(db.Model):
     
     @classmethod
     def get_all_unverified_users(cls):
-        #fetch all rows from <Users> table 
-        # IF email 
+        # fetch all rows from <Users> table 
+        # IF username 
         # NOT registered in <VerifiedUsers> table
         verified_alias = aliased(cls)
 
         # Perform the query
         query = db.session.query(Users).outerjoin(
-            verified_alias, Users.email == verified_alias.user_email
+            verified_alias, Users.username == verified_alias.user_username
         ).filter(
-            verified_alias.user_email == None
+            verified_alias.user_username == None
         ).all()
 
         # Format the results
         users = [{
             'status': 'unverified',
             'user_id': i.id,
-            'user_email': i.email,
+            'user_username': i.username,
             'user_firstname': i.firstname,
             'user_middlename': i.middlename,
             'user_lastname': i.lastname,
@@ -82,6 +85,6 @@ class VerifiedUsers(db.Model):
         return users
 
     @classmethod
-    def get_verified_user_by_email(cls, email:str):
-        return cls.query.filter_by(user_email=email).first()
+    def get_verified_user_by_username(cls, username:str):
+        return cls.query.filter_by(user_username=username).first()
     
