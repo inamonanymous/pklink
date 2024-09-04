@@ -90,13 +90,11 @@ class UserRegistration(Resource):
         return {"message": "registration success"}, 201
 
 class RegisteredVillages(Resource):
-    @require_user_session
     def get(self):
         data = Villages.get_all_villages()
         return data, 200
     
 class RegisteredBrgyStreets(Resource):
-    @require_user_session
     def get(self):
         data = BrgyStreets.get_all_streets()
         return data, 200
