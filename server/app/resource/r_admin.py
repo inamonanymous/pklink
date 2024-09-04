@@ -7,7 +7,7 @@ class UnverifiedUserData(Resource):
     @require_user_session
     #GET request for fetching all <Unverified Users>
     def get(self):
-        users = VerifiedUsers.get_all_unverified_users()
+        users = VerifiedUsers.get_all_unverified_users_data()
         return users
 
 #User verification
@@ -34,6 +34,6 @@ class UserVerification(Resource):
     #GET request for fetching all <Verified Users>
     @require_user_session
     def get(self):
-        verified_users = VerifiedUsers.get_all_users_with_verification()
+        verified_users = VerifiedUsers.get_all_users_data_with_verification()
         return verified_users
     

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate  } from 'react-router-dom';
-import axios from 'axios';
 import httpClient from '../../httpClient';
 function Login() {
     const [data, setData]= useState({
@@ -14,23 +13,27 @@ function Login() {
       setData({ ...data, [name]: value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async(e) => {
       e.preventDefault();
       if (!data.req_user_username || !data.req_user_password){
         return;
       } 
+      logInUser();
     };
+
     const logInUser = async() => {
-      console.log(data.req_user_username, data.req_user_password);
 
-      const resp = await httpClient.post('/api/user/auth', data);
-      console.log(resp.data);
-
-      if (resp.status !== 200) {
-    
-        navigate('/login');
-      } else {
-        navigate('/user/dashboard');
+      try {
+        const resp = await httpClient.post('/api/user/auth', data);
+  
+        if (resp.status !== 200) {
+      
+          navigate('/login');
+        } else {
+          navigate('/user/dashboard');
+        }
+      } catch (error) {
+        alert("wrong credentials");
       }
     };
     return (
@@ -49,10 +52,8 @@ function Login() {
             placeholder="password"
             value={data.req_user_password}
             onChange={handleChange}
-          />
-
-          
-          <button onClick={() => logInUser()}>
+          />  
+          <button>
             Submit
           </button>
         </form>

@@ -55,8 +55,33 @@ class Users(db.Model):
             'user_firstname': i.firstname,
             'user_middlename': i.middlename,
             'user_lastname': i.lastname,
+            'user_suffix': i.suffix,
+            'user_gender': i.gender,
+            'user_photo_path': i.photo_path,
             'user_date_created': i.date_created.isoformat()
         } for i in query]
+
+        return users
+    
+    #fetch all rows from <Users> table
+    @classmethod
+    def get_user_by_username(cls, username):
+        query = cls.query\
+            .filter_by(username=username)\
+            .order_by(cls.lastname.asc())\
+            .first()
+        
+        users = {
+            'user_id': query.id,
+            'user_username': query.username,
+            'user_firstname': query.firstname,
+            'user_middlename': query.middlename,
+            'user_lastname': query.lastname,
+            'user_suffix': query.suffix,
+            'user_gender': query.gender,
+            'user_photo_path': query.photo_path,
+            'user_date_created': query.date_created.isoformat()
+        } 
 
         return users
     
