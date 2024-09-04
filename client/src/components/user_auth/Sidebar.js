@@ -62,9 +62,18 @@ function Sidebar() {
                     </p>
                 )}
             </h4>
-            {/* resident id */}
+            {/* resident type */}
             <h5>
-                {userInformation.user_data.resident_type_object.resident_type_name} 
+                {userInformation.user_data.resident_type_object ? (
+                    /* resident_type_object is not empty */
+                    <>
+                        {userInformation.user_data.resident_type_object.resident_type_name}
+                    </>
+                ):(
+                    <>
+                     Loading
+                    </>
+                )} 
             </h5>
             {/* location type */}
             <h5>
@@ -72,6 +81,7 @@ function Sidebar() {
             </h5>
             <ul>
                 {userInformation.user_details_data.brgy_street_obj ? (
+                /* if brgy_street_id is not empty */
                     <>
                         <li>
                             Purok: {userInformation.user_details_data.brgy_street_obj.purok}
@@ -80,10 +90,11 @@ function Sidebar() {
                             Streetname: {userInformation.user_details_data.brgy_street_obj.street_name}
                         </li>
                     </>
-                ) : userInformation.user_details_data.village_obj ? (
+                ) : userInformation.user_details_data.village_obj ? ( 
+                    /* if village_id is not empty */
                     <>
                         <li>
-                            Village / Subdivision name: {/* {userInformation.user_details_data.village_obj.village_name} */}
+                            Village / Subdivision name: {userInformation.user_details_data.village_obj.village_name} 
                         </li>
                     </>
                 ) : (
