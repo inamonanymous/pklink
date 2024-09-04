@@ -27,7 +27,6 @@ function Login() {
         const resp = await httpClient.post('/api/user/auth', data);
   
         if (resp.status !== 200) {
-      
           navigate('/login');
         } else {
           navigate('/user/dashboard');

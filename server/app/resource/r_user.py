@@ -72,6 +72,18 @@ class UserRegistration(Resource):
     post_req.add_argument("req_user_gender" , type=str, required=False, help='Lastname is required')
     post_req.add_argument("req_user_photo_path" , type=str, required=False, help='Lastname is required')
 
+    post_req.add_argument("req_user_house_number", type=str, required=False)
+    post_req.add_argument("req_user_brgy_street_id", type=str, required=False)
+    post_req.add_argument("req_user_village_id", type=str, required=False)
+    post_req.add_argument("req_user_village_street", type=str, required=False)
+    post_req.add_argument("req_user_lot_number", type=str, required=False)
+    post_req.add_argument("req_user_block_number", type=str, required=False)
+    post_req.add_argument("req_user_email_address", type=str, required=False)
+    post_req.add_argument("req_user_phone_number", type=str, required=False)
+    post_req.add_argument("req_user_phone_number2", type=str, required=False)
+    post_req.add_argument("req_user_selfie_photo_path", type=str, required=False)
+    post_req.add_argument("req_user_gov_id_photo_path", type=str, required=False)
+
     #POST request for registering account
     def post(self):
         args = self.post_req.parse_args()
@@ -87,6 +99,25 @@ class UserRegistration(Resource):
         )
         if not user_entry:
             abort(409, message="username already exists")
+
+        user_details_entry = UserDetails.insert_user_details(
+            user_username=args['req_user_username'],
+            village_id=args['req_user_village_id'],
+            brgy_street_id=args['req_user_brgy_street_id'],
+            house_number=args['req_user_house_number'],
+            lot_number=args['req_user_lot_number'],
+            block_number=args['req_user_block_number'],
+            village_street=args['req_user_village_street'],
+            email_address=args['req_user_email_address'],
+            phone_number=args['req_user_phone_number'],
+            phone_number2=args['req_user_phone_number2'],
+            selfie_photo_path=args['req_user_selfie_photo_path'],
+            gov_id_photo_path=args['req_user_gov_id_photo_path']
+        )
+
+        if not user_details_entry:
+            abort(409, message="user failed to register")
+        
         return {"message": "registration success"}, 201
 
 class RegisteredVillages(Resource):

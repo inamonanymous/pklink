@@ -39,14 +39,23 @@ function Register() {
   const [isValidEmail, setIsRegexValidEmail] = useState(false); 
   const [emailsMatch, setEmailsMatch] = useState(false);
 
+  //merge userBasicInfo and userPrivateInfo object state variable
+  const userInformationMerged = {
+    ...userBasicInfo,
+    ...userPrivateInfo
+  }
+
+
    //handle post request to registration api server
    const handleSubmit = async(e) => {
-    try {
+     console.log(userInformationMerged);
+     try {
       e.preventDefault();
-      const resp = await httpClient.post('/api/user/registration', userBasicInfo);
+      const resp = await httpClient.post('/api/user/registration', userInformationMerged);
       console.log(resp);
       if (resp.status === 409){
         alert('Username already exists');
+        return;
       } 
       if (resp.status !== 201) {
         alert('Invalid');
@@ -57,7 +66,7 @@ function Register() {
     } catch (e) {
       console.error(e);
     }
-    handleSubmit();
+
   };
 
   //populate input fields to object state variable 
@@ -238,6 +247,13 @@ function Register() {
                 <option value={2}>Local resident</option>
               </select>
 
+              <label>Enter House number</label>
+              <input 
+                  type="text"
+                  name="req_user_house_number"
+                  value={userPrivateInfo.req_user_house_number}
+                  onChange={handleInputChange}
+              />
               {isLocalResident==null ? (
                 <p>Loading...</p>
               )
@@ -249,6 +265,7 @@ function Register() {
                       type="text"
                       name="req_user_brgy_street_id"
                       onChange={handleInputChange}
+                      value={0}
                   >
                     <option>--Select Street--</option>
                     {brgyStreets.map(streets => (
@@ -258,13 +275,6 @@ function Register() {
                     ))}
                   </select>
 
-                  <label>Enter House number</label>
-                  <input 
-                      type="text"
-                      name="req_user_house_number"
-                      value={userPrivateInfo.req_user_house_number}
-                      onChange={handleInputChange}
-                  />
               </>
                 
               ):(
@@ -274,6 +284,7 @@ function Register() {
                       type="text"
                       name="req_user_village_id"
                       onChange={handleInputChange}
+                      value={0}
                   >
                     <option>--Select Village--</option>
                     {villages.map(village => (

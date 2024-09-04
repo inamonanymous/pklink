@@ -17,7 +17,7 @@ class Villages(db.Model):
             return None
         village_data = {
             'id': query.id,
-            'village_name': query.street_name,
+            'village_name': query.village_name,
             'last_modified': query.last_modified.isoformat(),
             'modified_by': query.modified_by,
         }

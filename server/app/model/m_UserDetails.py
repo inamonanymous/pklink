@@ -8,7 +8,7 @@ from app.model.m_Villages import Villages
 class UserDetails(db.Model):
     __tablename__ = 'userdetails'
     id = db.Column(db.String(32), default=get_uuid, unique=True, primary_key=True)
-    user_username = db.Column(db.String(32), db.ForeignKey('users.username'), nullable=True)
+    user_username = db.Column(db.String(32), db.ForeignKey('users.username'), nullable=False, unique=True)
     village_id = db.Column(db.String(32), db.ForeignKey('villages.id'), nullable=True)
     brgy_street_id = db.Column(db.String(32), db.ForeignKey('brgystreets.id'), nullable=True)
     house_number = db.Column(db.Integer, nullable=False)
@@ -25,7 +25,44 @@ class UserDetails(db.Model):
 
     users = db.relationship('Users', backref=db.backref('userdetails', lazy=True))
     
+    @classmethod
+    def insert_user_details(cls, 
+                            user_username,
+                            village_id, 
+                            brgy_street_id, 
+                            house_number,
+                            lot_number, 
+                            block_number, 
+                            village_street, 
+                            email_address,
+                            phone_number,
+                            phone_number2,
+                            selfie_photo_path,
+                            gov_id_photo_path
+                            ):
+        user_details_entry = cls(
+            user_username=user_username,
+            village_id=village_id,
+            brgy_street_id=brgy_street_id,
+            house_number=house_number,
+            lot_number=lot_number,
+            block_number=block_number,
+            village_street=village_street,
+            email_address=email_address.strip(),
+            phone_number=phone_number.strip(),
+            phone_number2=phone_number2,
+            selfie_photo_path=selfie_photo_path.strip(),
+            gov_id_photo_path=gov_id_photo_path.strip(),
+            last_modified=dt.datetime.now(),
+            modified_by=user_username,
+        )
+        if cls.query.filter_by(user_username=user_details_entry.user_username).first() is not None:
+            return None
+        db.session.add(user_details_entry)
+        db.session.commit()
+        return user_details_entry
 
+    #GET user details with location or village information by targeting username
     @classmethod
     def get_user_details_by_username(cls, username):
         ud_query = cls.query.filter_by(
@@ -41,8 +78,6 @@ class UserDetails(db.Model):
             location_type = 'Subdivision / Village'
         else:
             location_type = 'invalid' 
-        
-
 
         current_user_details = {
             'user_username': ud_query.user_username,
