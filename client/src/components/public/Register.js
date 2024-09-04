@@ -28,6 +28,7 @@ function Register() {
     'req_user_block_number': null,
     'req_user_village_street': null,
     'req_user_email_address': null,
+    'req_user_email_address2': null,
     'req_user_phone_number': null,
     'req_user_phone_number2': null,
     'req_user_selfie_photo_path': null,
@@ -35,6 +36,29 @@ function Register() {
   });
 
   const [isLocalResident, setIsLocalResident] = useState(null);
+  const [isValidEmail, setIsRegexValidEmail] = useState(false); 
+  const [emailsMatch, setEmailsMatch] = useState(false);
+
+   //handle post request to registration api server
+   const handleSubmit = async(e) => {
+    try {
+      e.preventDefault();
+      const resp = await httpClient.post('/api/user/registration', userBasicInfo);
+      console.log(resp);
+      if (resp.status === 409){
+        alert('Username already exists');
+      } 
+      if (resp.status !== 201) {
+        alert('Invalid');
+        return;
+      }
+      alert('User registration sent to server');
+      navigate('/');
+    } catch (e) {
+      console.error(e);
+    }
+    handleSubmit();
+  };
 
   //populate input fields to object state variable 
   const handleInputChange = (e) => {
@@ -48,6 +72,34 @@ function Register() {
       ...userPrivateInfo,
       [name]: value,
     });
+  };
+
+  const validateEmail = (email) => {
+    // Regular expression for validating email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (e) => {
+    const email = e.target.value;
+    setIsRegexValidEmail(validateEmail(email));
+    setUserPrivateInfo({ ...userPrivateInfo, req_user_email_address: email});
+    console.log(userPrivateInfo.req_user_email_address);
+    console.log('regex valid',isValidEmail);
+    console.log("value ", email);
+  }
+  
+  const handleVerificationEmailChange = (e) => {
+    const value = e.target.value;
+    
+    console.log("email1: ", userPrivateInfo.req_user_email_address);
+    console.log("value ", value);
+    setEmailsMatch(value === userPrivateInfo.req_user_email_address);
+    console.log(emailsMatch);
+    if (!emailsMatch){
+      return;
+    }
+    setUserPrivateInfo({ ...userPrivateInfo, req_user_email_address2: value })
   };
 
   //handle select input if user is local resident or villager and set object state variable location type either
@@ -102,26 +154,7 @@ function Register() {
     }
   }
 
-  //handle post request to registration api server
-  const handleSubmit = async(e) => {
-    try {
-      e.preventDefault();
-      const resp = await httpClient.post('/api/user/registration', userBasicInfo);
-      console.log(resp);
-      if (resp.status ===409){
-        alert('Username already exists');
-      } 
-      if (resp.status !== 201) {
-        alert('Invalid');
-        return;
-      }
-      alert('User registered');
-      navigate('/');
-    } catch (e) {
-      console.error(e);
-    }
-    handleSubmit();
-  };
+ 
 
   return (
     <div>
@@ -191,6 +224,8 @@ function Register() {
               />
               <label>Location type</label>
               
+
+
               <select
                 name="req_user_location_type"
                 onChange={handleLocationType}
@@ -238,7 +273,7 @@ function Register() {
                   <select 
                       type="text"
                       name="req_user_village_id"
-                      onChange={handleVillages}
+                      onChange={handleInputChange}
                   >
                     <option>--Select Village--</option>
                     {villages.map(village => (
@@ -247,9 +282,80 @@ function Register() {
                       </option>
                     ))}
                   </select>
+
+                  <label>Village Street</label>
+                  <input 
+                    type="text"
+                    name="req_user_village_street"
+                    value={userPrivateInfo.req_user_village_street}
+                    onChange={handleInputChange}
+                  />
+                  <label>Lot Number</label>
+                  <input 
+                    type="text"
+                    name="req_user_lot_number"
+                    value={userPrivateInfo.req_user_lot_number}
+                    onChange={handleInputChange}
+                  />
+                  <label>Block Number</label>
+                  <input 
+                    type="text"
+                    name="req_user_block_number"
+                    value={userPrivateInfo.req_user_block_number}
+                    onChange={handleInputChange}
+                  />
                 </>
               )}
 
+              <label>Email address</label>
+              <input 
+                type="text"
+                name="req_user_email_address"
+                value={userPrivateInfo.req_user_email_address}
+                onChange={handleEmailChange}
+              />
+
+              <label>Re-enter Email address</label>
+              <input 
+                type="text"
+                name="req_user_email_address2"
+                onChange={handleVerificationEmailChange}
+              />
+
+              <label>Phone Number</label>
+              <input 
+                type="text"
+                value={userPrivateInfo.req_user_phone_number}
+                name="req_user_phone_number"
+                onChange={handleInputChange}
+              />
+
+              <label>Phone number (optional))</label>
+              <input 
+                type="text"
+                value={userPrivateInfo.req_user_phone_number2}
+                name="req_user_phone_number2"
+                onChange={handleInputChange}
+              />
+
+              <label>Upload Selfie</label>
+              <input 
+                type="text"
+                name="req_user_selfie_photo_path"
+                value={userPrivateInfo.req_user_selfie_photo_path}
+                onChange={handleInputChange}
+              />
+
+              <label>Government ID</label>
+              <input 
+                type="text"
+                name="req_user_gov_id_photo_path"
+                value={userPrivateInfo.req_user_gov_id_photo_path}
+                onChange={handleInputChange}
+              />
+
+              {!emailsMatch && <p>Emails do not match</p>}
+              {!isValidEmail && <p>Invalid email format</p>}
               <button>
                 Submit
               </button>

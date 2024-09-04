@@ -1,6 +1,6 @@
 from app.ext import db
 from app.model import get_uuid, dt, check_password_hash, generate_password_hash
-
+from app.model.m_ResidentType import ResidentType
 class Users(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.String(32), primary_key=True, unique=True, default=get_uuid)
@@ -70,9 +70,10 @@ class Users(db.Model):
             .filter_by(username=username)\
             .order_by(cls.lastname.asc())\
             .first()
-        
+        resident_query = ResidentType.get_resident_type_by_id(query.resident_id)
         users = {
             'user_id': query.id,
+            'resident_type_object': resident_query,
             'user_username': query.username,
             'user_firstname': query.firstname,
             'user_middlename': query.middlename,

@@ -62,10 +62,11 @@ function Sidebar() {
                     </p>
                 )}
             </h4>
+            {/* resident id */}
             <h5>
-                {userInformation.user_data.resident_id} 
+                {userInformation.user_data.resident_type_object.resident_type_name} 
             </h5>
-
+            {/* location type */}
             <h5>
                 {userInformation.user_details_data.location_type}
             </h5>
