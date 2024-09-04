@@ -1,8 +1,11 @@
 from app.resource import Resource, abort, reqparse, session
-from .functions import require_user_session
+from .functions import require_user_session, get_current_user_username
 from app.model.m_Users import Users
 from app.model.m_VerifiedUsers import VerifiedUsers
 from app.model.m_Admin import Admin
+from app.model.m_UserDetails import UserDetails
+from app.model.m_BrgyStreets import BrgyStreets
+from app.model.m_Villages import Villages
 from app.ext import cross_origin
 
 #User authentication api
@@ -41,6 +44,21 @@ class UserAuth(Resource):
             "session": session.get('user_username')
         }
         return user_data, 200
+    
+    #GET request for user information
+    @require_user_session
+    def get(self):
+        current_username = get_current_user_username()
+        user = Users.get_user_by_username(current_username)
+        user_details = UserDetails.get_user_details_by_username(current_username)
+        user_and_user_details_combined = {
+            'res_user_data': user,
+            'res_user_details_data': user_details
+        }
+
+
+        return user_and_user_details_combined, 200
+
 
 #User registration
 class UserRegistration(Resource):
@@ -53,7 +71,6 @@ class UserRegistration(Resource):
     post_req.add_argument("req_user_suffix" , type=str, required=True, help='Lastname is required')
     post_req.add_argument("req_user_gender" , type=str, required=False, help='Lastname is required')
     post_req.add_argument("req_user_photo_path" , type=str, required=False, help='Lastname is required')
-
 
     #POST request for registering account
     def post(self):
@@ -72,10 +89,23 @@ class UserRegistration(Resource):
             abort(409, message="username already exists")
         return {"message": "registration success"}, 201
 
+class RegisteredVillages(Resource):
+    @require_user_session
+    def get(self):
+        data = Villages.get_all_villages()
+        return data, 200
+    
+class RegisteredBrgyStreets(Resource):
+    @require_user_session
+    def get(self):
+        data = BrgyStreets.get_all_streets()
+        return data, 200
+
 #User check session
 class CheckSession(Resource):
+    @require_user_session
     def get(self):
-        user_username = session.get('user_username', "")
+        user_username = get_current_user_username()        
         isAuth = bool()
         message = "Not logged in"
         if user_username:

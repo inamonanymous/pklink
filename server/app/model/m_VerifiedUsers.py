@@ -1,6 +1,7 @@
 from app.ext import db
 from app.model import get_uuid, dt, aliased
 from app.model.m_Users import Users
+from app.model.m_UserDetails import UserDetails
 
 class VerifiedUsers(db.Model):
     __tablename__ = 'verifiedusers'
@@ -32,24 +33,27 @@ class VerifiedUsers(db.Model):
         return user_entry
     
     @classmethod
-    def get_all_users_with_verification(cls):
+    def get_all_users_data_with_verification(cls):
         # fetch all rows from <Users> table 
         # COMBINED WITH rows inside <VerifiedUsers> table 
         # IF username registered in <VerifiedUsers> table
         query = db.session.query(
             Users,
-            cls.date_verified
+            cls.date_verified,
         ).outerjoin(
             Users, Users.username == cls.user_username
         ).order_by(Users.lastname.asc()).all()
 
         users = [{
-            'status': 'verified',
             'user_id': i[0].id,
+            'user_resident_id': i[0].resident_id,
             'user_username': i[0].username,
             'user_firstname': i[0].firstname,
             'user_middlename': i[0].middlename,
             'user_lastname': i[0].lastname,
+            'user_suffix': i[0].suffix,
+            'user_gender': i[0].gender,
+            'user_photo_path': i[0].photo_path,
             'user_date_created': i[0].date_created.isoformat(),
             'user_verified': i[1] is not None,
             'date_verified': i[1].isoformat() if i[1] else None
@@ -58,7 +62,7 @@ class VerifiedUsers(db.Model):
         return users
     
     @classmethod
-    def get_all_unverified_users(cls):
+    def get_all_unverified_users_data(cls):
         # fetch all rows from <Users> table 
         # IF username 
         # NOT registered in <VerifiedUsers> table

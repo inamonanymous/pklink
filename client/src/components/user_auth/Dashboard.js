@@ -1,15 +1,13 @@
 import ProtectedComponent from "./ProtectedComponent";
+import Sidebar from "./Sidebar";
 
 function Dashboard() {
     return (
       <ProtectedComponent>
-        <div>
-          <form>
-            <input >
-
-            </input>
-          </form>
-        </div>
+        
+        <Sidebar>
+          
+        </Sidebar>
       </ProtectedComponent>
     );
   }
