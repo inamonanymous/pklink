@@ -22,7 +22,7 @@ class ResidentType(db.Model):
     def get_resident_type_by_id(cls, id):
         query = cls.query.filter_by(id=id).first()
         if not query:
-            return {}
+            return None
         resident_data = {
             'resident_type_name': query.resident_type_name,
             'resident_manage_post': query.manage_post,

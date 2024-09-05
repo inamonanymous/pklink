@@ -56,7 +56,6 @@ class UserAuth(Resource):
             'res_user_details_data': user_details
         }
 
-
         return user_and_user_details_combined, 200
 
 
@@ -72,17 +71,17 @@ class UserRegistration(Resource):
     post_req.add_argument("req_user_gender" , type=str, required=False, help='Lastname is required')
     post_req.add_argument("req_user_photo_path" , type=str, required=False, help='Lastname is required')
 
-    post_req.add_argument("req_user_house_number", type=str, required=False)
+    post_req.add_argument("req_user_house_number", type=str, required=True)
     post_req.add_argument("req_user_brgy_street_id", type=str, required=False)
     post_req.add_argument("req_user_village_id", type=str, required=False)
     post_req.add_argument("req_user_village_street", type=str, required=False)
     post_req.add_argument("req_user_lot_number", type=str, required=False)
     post_req.add_argument("req_user_block_number", type=str, required=False)
-    post_req.add_argument("req_user_email_address", type=str, required=False)
-    post_req.add_argument("req_user_phone_number", type=str, required=False)
+    post_req.add_argument("req_user_email_address", type=str, required=True)
+    post_req.add_argument("req_user_phone_number", type=str, required=True)
     post_req.add_argument("req_user_phone_number2", type=str, required=False)
-    post_req.add_argument("req_user_selfie_photo_path", type=str, required=False)
-    post_req.add_argument("req_user_gov_id_photo_path", type=str, required=False)
+    post_req.add_argument("req_user_selfie_photo_path", type=str, required=True)
+    post_req.add_argument("req_user_gov_id_photo_path", type=str, required=True)
 
     #POST request for registering account
     def post(self):
