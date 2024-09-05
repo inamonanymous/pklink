@@ -2,6 +2,7 @@ from app.ext import db
 from app.model import get_uuid, dt, aliased
 from app.model.m_Users import Users
 from app.model.m_UserDetails import UserDetails
+from app.model.m_ResidentType import ResidentType
 
 class VerifiedUsers(db.Model):
     __tablename__ = 'verifiedusers'
@@ -40,8 +41,11 @@ class VerifiedUsers(db.Model):
         query = db.session.query(
             Users,
             cls.date_verified,
+            ResidentType.resident_type_name
         ).outerjoin(
-            Users, Users.username == cls.user_username
+            Users, VerifiedUsers.user_username == Users.username
+        ).outerjoin(
+            ResidentType, Users.resident_id == ResidentType.id
         ).order_by(Users.lastname.asc()).all()
 
         users = [{
@@ -56,9 +60,9 @@ class VerifiedUsers(db.Model):
             'user_photo_path': i[0].photo_path,
             'user_date_created': i[0].date_created.isoformat(),
             'user_verified': i[1] is not None,
-            'date_verified': i[1].isoformat() if i[1] else None
+            'date_verified': i[1].isoformat() if i[1] else None,
+            'user_resident_type': i[2]  # Added key for resident type name
         } for i in query] #index 0 = <Users> table | index 1 = <VerifiedUsers> table 
-        
         return users
     
     @classmethod
@@ -83,6 +87,10 @@ class VerifiedUsers(db.Model):
             'user_firstname': i.firstname,
             'user_middlename': i.middlename,
             'user_lastname': i.lastname,
+            'user_suffix': i.suffix,
+            'user_gender': i.gender,
+            'user_photo_path': i.photo_path,
+            'user_verified': False,
             'user_date_created': i.date_created.isoformat()
         } for i in query]
 

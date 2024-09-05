@@ -70,6 +70,8 @@ class Users(db.Model):
             .filter_by(username=username)\
             .order_by(cls.lastname.asc())\
             .first()
+        if not query:
+            return None
         resident_query = ResidentType.get_resident_type_by_id(query.resident_id)
         users = {
             'user_id': query.id,

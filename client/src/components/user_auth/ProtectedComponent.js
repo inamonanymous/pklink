@@ -21,7 +21,7 @@ const ProtectedComponent = ({ children }) => {
 
             } catch (error) {
                 console.error('Error checking session:', error);
-                //navigate('/login');A
+                navigate('/login');
             }
             if (!isAuthenticated) {
                 return <div>Loading...</div>; // Show loading state while checking authentication
@@ -31,11 +31,9 @@ const ProtectedComponent = ({ children }) => {
     }, [navigate]); // Omitting `history` here
 
     return (
-        <div>
-            {/* Protected content goes here */}
-            Welcome to the protected page!
+        <>
             {children}
-        </div>
+        </>
     );
 };
 

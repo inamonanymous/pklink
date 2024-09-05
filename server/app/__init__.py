@@ -3,7 +3,7 @@ from flask_restful import Api
 from app.config import ApplicationConfig
 from app.ext import sess, cors, db, migrate
 from app.resource.r_user import UserAuth, UserRegistration, CheckSession, RegisteredVillages, RegisteredBrgyStreets
-from app.resource.r_admin import UserVerification, UnverifiedUserData 
+from app.resource.r_partial_admin import UserVerification, UnverifiedUserData 
 from app.model.m_Admin import Admin
 from app.model.m_BrgyStreets import BrgyStreets
 from app.model.m_ResidentType import ResidentType
@@ -31,8 +31,8 @@ def create_app():
     api.add_resource(RegisteredBrgyStreets, '/api/user/brgystreets')
     api.add_resource(RegisteredVillages, '/api/user/villages')
 
-    api.add_resource(UnverifiedUserData, '/api/admin/unverified_users')
-    api.add_resource(UserVerification, '/api/admin/verify')
+    api.add_resource(UnverifiedUserData, '/api/partial_admin/unverified_users')
+    api.add_resource(UserVerification, '/api/partial_admin/verify')
 
     """ with app.app_context():
         Users, ResidentType, Admin, VerifiedUsers, BrgyStreets, Villages, UserDetails
