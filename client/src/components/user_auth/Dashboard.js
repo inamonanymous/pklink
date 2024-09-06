@@ -10,11 +10,13 @@ function Dashboard() {
   };
     return (
       <ProtectedComponent>
-        {/* user sidebar */}
-        <Sidebar onViewChange={handleViewChange} />
-        <ContentPanel currentView={currentView}/>
-
+        <>
+          <Sidebar onViewChange={handleViewChange} />
+          <ContentPanel currentView={currentView}/>
+        </>
       </ProtectedComponent>
+
+      
     );
   }
   

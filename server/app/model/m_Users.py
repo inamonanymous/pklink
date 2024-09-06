@@ -72,10 +72,9 @@ class Users(db.Model):
             .first()
         if not query:
             return None
-        resident_query = ResidentType.get_resident_type_by_id(query.resident_id)
         users = {
             'user_id': query.id,
-            'resident_type_object': resident_query,
+            'resident_id': query.resident_id,
             'user_username': query.username,
             'user_firstname': query.firstname,
             'user_middlename': query.middlename,

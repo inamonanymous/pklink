@@ -27,12 +27,17 @@ function Login() {
         const resp = await httpClient.post('/api/user/auth', data);
   
         if (resp.status !== 200) {
-          navigate('/login');
-        } else {
+          alert("wrong response status");
+          return;
+        } 
           navigate('/user/dashboard');
-        }
       } catch (error) {
-        alert("wrong credentials");
+        if (error.status===406){
+          alert("wrong credentials");
+          return;
+        }
+        alert("Internal server error");
+        return;
       }
     };
     return (

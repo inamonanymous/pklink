@@ -4,6 +4,7 @@ import httpClient from '../../httpClient';
 
 const ProtectedComponent = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -14,25 +15,37 @@ const ProtectedComponent = ({ children }) => {
                 //if response does not qualify redirect to login
                 if (resp.status !== 200 || !resp.data.is_authenticated) {
                     navigate('/login');
+                } else if(resp.status===401) {
+                    alert('user unauthorized');
+                    setIsAuthenticated(false);
+                    navigate('/login');
                 } else {
                     //if response does qualify show component
                     setIsAuthenticated(true);
                 }
 
             } catch (error) {
-                console.error('Error checking session:', error);
+                if(error.response.status && error.response.status===401){
+                    setIsAuthenticated(false);
+                    alert('session not found');
+                    navigate('/login');
+                }
+                console.error('Unexpected error checking session:', error);
                 navigate('/login');
+            } finally {
+                setIsLoading(false);
             }
-            if (!isAuthenticated) {
-                return <div>Loading...</div>; // Show loading state while checking authentication
-            }
+            
         };
         checkSession();
     }, [navigate]); // Omitting `history` here
 
+    if (isLoading) {
+        return <div>Loading...</div>; // Optionally show a loading state
+    }
     return (
         <>
-            {children}
+            {isAuthenticated ? children : null}
         </>
     );
 };
