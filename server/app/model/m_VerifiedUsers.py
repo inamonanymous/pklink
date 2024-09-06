@@ -13,6 +13,15 @@ class VerifiedUsers(db.Model):
     users = db.relationship('Users', backref=db.backref('verifiedusers', lazy=True))
 
     @classmethod
+    def delete_verified_user(cls, username) -> bool:
+        target_user = cls.get_verified_user_by_username(username)
+        if target_user is None:
+            return False
+        db.session.delete(target_user)
+        db.session.commit()
+        return True
+
+    @classmethod
     def insert_verified_user(cls, username) -> object:
         #check if that username already in <VerifiedUsers> table 
         check_v_user = cls.query.filter_by(

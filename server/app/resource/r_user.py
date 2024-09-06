@@ -1,11 +1,12 @@
 from app.resource import Resource, abort, reqparse, session
-from .functions import require_user_session, get_current_user_username
+from .functions import require_user_session, get_current_user_username, get_current_user_privilege
 from app.model.m_Users import Users
 from app.model.m_VerifiedUsers import VerifiedUsers
 from app.model.m_Admin import Admin
 from app.model.m_UserDetails import UserDetails
 from app.model.m_BrgyStreets import BrgyStreets
 from app.model.m_Villages import Villages
+from app.model.m_ResidentType import ResidentType
 from app.ext import cross_origin
 
 #User authentication api
@@ -51,9 +52,11 @@ class UserAuth(Resource):
         current_username = get_current_user_username()
         user = Users.get_user_by_username(current_username)
         user_details = UserDetails.get_user_details_by_username(current_username)
+        user_privelege = get_current_user_privilege()
         user_and_user_details_combined = {
             'res_user_data': user,
-            'res_user_details_data': user_details
+            'res_user_details_data': user_details,
+            'res_user_resident_name': user_privelege['type_name'] if user_privelege is not None else 'Verified'
         }
 
         return user_and_user_details_combined, 200

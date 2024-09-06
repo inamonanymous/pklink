@@ -48,11 +48,9 @@ function Register() {
 
    //handle post request to registration api server
    const handleSubmit = async(e) => {
-     console.log(userInformationMerged);
      try {
       e.preventDefault();
       const resp = await httpClient.post('/api/user/registration', userInformationMerged);
-      console.log(resp);
       if (resp.status === 409){
         alert('Username already exists');
         return;
@@ -72,7 +70,6 @@ function Register() {
   //populate input fields to object state variable 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
     setUserBasicInfo({
       ...userBasicInfo,
       [name]: value,
@@ -93,18 +90,11 @@ function Register() {
     const email = e.target.value;
     setIsRegexValidEmail(validateEmail(email));
     setUserPrivateInfo({ ...userPrivateInfo, req_user_email_address: email});
-    console.log(userPrivateInfo.req_user_email_address);
-    console.log('regex valid',isValidEmail);
-    console.log("value ", email);
   }
   
   const handleVerificationEmailChange = (e) => {
     const value = e.target.value;
-    
-    console.log("email1: ", userPrivateInfo.req_user_email_address);
-    console.log("value ", value);
     setEmailsMatch(value === userPrivateInfo.req_user_email_address);
-    console.log(emailsMatch);
     if (!emailsMatch){
       return;
     }
@@ -129,7 +119,6 @@ function Register() {
     }
     handleVillages();
     handleBrgyStreets();
-    console.log(villages);
     return;
   }
 
@@ -141,9 +130,7 @@ function Register() {
         return;
       }
       setVillages(resp.data);
-      console.log(resp);
     } catch (error) {
-      console.log(error);
       console.error(error);
     }
   }
@@ -156,9 +143,7 @@ function Register() {
         return;
       }
       setBrgyStreets(resp.data);
-      console.log(resp);
     } catch (error) {
-      console.log(error);
       console.error(error);
     }
   }

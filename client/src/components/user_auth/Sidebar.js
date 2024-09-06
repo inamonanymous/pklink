@@ -12,7 +12,8 @@ function Sidebar( { onViewChange } ) {
     //user details 
     const [userInformation, setUserInformation] = useState({
         'user_data': Object(null),
-        'user_details_data': Object(null)
+        'user_details_data': Object(null),
+        'user_resident_type': String(null)
     });
 
     //user logout 
@@ -30,15 +31,25 @@ function Sidebar( { onViewChange } ) {
     //set user details from endpoint
     useEffect(() => {
         const getUserInformation = async () => {
-            const resp = await httpClient.get('/api/user/auth');
-            
-            if (resp.status !== 200) {
-                alert("error");
+            try { 
+                const resp = await httpClient.get('/api/user/auth');
+                
+                if (resp.status !== 200) {
+                    alert("error");
+                }
+                setUserInformation({
+                   'user_data': resp.data.res_user_data, 
+                   'user_details_data': resp.data.res_user_details_data,
+                   'user_resident_type': resp.data.res_user_resident_name
+                });
+            } catch (error) {
+                if (error.response.status===401){
+                    alert('session not found');
+                    return;
+                }
+                alert('internal server error');
+                return;
             }
-            setUserInformation({
-               'user_data': resp.data.res_user_data, 
-               'user_details_data': resp.data.res_user_details_data
-            });
         }
         getUserInformation();
     }, []);
@@ -67,16 +78,7 @@ function Sidebar( { onViewChange } ) {
                 </h4>
                 {/* resident type */}
                 <h5>
-                    {userInformation.user_data.resident_type_object ? (
-                        /* resident_type_object is not empty */
-                        <>
-                            {userInformation.user_data.resident_type_object.resident_type_name}
-                        </>
-                    ):(
-                        <>
-                        Loading
-                        </>
-                    )} 
+                    {userInformation.user_resident_type}
                 </h5>
                 {/* location type */}
                 <h5>
