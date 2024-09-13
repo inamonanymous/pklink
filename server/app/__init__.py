@@ -11,7 +11,6 @@ from app.model.m_UserDetails import UserDetails
 from app.model.m_Users import Users
 from app.model.m_VerifiedUsers import VerifiedUsers 
 from app.model.m_Villages import Villages
-
 def create_app():
     #create app instance
     app = Flask(__name__)
@@ -34,10 +33,9 @@ def create_app():
     api.add_resource(UnverifiedUserData, '/api/partial_admin/unverified_users')
     api.add_resource(UserVerification, '/api/partial_admin/verify')
 
-    """ with app.app_context():
+    with app.app_context():
         Users, ResidentType, Admin, VerifiedUsers, BrgyStreets, Villages, UserDetails
-        db.create_all() """
-
+        db.create_all()
 
 
     return app

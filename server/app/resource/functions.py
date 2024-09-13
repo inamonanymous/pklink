@@ -5,7 +5,8 @@ from app.model.m_VerifiedUsers import VerifiedUsers
 from app.model.m_Admin import Admin
 from app.model.m_ResidentType import ResidentType
 from functools import wraps
-
+import os
+USER_FOLDER = f"uploads/users"
 
 #decorator in routes checking user session if active
 def require_user_session(f):
