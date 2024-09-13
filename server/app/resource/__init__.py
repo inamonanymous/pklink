@@ -10,7 +10,7 @@ from app.service.s_Villages import VillagesService
 
 AS_ins = AdminService()
 BSS_ins = BrgyStreetService()
-RTS = ResidentTypeService()
+RTS_ins = ResidentTypeService()
 UDS_ins = UserDetailsService()
 US_ins = UserService()
 VUS_ins = VerifiedUsersService()
