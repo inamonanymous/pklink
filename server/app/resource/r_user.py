@@ -1,13 +1,16 @@
-from app.resource import Resource, abort, reqparse, session
+from app.resource import Resource, abort, reqparse, session, request, VUS_ins, AS_ins, US_ins, UDS_ins, VS_ins, BSS_ins
 from .functions import require_user_session, get_current_user_username, get_current_user_privilege
-from app.model.m_Users import Users
-from app.model.m_VerifiedUsers import VerifiedUsers
-from app.model.m_Admin import Admin
-from app.model.m_UserDetails import UserDetails
-from app.model.m_BrgyStreets import BrgyStreets
-from app.model.m_Villages import Villages
-from app.model.m_ResidentType import ResidentType
-from app.ext import cross_origin
+
+#--------------- Variable Values ---------------#
+""" 
+    AS_ins = <AdminService> object instance
+    BSS_ins = <BrgyStreetService> object instance
+    RTS_ins = <ResidentTypeService> object instance
+    UDS_ins = <UserDetailsService> object instance
+    US_ins = <UserService> object instance
+    VUS_ins = <VerifiedUsersService> object instance
+    VS_ins = <VillagesService> object instance
+"""
 
 #User authentication api
 class UserAuth(Resource):
@@ -24,7 +27,7 @@ class UserAuth(Resource):
     #POST request for user login
     def post(self): 
         args = self.post_req.parse_args()
-        current_user = Users.check_login(
+        current_user = US_ins.check_login(
             args['req_user_username'], 
             args['req_user_password']
         )
@@ -32,8 +35,8 @@ class UserAuth(Resource):
         if current_user is None:
             abort(406, message="Wrong credentials")
 
-        verified_users = VerifiedUsers.get_verified_user_by_username(args['req_user_username'])            
-        admin_users = Admin.get_admin_by_username(args['req_user_username'])            
+        verified_users = VUS_ins.get_verified_user_obj_by_username(args['req_user_username'])            
+        admin_users = AS_ins.get_admin_by_username(args['req_user_username'])            
         #check if user not in <Verified Table> or <Admin Table>
         if not (verified_users or admin_users):
             abort(401, message="Account not verified")
@@ -50,8 +53,8 @@ class UserAuth(Resource):
     @require_user_session
     def get(self):
         current_username = get_current_user_username()
-        user = Users.get_user_by_username(current_username)
-        user_details = UserDetails.get_user_details_by_username(current_username)
+        user = US_ins.get_user_dict_by_username(current_username)
+        user_details = UDS_ins.get_user_details_dict_by_username(current_username)
         user_privelege = get_current_user_privilege()
         user_and_user_details_combined = {
             'res_user_data': user,
@@ -64,72 +67,49 @@ class UserAuth(Resource):
 
 #User registration
 class UserRegistration(Resource):
-    post_req = reqparse.RequestParser()
-    post_req.add_argument("req_user_username" , type=str, required=True, help='username is required')
-    post_req.add_argument("req_user_password" , type=str, required=True, help='Password is required')
-    post_req.add_argument("req_user_firstname" , type=str, required=True, help='Firstname is required')
-    post_req.add_argument("req_user_middlename" , type=str, required=True, help='Middlename is required')
-    post_req.add_argument("req_user_lastname" , type=str, required=True, help='Lastname is required')
-    post_req.add_argument("req_user_suffix" , type=str, required=True, help='Lastname is required')
-    post_req.add_argument("req_user_gender" , type=str, required=False, help='Lastname is required')
-    post_req.add_argument("req_user_photo_path" , type=str, required=False, help='Lastname is required')
-
-    post_req.add_argument("req_user_house_number", type=str, required=True)
-    post_req.add_argument("req_user_brgy_street_id", type=str, required=False)
-    post_req.add_argument("req_user_village_id", type=str, required=False)
-    post_req.add_argument("req_user_village_street", type=str, required=False)
-    post_req.add_argument("req_user_lot_number", type=str, required=False)
-    post_req.add_argument("req_user_block_number", type=str, required=False)
-    post_req.add_argument("req_user_email_address", type=str, required=True)
-    post_req.add_argument("req_user_phone_number", type=str, required=True)
-    post_req.add_argument("req_user_phone_number2", type=str, required=False)
-    post_req.add_argument("req_user_selfie_photo_path", type=str, required=True)
-    post_req.add_argument("req_user_gov_id_photo_path", type=str, required=True)
 
     #POST request for registering account
     def post(self):
-        args = self.post_req.parse_args()
-        user_entry = Users.insert_user(
-            username = args['req_user_username'],
-            password = args['req_user_password'],
-            firstname = args['req_user_firstname'],
-            middlename = args['req_user_middlename'],
-            lastname = args['req_user_lastname'],
-            suffix = args['req_user_suffix'],
-            gender = args['req_user_gender'],
-            photo_path = args['req_user_photo_path']
-        )
-        if not user_entry:
-            abort(409, message="username already exists")
+        if 'req_user_selfie_photo_path' not in request.files or 'req_user_gov_id_photo_path' not in request.files:
+            return {"error": "Both selfie and government ID are required."}, 400
 
-        user_details_entry = UserDetails.insert_user_details(
-            user_username=args['req_user_username'],
-            village_id=args['req_user_village_id'],
-            brgy_street_id=args['req_user_brgy_street_id'],
-            house_number=args['req_user_house_number'],
-            lot_number=args['req_user_lot_number'],
-            block_number=args['req_user_block_number'],
-            village_street=args['req_user_village_street'],
-            email_address=args['req_user_email_address'],
-            phone_number=args['req_user_phone_number'],
-            phone_number2=args['req_user_phone_number2'],
-            selfie_photo_path=args['req_user_selfie_photo_path'],
-            gov_id_photo_path=args['req_user_gov_id_photo_path']
-        )
+        args = request.form
+        user_photo = request.files['req_user_photo_path']
+        selfie = request.files['req_user_selfie_photo_path']
+        gov_id = request.files['req_user_gov_id_photo_path']
 
-        if not user_details_entry:
-            abort(409, message="user failed to register")
-        
+        user_data = {
+            'username': args['req_user_username'],
+            'password': args['req_user_password'],
+            'firstname': args['req_user_firstname'],
+            'middlename': args['req_user_middlename'],
+            'lastname': args['req_user_lastname'],
+            'suffix': args['req_user_suffix'],
+            'gender': args['req_user_gender'],
+        }
+        details_data = {
+            'village_id': args['req_user_village_id'],
+            'brgy_street_id': args['req_user_brgy_street_id'],
+            'house_number': args['req_user_house_number'],
+            'lot_number': args['req_user_lot_number'],
+            'block_number': args['req_user_block_number'],
+            'village_street': args['req_user_village_street'],
+            'email_address': args['req_user_email_address'],
+            'phone_number': args['req_user_phone_number'],
+            'phone_number2': args['req_user_phone_number2'],
+        }
+        if not US_ins.insert_user_and_details(user_data, details_data, user_photo, selfie, gov_id):
+            return {"message": "registration unsuccessful"}, 406
         return {"message": "registration success"}, 201
 
 class RegisteredVillages(Resource):
     def get(self):
-        data = Villages.get_all_villages()
+        data = VS_ins.get_all_villages_list()
         return data, 200
     
 class RegisteredBrgyStreets(Resource):
     def get(self):
-        data = BrgyStreets.get_all_streets()
+        data = BSS_ins.get_all_streets_list_obj()
         return data, 200
 
 #User check session

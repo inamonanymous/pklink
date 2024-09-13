@@ -121,6 +121,10 @@ function Sidebar( { onViewChange } ) {
                     Manage Posts
                 </button>
 
+                <button onClick={() => {onViewChange('manage_my_account');}}>
+                    Manage My Account
+                </button>
+
                 <button onClick={handleLogoutClick}>
                     Logout
                 </button>

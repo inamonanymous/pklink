@@ -336,7 +336,7 @@ function Register() {
 
               <label>Upload Selfie</label>
               <input 
-                type="text"
+                type="file"
                 name="req_user_selfie_photo_path"
                 value={userPrivateInfo.req_user_selfie_photo_path}
                 onChange={handleInputChange}

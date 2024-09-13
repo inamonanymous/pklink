@@ -1,6 +1,6 @@
 from app.ext import db
-from app.model import get_uuid, dt, check_password_hash, generate_password_hash
-from app.model.m_ResidentType import ResidentType
+from app.model import get_uuid, dt
+
 class Users(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.String(32), primary_key=True, unique=True, default=get_uuid)
@@ -14,77 +14,3 @@ class Users(db.Model):
     gender = db.Column(db.String(255), nullable=False)
     photo_path = db.Column(db.String(255), nullable=True)
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
-
-    #verify user authentication 
-    # IF username 
-    # AND password matched a row inside <Users> table
-    @classmethod
-    def check_login(cls, username, password) -> object:
-        user = cls.query.filter_by(
-            username=username.strip()
-        ).first()
-        if not (user and check_password_hash(user.password, password.strip())):
-            return None
-        return user
-    
-    #insert user TO <Users> table
-    @classmethod
-    def insert_user(cls, username, password, firstname, middlename, lastname, suffix, gender, photo_path) -> object:
-        check_user = cls.query.filter_by(username=username).first()
-        if check_user:
-            return None
-        user_entry = cls(username=username.strip(),
-                         firstname=firstname.strip(),
-                         middlename=middlename.strip(),
-                         lastname=lastname.strip(),
-                         suffix=suffix.strip(),
-                         gender=gender.strip(),
-                         photo_path=photo_path.strip(),
-                         password=generate_password_hash(password.strip()))
-        db.session.add(user_entry)
-        db.session.commit()
-        return user_entry
-    
-    #fetch all rows from <Users> table
-    @classmethod
-    def get_all_user(cls):
-        query = cls.query.order_by(cls.lastname.asc()).all()
-        users = [{
-            'user_id': i.id,
-            'user_username': i.username,
-            'user_firstname': i.firstname,
-            'user_middlename': i.middlename,
-            'user_lastname': i.lastname,
-            'user_suffix': i.suffix,
-            'user_gender': i.gender,
-            'user_photo_path': i.photo_path,
-            'user_date_created': i.date_created.isoformat()
-        } for i in query]
-
-        return users
-    
-    #fetch all rows from <Users> table
-    @classmethod
-    def get_user_by_username(cls, username):
-        query = cls.query\
-            .filter_by(username=username)\
-            .order_by(cls.lastname.asc())\
-            .first()
-        if not query:
-            return None
-        users = {
-            'user_id': query.id,
-            'resident_id': query.resident_id,
-            'user_username': query.username,
-            'user_firstname': query.firstname,
-            'user_middlename': query.middlename,
-            'user_lastname': query.lastname,
-            'user_suffix': query.suffix,
-            'user_gender': query.gender,
-            'user_photo_path': query.photo_path,
-            'user_date_created': query.date_created.isoformat()
-        } 
-
-        return users
-    
-    

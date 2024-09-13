@@ -28,7 +28,7 @@ function ManageAccounts() {
                     return;
                 }
                 resp = await httpClient.get('/api/partial_admin/verify');
-                if (resp.status !== 200) {                    
+                 if (resp.status !== 200) {                    
                     return;
                 }
                 setAllUsers(resp.data);

@@ -1,5 +1,17 @@
 from flask_restful import Resource, abort, reqparse
 from flask import session , jsonify, request
+from app.service.s_Admin import AdminService
+from app.service.s_BrgyStreet import BrgyStreetService
+from app.service.s_ResidentType import ResidentTypeService
+from app.service.s_UserDetails import UserDetailsService
+from app.service.s_Users import UserService 
+from app.service.s_VerifiedUsers import VerifiedUsersService
+from app.service.s_Villages import VillagesService
 
-_ADMIN=1024
-_VERIFIED=1
+AS_ins = AdminService()
+BSS_ins = BrgyStreetService()
+RTS = ResidentTypeService()
+UDS_ins = UserDetailsService()
+US_ins = UserService()
+VUS_ins = VerifiedUsersService()
+VS_ins = VillagesService()

@@ -1,15 +1,19 @@
-from app.resource import Resource, abort, reqparse, request
-from app.model.m_Users import Users
-from app.model.m_VerifiedUsers import VerifiedUsers
-from app.model.m_UserDetails import UserDetails
-from app.model.m_Admin import Admin
+from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins
 from .functions import require_user_session, get_current_user_privilege
+
+#--------------- Variable Values ---------------#
+""" 
+    VUS_ins = <VerifiedUsersService> object instance
+    AS_ins = <AdminService> object instance
+    US_ins = <UserService> object instance
+    UDS_ins = <UserDetailsService> object instance
+"""
 
 class UnverifiedUserData(Resource):
     @require_user_session
     #GET request for fetching all <Unverified Users>
     def get(self):
-        users = VerifiedUsers.get_all_unverified_users_data()
+        users = VUS_ins.get_all_unverified_users_list_obj()
         return users
 
 #User verification
@@ -27,9 +31,9 @@ class UserVerification(Resource):
         if not current_user_privelege['control_accounts']:
             abort(401, message="current user not allowed")    
         user_username = request.args.get('req_user_username')
-        if Admin.get_admin_by_username(user_username):
+        if AS_ins.get_admin_by_username(user_username):
             abort(409, message="target user is listead as admin")    
-        if not VerifiedUsers.delete_verified_user(user_username):
+        if not VUS_ins.delete_verified_user(user_username):
             abort(404, message="target user not found")    
         return {"message": "deleting verified user success"}, 201
 
@@ -43,7 +47,7 @@ class UserVerification(Resource):
             abort(401, message="current user not allowed") 
         args = self.post_req.parse_args()
         user_username = args['req_user_username']
-        user_entry = VerifiedUsers.insert_verified_user(user_username)
+        user_entry = VUS_ins.insert_verified_user(user_username)
         if user_entry is None:
             abort(409, message="It's either user already verified or username is unknown")
         return {"message": "verification success"}, 201
@@ -57,10 +61,10 @@ class UserVerification(Resource):
         if not current_user_privelege['view_accounts']:
             abort(401, message="current user not allowed") 
 
-        verified_users = VerifiedUsers.get_all_users_data_with_verification()
+        verified_users = VUS_ins.get_all_verified_users_list_obj()
         return verified_users
     
-    #PATCH request for individually fetching user information
+    #PATCH request for individually fetching user information by username
     @require_user_session
     def patch(self):
         current_user_privelege = get_current_user_privilege()
@@ -70,10 +74,10 @@ class UserVerification(Resource):
             abort(401, message="current user not allowed") 
         args = self.post_req.parse_args()
         user_username = args['req_user_username']
-        user = Users.get_user_by_username(user_username)
+        user = US_ins.get_user_dict_by_username(user_username)
         if user is None:
             return {"message": "invalid! no user found"}, 404
-        user_details = UserDetails.get_user_details_by_username(user_username)
+        user_details = UDS_ins.get_user_details_dict_by_username(user_username)
         if user_details is None:
             return {"message": "invalid! no userdetails found"}, 404
         user_details.pop('user_username')
