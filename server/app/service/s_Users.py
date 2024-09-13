@@ -1,7 +1,7 @@
 from app.service import check_password_hash, generate_password_hash, db, abort
 from app.model.m_Users import Users
 from app.model.m_UserDetails import UserDetails
-from app.service.functions import get_image_registration_path, create_user_directory, save_user_registration_image
+from app.service.functions import get_image_registration_path, create_user_directory, save_user_registration_image, check_if_local
 
 class UserService:
     #verify user authentication 
@@ -18,6 +18,8 @@ class UserService:
     #insert data to user table with userdetails table
     def insert_user_and_details(self, user_data, details_data, user_photo, selfie, gov_id) -> bool:
         if not (selfie and gov_id):
+            return False
+        if not (details_data['brgy_street_id'] or details_data['village_id']):
             return False
         try:
             with db.session.begin_nested():
@@ -37,21 +39,26 @@ class UserService:
                 #entry object for user details
                 user_details_entry = UserDetails(
                     user_id = user_entry.id,
-                    village_id = details_data['village_id'],
-                    brgy_street_id = details_data['brgy_street_id'],
                     house_number = details_data['house_number'],
-                    lot_number = details_data['lot_number'],
-                    block_number = details_data['block_number'],
-                    village_street = details_data['village_street'],
                     email_address = details_data['email_address'],
                     phone_number = details_data['phone_number'],
                     phone_number2 = details_data['phone_number2'],
                     modified_by = user_entry.id
                 )
 
+                is_local = check_if_local(details_data['brgy_street_id'], details_data['village_id'])
+
+                if not is_local:
+                    user_details_entry.village_id = details_data['village_id'] 
+                    user_details_entry.lot_number = details_data['lot_number']
+                    user_details_entry.block_number = details_data['block_number']
+                    user_details_entry.village_street = details_data['village_street']
+                else:   
+                    user_details_entry.brgy_street_id = details_data['brgy_street_id'] 
+
                 db.session.add(user_details_entry)
                 db.session.flush()
-
+                
                 user_directory = create_user_directory(user_entry.id)
                 
                 photo_paths = get_image_registration_path(

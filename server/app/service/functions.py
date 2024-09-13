@@ -41,3 +41,9 @@ def save_user_registration_image(img, img_path):
         return True
     except:
         return False
+    
+def check_if_local(brgy_street_id, village_id):
+    if brgy_street_id:
+        return True
+    if village_id:
+        return False
