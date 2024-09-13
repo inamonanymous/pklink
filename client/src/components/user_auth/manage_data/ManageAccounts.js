@@ -41,8 +41,10 @@ function ManageAccounts() {
             }
         }
         fetchUserData();
+        
     }, [isVerifiedChecked]);
-    
+    console.log("all users: ", allUsers);
+    console.log("filtered users: ", filteredUsers);
     //radio button checker fetching verified or not verified users
     const handleIsVerifiedChange = (event) => {
         setIsVerifiedChecked(event.target.checked);
@@ -77,9 +79,9 @@ function ManageAccounts() {
         }
         setLoading(true);
         try {
-            const username = e.currentTarget.getAttribute('data-value');
+            const id = e.currentTarget.getAttribute('data-value');
             const resp = await httpClient.delete('/api/partial_admin/verify', {
-                    params: { req_user_username: username }
+                    params: { req_user_id: id }
                 });
             if (resp.status !== 201){
                 return;
@@ -119,7 +121,7 @@ function ManageAccounts() {
         setLoading(true);
         try {
             const resp = await httpClient.put('/api/partial_admin/verify', {
-                    "req_user_username": e.currentTarget.getAttribute('data-value')
+                    "req_user_id": e.currentTarget.getAttribute('data-value')
                 });
             if (resp.status !== 201){
                 return;
@@ -142,9 +144,10 @@ function ManageAccounts() {
         e.preventDefault();
         setLoading(true);
         try {
-            const resp = await httpClient.patch('/api/partial_admin/verify', {
+            const data = {
                 "req_user_username": e.currentTarget.getAttribute('data-value')
-            })
+            }
+            const resp = await httpClient.patch('/api/partial_admin/verify', data)
             setShowUserDetails(true);
             setIndividualUserInformation(resp.data);
         } catch (error) {
@@ -237,7 +240,7 @@ function ManageAccounts() {
                             ) : (
                                 <button  
                                     onClick={handleVerifyButton}
-                                    data-value={individualUserInformation.user_username}
+                                    data-value={individualUserInformation.user_id}
                                 >Verify</button>
                                 )}
                         </div>
@@ -276,7 +279,7 @@ function ManageAccounts() {
                             ) : (
                                 <button  
                                     onClick={handleRemoveFromVerified}
-                                    data-value={individualUserInformation.user_username}
+                                    data-value={individualUserInformation.user_id}
                                 >Remove</button>
                                 )}
                         </div>

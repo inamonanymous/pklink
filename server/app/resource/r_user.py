@@ -35,8 +35,8 @@ class UserAuth(Resource):
         if current_user is None:
             abort(406, message="Wrong credentials")
 
-        verified_users = VUS_ins.get_verified_user_obj_by_username(args['req_user_username'])            
-        admin_users = AS_ins.get_admin_by_username(args['req_user_username'])            
+        verified_users = VUS_ins.get_verified_user_obj_by_user_id(current_user.id)            
+        admin_users = AS_ins.get_admin_by_user_id(current_user.id)            
         #check if user not in <Verified Table> or <Admin Table>
         if not (verified_users or admin_users):
             abort(401, message="Account not verified")
@@ -54,7 +54,7 @@ class UserAuth(Resource):
     def get(self):
         current_username = get_current_user_username()
         user = US_ins.get_user_dict_by_username(current_username)
-        user_details = UDS_ins.get_user_details_dict_by_username(current_username)
+        user_details = UDS_ins.get_user_details_dict_by_user_id(user['user_id'])
         user_privelege = get_current_user_privilege()
         user_and_user_details_combined = {
             'res_user_data': user,

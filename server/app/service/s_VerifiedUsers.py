@@ -4,29 +4,29 @@ from app.model.m_VerifiedUsers import VerifiedUsers
 from app.model.m_ResidentType import ResidentType
 
 class VerifiedUsersService:
-    def delete_verified_user(self, username) -> bool:
-        target_user = VerifiedUsers.get_verified_user_by_username(username)
+    def delete_verified_user(self, user_id) -> bool:
+        target_user = self.get_verified_user_obj_by_user_id(user_id)
         if target_user is None:
             return False
         db.session.delete(target_user)
         db.session.commit()
         return True
 
-    def insert_verified_user(username) -> object:
-        #check if that username already in <VerifiedUsers> table 
+    def insert_verified_user(self, user_id) -> object:
+        #check if that user_id already in <VerifiedUsers> table 
         check_v_user = VerifiedUsers.query.filter_by(
-            user_username=username
+            user_id=user_id
         ).first() is not None
 
-        #check if that username is not in the <Users> table
+        #check if that user id is not in the <Users> table
         check_user = Users.query.filter_by(
-            username=username
+            id=user_id
         ).first() is None
 
         if check_v_user or check_user: 
             return None
         user_entry = VerifiedUsers(
-            user_username=username.strip()
+            user_id=user_id.strip()
         )
         db.session.add(user_entry)
         db.session.commit()
@@ -39,10 +39,10 @@ class VerifiedUsersService:
         # returned as list of objects [{}]
         query = db.session.query(
             Users,
-            VerifiedUsers.date_verified,
+            VerifiedUsers.date_created,
             ResidentType.resident_type_name
         ).outerjoin(
-            Users, VerifiedUsers.user_username == Users.username
+            Users, VerifiedUsers.user_id == Users.id
         ).outerjoin(
             ResidentType, Users.resident_id == ResidentType.id
         ).order_by(Users.lastname.asc()).all()
@@ -71,9 +71,9 @@ class VerifiedUsersService:
         # NOT registered in <VerifiedUsers> table
         # returned as list of objects [{}]
         query = db.session.query(Users).outerjoin(
-            VerifiedUsers, Users.username == VerifiedUsers.user_username
+            VerifiedUsers, Users.id == VerifiedUsers.user_id
         ).filter(
-            VerifiedUsers.user_username == None
+            VerifiedUsers.user_id == None
         ).all()
 
         # Format the results
@@ -94,5 +94,5 @@ class VerifiedUsersService:
         return users
 
     @classmethod
-    def get_verified_user_obj_by_username(self, username:str):
-        return VerifiedUsers.query.filter_by(user_username=username).first()
+    def get_verified_user_obj_by_user_id(self, user_id:str):
+        return VerifiedUsers.query.filter_by(user_id=user_id).first()
