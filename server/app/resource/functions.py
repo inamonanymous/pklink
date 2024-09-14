@@ -1,7 +1,5 @@
 from app.resource import abort, session, US_ins, RTS_ins, AS_ins
 from app.ext import db
-from app.service.s_Users import UserService
-from app.service.s_ResidentType import ResidentTypeService
 from functools import wraps
 USER_FOLDER = f"uploads/users"
 

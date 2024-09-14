@@ -1,8 +1,8 @@
 from app.model.m_ResidentType import ResidentType
 
 class ResidentTypeService:
-    def get_resident_type_dict_by_id(self, id):
-        query = ResidentType.query.filter_by(id=id).first()
+    def get_resident_type_dict_by_id(self, resident_id):
+        query = ResidentType.query.filter_by(id=resident_id).first()
         if not query:
             return None
         resident_data = {

@@ -11,6 +11,17 @@ from app.model.m_UserDetails import UserDetails
 from app.model.m_Users import Users
 from app.model.m_VerifiedUsers import VerifiedUsers 
 from app.model.m_Villages import Villages
+
+
+from app.model.m_EventAttendance import EventAttendance
+from app.model.m_Events import Events
+from app.model.m_FormAnswers import FormAnswers
+from app.model.m_FormFields import FormFields
+from app.model.m_FormResponses import FormResponses
+from app.model.m_Forms import Forms
+from app.model.m_PostComments import PostComments
+from app.model.m_Posts import Posts
+
 def create_app():
     #create app instance
     app = Flask(__name__)
@@ -34,7 +45,7 @@ def create_app():
     api.add_resource(UserVerification, '/api/partial_admin/verify')
 
     with app.app_context():
-        Users, ResidentType, Admin, VerifiedUsers, BrgyStreets, Villages, UserDetails
+        Users, ResidentType, Admin, VerifiedUsers, BrgyStreets, Villages, UserDetails, Events, Posts, Forms, FormAnswers, FormFields, FormResponses, PostComments
         db.create_all()
 
 
