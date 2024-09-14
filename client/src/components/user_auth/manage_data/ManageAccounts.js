@@ -44,7 +44,6 @@ function ManageAccounts() {
         
     }, [isVerifiedChecked]);
     console.log("all users: ", allUsers);
-    console.log("filtered users: ", filteredUsers);
     //radio button checker fetching verified or not verified users
     const handleIsVerifiedChange = (event) => {
         setIsVerifiedChecked(event.target.checked);
