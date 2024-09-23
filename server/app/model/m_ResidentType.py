@@ -16,5 +16,5 @@ class ResidentType(db.Model):
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
     last_modified = db.Column(db.DateTime, default=dt.datetime.now())
     modified_by = db.Column(db.String(255), nullable=False)
-
+    
     users = db.relationship('Users', backref=db.backref('residenttype'))

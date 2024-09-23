@@ -46,7 +46,13 @@ class UserService:
                     modified_by = user_entry.id
                 )
 
-                is_local = check_if_local(details_data['brgy_street_id'], details_data['village_id'])
+                # Check if local, with explicit handling for ValueError
+                try:
+                    is_local = check_if_local(details_data['brgy_street_id'], details_data['village_id'])
+                except ValueError as e:
+                    db.session.rollback()  # Rollback the transaction
+                    print(f"Error determining if local: {e}")
+                    return False
 
                 if not is_local:
                     user_details_entry.village_id = details_data['village_id'] 

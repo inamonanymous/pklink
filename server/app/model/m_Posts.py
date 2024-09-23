@@ -8,3 +8,5 @@ class Posts(db.Model):
     content = db.Column(db.String(255), nullable=False)
     created_by = db.Column(db.String(32), db.ForeignKey('verifiedusers.user_id'))
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
+
+    v_user = db.relationship('VerifiedUsers', backref=db.backref('posts', lazy=True))
