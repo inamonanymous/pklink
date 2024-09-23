@@ -10,4 +10,4 @@ class PostComments(db.Model):
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
 
     posts = db.relationship('Posts', backref=db.backref('postcomments', lazy=True))
-    user = db.relationship('Users', backref=db.backref('postcomments', lazy=True))
+    v_user = db.relationship('VerifiedUsers', backref=db.backref('formresponses', lazy=True))

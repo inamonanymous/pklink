@@ -9,4 +9,4 @@ class FormResponses(db.Model):
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
 
     form = db.relationship('FormResponses', backref=db.backref('formresponses', lazy=True))
-    user = db.relationship('Users', backref=db.backref('formresponses', lazy=True))
+    v_user = db.relationship('VerifiedUsers', backref=db.backref('formresponses', lazy=True))

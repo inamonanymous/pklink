@@ -10,5 +10,5 @@ class EventAttendance(db.Model):
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
 
     event = db.relationship('Events', backref=db.backref('eventattendance', lazy=True))
-    user = db.relationship('Events', backref=db.backref('verifiedusers.user_id', lazy=True))
+    v_user = db.relationship('VerifiedUsers', backref=db.backref('formresponses', lazy=True))
     

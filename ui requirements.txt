@@ -1,0 +1,29 @@
+HEALTH ASSISTANCE
+	requirements: 
+		2 input fields with label:
+			*request title
+			*description
+		1 button for submit
+
+
+DOCUMENT REQUEST
+	requirements:
+		1 dropdown with label:
+			*document type
+				-cedula
+				-brgy certificate
+				-brgy clearance
+		2 input fields with label:
+			*additional info
+			*description
+		1 button for submit
+		
+REPORT AN ISSUE
+	requirements:
+		2 input fields with label:
+			*description
+			*location
+		1 input field for upload picture
+		1 button for submit
+	
+	

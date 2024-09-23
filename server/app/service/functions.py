@@ -1,14 +1,50 @@
 import os
+import io
+import face_recognition 
+from PIL import Image
+import numpy as np 
+import gc
+
 USER_FOLDER = f"uploads/users"
 
 def check_image_validity(*args) -> bool:
+    """
+    Validates the uploaded images by checking their file extensions.
+
+    Args:
+        *args: Variable number of file objects (e.g., selfie, gov_id).
+    
+    Returns:
+        bool: 
+            - True if all files are valid images (with extensions '.png', '.jpg', '.jpeg').
+            - False if any file is missing or has an invalid extension.
+    """
     valid_photo_ext = ('.png', '.jpg' ,'.jpeg')
     for i in args:
         if i.filename=='' or not i.filename.lower().endswith(valid_photo_ext):
             return False
     return True
 
-def get_image_registration_path(user_dir, **kwargs):
+def get_image_registration_path(user_dir, **kwargs) -> dict:
+    """
+    Generates the file paths where the user's images will be saved (selfie, gov_id, and optionally user_photo).
+    It also checks if the provided images are valid.
+
+    Args:
+        user_dir (str): The directory where images will be stored.
+        kwargs: A dictionary containing the image files:
+            - 'selfie' (file): The selfie image.
+            - 'gov_id' (file): The government ID image.
+            - 'user_photo' (optional file): The user's profile photo, if provided.
+    
+    Returns:
+        dict: 
+            - A dictionary containing the paths to saved images:
+                - 'selfie_path' (str): Path to the selfie image.
+                - 'gov_id_path' (str): Path to the government ID image.
+                - 'user_photo_path' (str, optional): Path to the user photo, if provided.
+            - Returns an empty dictionary if images are invalid.
+    """
     user_photo = ""
     selfie = kwargs['selfie']
     gov_id = kwargs['gov_id']
@@ -28,22 +64,148 @@ def get_image_registration_path(user_dir, **kwargs):
                 'gov_id_path': gov_id_path
             }
 
-def create_user_directory(user_id):
+def create_user_directory(user_id) -> str:
+    """
+    Creates a directory for storing user-specific files if it doesn't exist.
+
+    Args:
+        user_id (int): Unique identifier for the user.
+    
+    Returns:
+        str: The path to the user's directory.
+    """
     user_directory = f"{USER_FOLDER}/user_{str(user_id)}"
     if not os.path.exists(user_directory):
         os.makedirs(user_directory)  # Create directory if it does not exist
         return user_directory
     return user_directory
 
-def save_user_registration_image(img, img_path):
+def save_user_registration_image(img, img_path) -> bool:
+    """
+    Saves an image to the specified path.
+
+    Args:
+        img (file): The image file to be saved.
+        img_path (str): The full path where the image should be saved.
+    
+    Returns:
+        bool: 
+            - True if the image is successfully saved.
+            - False if an error occurs during saving.
+    """
     try:
         img.save(img_path)
         return True
     except:
         return False
     
-def check_if_local(brgy_street_id, village_id):
+def check_if_local(brgy_street_id, village_id) -> bool:
+    """
+    Determines whether a user is local based on their barangay street or village ID.
+    
+    Args:
+        brgy_street_id (int or None): The ID of the barangay street.
+        village_id (int or None): The ID of the village.
+    
+    Returns:
+        bool:
+            - True if a barangay street ID is provided (user is local).
+            - False if only a village ID is provided (user is not local).
+    
+    Raises:
+        ValueError: If both `brgy_street_id` and `village_id` are provided, or if neither is provided.
+    """
+    # Raise an error if both or neither of the arguments are provided
+    if (brgy_street_id and village_id) or not (brgy_street_id or village_id):
+        raise ValueError("Either 'brgy_street_id' or 'village_id' must be provided, but not both.")
     if brgy_street_id:
         return True
     if village_id:
         return False
+
+import time
+def verify_face(id_photo, face_scan):
+    """
+    Verifies if the face in the provided ID photo matches the face in the provided face scan.
+
+    Args:
+        id_photo (FileStorage): The uploaded ID photo file object.
+        face_scan (FileStorage): The uploaded face scan (selfie) file object.
+
+    Returns:
+        bool:
+            - True if the face in the ID photo matches the face in the face scan.
+            - False if there is no match, no face is detected, or an error occurs.
+    """
+    start_time = time.time()
+    try:
+        # Load images directly into memory (without saving to disk)
+        id_photo_stream = io.BytesIO(id_photo.read())
+        face_scan_stream = io.BytesIO(face_scan.read()) 
+
+        # Try to open the images using Pillow and convert them to RGB
+        try:
+            id_image = Image.open(id_photo_stream).convert('RGB')
+            face_image = Image.open(face_scan_stream).convert('RGB')
+            print("Images loaded and converted successfully.")
+        except Exception as e:
+            print(f"Error loading or converting images: {e}")
+            return False  # Return False if there's an issue with loading the images
+
+        # Convert Pillow images back to numpy arrays for face_recognition
+        id_image_np = np.array(id_image)
+        face_image_np = np.array(face_image)
+
+        # Try to get face encodings from both images
+        try:
+            id_face_encodings = face_recognition.face_encodings(id_image_np)
+            face_scan_encodings = face_recognition.face_encodings(face_image_np)
+        except Exception as e:
+            print(f"Error getting face encodings: {e}")
+            return False  # Return False if there's an issue with face encoding
+
+        # Check if any face encodings were found
+        if len(id_face_encodings) == 0 or len(face_scan_encodings) == 0:
+            print('id ', len(id_face_encodings))
+            print('selfie ', len(face_scan_encodings))
+            print("No face detected in one of the images.")
+            return False  # No face found in one of the images
+
+        # Try to compare the face encodings
+        try:
+            match_results = face_recognition.compare_faces([id_face_encodings[0]], face_scan_encodings[0], tolerance=0.4)
+            print("match_results: ",match_results)
+            return match_results[0]  # Return True if they match, False otherwise
+        except Exception as e:
+            print(f"Error comparing faces: {e}")
+            return False  # Return False if there's an issue during face comparison
+
+        
+
+    except Exception as e:
+        print(f"Unexpected error occurred: {e}")
+        return False  # Catch any unexpected errors
+    
+    finally:
+        # Clean up resources to free up memory
+
+        # Close the BytesIO streams
+        id_photo_stream.close()
+        face_scan_stream.close()
+
+        # Delete objects to release memory
+        del id_image
+        del face_image
+        del id_photo_stream
+        del face_scan_stream
+        del id_image_np
+        del face_image_np
+        del id_face_encodings
+        del face_scan_encodings
+
+        # Force garbage collection to free up memory immediately
+        gc.collect()
+
+        # End the timer and print the execution time
+        end_time = time.time()
+        print(f"Time taken to execute verify_face: {end_time - start_time:.2f} seconds")
