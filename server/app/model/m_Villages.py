@@ -9,4 +9,4 @@ class Villages(db.Model):
     last_modified = db.Column(db.DateTime, default=dt.datetime.now())
     modified_by = db.Column(db.String(255), nullable=False)
 
-    userdetails = db.relationship('UserDetails', backref=db.backref('villages'))
+    

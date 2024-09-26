@@ -10,4 +10,4 @@ class BrgyStreets(db.Model):
     last_modified = db.Column(db.DateTime, default=dt.datetime.now())
     modified_by = db.Column(db.String(255), nullable=False)
 
-    usersdetails = db.relationship('UserDetails', backref=db.backref('brgystreets'))
+    

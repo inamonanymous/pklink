@@ -21,3 +21,5 @@ class UserDetails(db.Model):
     modified_by = db.Column(db.String(255), nullable=False)
 
     users = db.relationship('Users', backref=db.backref('userdetails', lazy=True))
+    villages = db.relationship('Villages', backref=db.backref('userdetails'))
+    streets = db.relationship('BrgyStreets', backref=db.backref('userdetails'))
