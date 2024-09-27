@@ -126,7 +126,7 @@ def check_if_local(brgy_street_id, village_id) -> bool:
 import time
 def verify_face(id_photo, face_scan):
     """
-    Verifies if the face in the provided ID photo matches the face in the provided face scan.
+    Verifies if the face in the provided ID photo and face scan is valid.
 
     Args:
         id_photo (FileStorage): The uploaded ID photo file object.
@@ -134,9 +134,12 @@ def verify_face(id_photo, face_scan):
 
     Returns:
         bool:
-            - True if the face in the ID photo matches the face in the face scan.
-            - False if there is no match, no face is detected, or an error occurs.
+            - True if the face in the ID photo and the face in the face scan is valid.
+            - False if there is no face is detected, or an error occurs.
     """
+    if not check_image_validity(face_scan, id_photo):
+        print('image not valid')
+        return False
     start_time = time.time()
     try:
         # Load images directly into memory (without saving to disk)
@@ -145,8 +148,8 @@ def verify_face(id_photo, face_scan):
 
         # Try to open the images using Pillow and convert them to RGB
         try:
-            id_image = Image.open(id_photo_stream).convert('RGB')
-            face_image = Image.open(face_scan_stream).convert('RGB')
+            id_image = Image.open(id_photo_stream)
+            face_image = Image.open(face_scan_stream)
             print("Images loaded and converted successfully.")
         except Exception as e:
             print(f"Error loading or converting images: {e}")
@@ -171,16 +174,8 @@ def verify_face(id_photo, face_scan):
             print("No face detected in one of the images.")
             return False  # No face found in one of the images
 
-        # Try to compare the face encodings
-        try:
-            match_results = face_recognition.compare_faces([id_face_encodings[0]], face_scan_encodings[0], tolerance=0.4)
-            print("match_results: ",match_results)
-            return match_results[0]  # Return True if they match, False otherwise
-        except Exception as e:
-            print(f"Error comparing faces: {e}")
-            return False  # Return False if there's an issue during face comparison
-
-        
+        # Return True if both images contain faces
+        return True
 
     except Exception as e:
         print(f"Unexpected error occurred: {e}")
@@ -188,21 +183,16 @@ def verify_face(id_photo, face_scan):
     
     finally:
         # Clean up resources to free up memory
-
+        
         # Close the BytesIO streams
         id_photo_stream.close()
         face_scan_stream.close()
 
-        # Delete objects to release memory
+        # Delete objects to free up memory
+        del face_scan
+        del id_photo
         del id_image
         del face_image
-        del id_photo_stream
-        del face_scan_stream
-        del id_image_np
-        del face_image_np
-        del id_face_encodings
-        del face_scan_encodings
-
         # Force garbage collection to free up memory immediately
         gc.collect()
 

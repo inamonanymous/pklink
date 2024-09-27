@@ -1,7 +1,9 @@
 from app.service import check_password_hash, generate_password_hash, db, abort
 from app.model.m_Users import Users
 from app.model.m_UserDetails import UserDetails
-from app.service.functions import get_image_registration_path, create_user_directory, save_user_registration_image, check_if_local
+from app.service.s_functions import get_image_registration_path, create_user_directory, save_user_registration_image, check_if_local
+from sqlalchemy.exc import SQLAlchemyError
+from app.service.s_functions import verify_face
 
 class UserService:
     #verify user authentication 
@@ -18,12 +20,16 @@ class UserService:
     #insert data to user table with userdetails table
     def insert_user_and_details(self, user_data, details_data, user_photo, selfie, gov_id) -> bool:
         if not (selfie and gov_id):
+            print('no pic found')
+            return False
+        if not verify_face(gov_id, selfie):
+            print('no face detected')
             return False
         if not (details_data['brgy_street_id'] or details_data['village_id']):
+            print('no location data found')
             return False
         try:
             with db.session.begin_nested():
-
                 user_entry = Users(
                     username=user_data['username'].strip(),
                     password=generate_password_hash(user_data['password'].strip()),
@@ -85,7 +91,7 @@ class UserService:
                 user_details_entry.gov_id_photo_path=photo_paths['gov_id_path']
             db.session.commit()
             return True
-        except db.SQLAlchemyError as e:
+        except SQLAlchemyError as e:
             db.session.rollback()
             print(e)
             return False

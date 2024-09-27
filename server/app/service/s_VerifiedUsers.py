@@ -47,6 +47,9 @@ class VerifiedUsersService:
             ResidentType, Users.resident_id == ResidentType.id
         ).order_by(Users.lastname.asc()).all()
 
+        if not query:
+            return []
+
         users = [{
             'user_id': i[0].id,
             'user_resident_id': i[0].resident_id,

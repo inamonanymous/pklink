@@ -9,52 +9,92 @@ function Register() {
   const [brgyStreets, setBrgyStreets] = useState([]);
 
   const [userBasicInfo, setUserBasicInfo] = useState({
-    'req_user_username': null,
-    'req_user_password': null,
-    'req_user_firstname': null,
-    'req_user_middlename': null,
-    'req_user_lastname': null,
-    'req_user_suffix': null,
-    'req_user_gender': null,
-    'req_user_photo_path': null,
+    req_user_username: '',
+    req_user_password: '',
+    req_user_firstname: '',
+    req_user_middlename: '',
+    req_user_lastname: '',
+    req_user_suffix: '',
+    req_user_gender: '',
+    req_user_photo_path: null,
   });
 
   const [userPrivateInfo, setUserPrivateInfo] = useState({
-    'req_user_location_type': null,
-    'req_user_brgy_street_id': null,
-    'req_user_village_id': null,
-    'req_user_house_number': null,
-    'req_user_lot_number': null,
-    'req_user_block_number': null,
-    'req_user_village_street': null,
-    'req_user_email_address': null,
-    'req_user_email_address2': null,
-    'req_user_phone_number': null,
-    'req_user_phone_number2': null,
-    'req_user_selfie_photo_path': null,
-    'req_user_gov_id_photo_path': null,
+    req_user_location_type: '',
+    req_user_brgy_street_id: '',
+    req_user_village_id: '',
+    req_user_house_number: '',
+    req_user_lot_number: '',
+    req_user_block_number: '',
+    req_user_village_street: '',
+    req_user_email_address: '',
+    req_user_email_address2: '',
+    req_user_phone_number: '',
+    req_user_phone_number2: '',
+    req_user_selfie_photo_path: null,
+    req_user_gov_id_photo_path: null,
   });
 
   const [isLocalResident, setIsLocalResident] = useState(null);
   const [isValidEmail, setIsRegexValidEmail] = useState(false); 
   const [emailsMatch, setEmailsMatch] = useState(false);
 
-  //merge userBasicInfo and userPrivateInfo object state variable
-  const userInformationMerged = {
-    ...userBasicInfo,
-    ...userPrivateInfo
-  }
+  const handleBrgyStreetChange = (e) => {
+    const value = e.target.value;
+    setUserPrivateInfo((prevInfo) => ({
+      ...prevInfo,
+      req_user_brgy_street_id: value,
+    }));
+    console.log("Updated Brgy Street ID:", value);
+  };
+  
+  const handleVillageChange = (e) => {
+    const value = e.target.value;
+    setUserPrivateInfo((prevInfo) => ({
+      ...prevInfo,
+      req_user_village_id: value,
+    }));
+    console.log("Updated village ID:", value);
+  };
 
+  const handleInputChange = (e) => {
+    const { name, value, type, files } = e.target;
 
-   //handle post request to registration api server
-   const handleSubmit = async(e) => {
-     try {
-      e.preventDefault();
-      const resp = await httpClient.post('/api/user/registration', userInformationMerged);
-      if (resp.status === 409){
+    if (type === 'file') {
+      setUserPrivateInfo(prevInfo => ({
+        ...prevInfo,
+        [name]: files[0],
+      }));
+    } else {
+      setUserBasicInfo(prevInfo => ({
+        ...prevInfo,
+        [name]: value,
+      }));
+      setUserPrivateInfo(prevInfo => ({
+        ...prevInfo,
+        [name]: value,
+      }));
+    }
+    console.log(userPrivateInfo);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const userInformationMerged = {
+      ...userBasicInfo,
+      ...userPrivateInfo
+    };
+
+    try {
+      const resp = await httpClient.post('/api/user/registration', userInformationMerged, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      if (resp.status === 409) {
         alert('Username already exists');
         return;
-      } 
+      }
       if (resp.status !== 201) {
         alert('Invalid');
         return;
@@ -63,25 +103,11 @@ function Register() {
       navigate('/');
     } catch (e) {
       console.error(e);
+      alert('Error during registration');
     }
-
-  };
-
-  //populate input fields to object state variable 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setUserBasicInfo({
-      ...userBasicInfo,
-      [name]: value,
-    });
-    setUserPrivateInfo({
-      ...userPrivateInfo,
-      [name]: value,
-    });
   };
 
   const validateEmail = (email) => {
-    // Regular expression for validating email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
@@ -89,276 +115,243 @@ function Register() {
   const handleEmailChange = (e) => {
     const email = e.target.value;
     setIsRegexValidEmail(validateEmail(email));
-    setUserPrivateInfo({ ...userPrivateInfo, req_user_email_address: email});
-  }
-  
+    setUserPrivateInfo(prevInfo => ({ ...prevInfo, req_user_email_address: email }));
+  };
+
   const handleVerificationEmailChange = (e) => {
     const value = e.target.value;
     setEmailsMatch(value === userPrivateInfo.req_user_email_address);
-    if (!emailsMatch){
-      return;
+    if (emailsMatch) {
+      setUserPrivateInfo(prevInfo => ({ ...prevInfo, req_user_email_address2: value }));
     }
-    setUserPrivateInfo({ ...userPrivateInfo, req_user_email_address2: value })
   };
 
-  //handle select input if user is local resident or villager and set object state variable location type either
   const handleLocationType = (e) => {
     const value = e.target.value;
-    if (value === '2') {  
-      setIsLocalResident(true);
-      setUserPrivateInfo(prevInfo => ({
-          ...prevInfo,
-          req_user_location_type: "Local Resident"  
-      }));
-    } else if (value === '1') {  
-        setIsLocalResident(false); 
-        setUserPrivateInfo(prevInfo => ({
-            ...prevInfo,
-            req_user_location_type: "Village / Subdivision" 
-        }));
-    }
-    handleVillages();
-    handleBrgyStreets();
-    return;
-  }
+    setIsLocalResident(value === '2');
+    setUserPrivateInfo(prevInfo => ({
+      ...prevInfo,
+      req_user_location_type: value === '2' ? "Local Resident" : "Village / Subdivision"
+    }));
+      handleBrgyStreets();
+      handleVillages();
+  };
 
-  //handle select input in villages
-  const handleVillages = async() => {
+  const handleVillages = async () => {
     try {
       const resp = await httpClient.get('/api/user/villages');
-      if (resp.status !== 200){
-        return;
+      if (resp.status === 200) {
+        setVillages(resp.data);
       }
-      setVillages(resp.data);
+      console.log("villages", resp.data);
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
-  //handle select input in brgy streets
-  const handleBrgyStreets = async() => {
+  const handleBrgyStreets = async () => {
     try {
       const resp = await httpClient.get('/api/user/brgystreets');
-      if (resp.status !== 200){
-        return;
+      if (resp.status === 200) {
+        setBrgyStreets(resp.data);
+        console.log("streets", resp.data);
       }
-      setBrgyStreets(resp.data);
     } catch (error) {
       console.error(error);
     }
-  }
-
- 
+  };
 
   return (
     <div>
-          <form onSubmit={handleSubmit}>
-              <label>Username</label>
-              <input 
-                  type="text"
-                  name="req_user_username"
-                  value={userBasicInfo.req_user_username}
-                  onChange={handleInputChange}
-              />
-
-              <label>Password</label>
-              <input 
-                  type="password"
-                  name="req_user_password"
-                  value={userBasicInfo.req_user_password}
-                  onChange={handleInputChange}
-              />
-
-              <label>Firstname</label>
-              <input 
-                  type="text"
-                  name="req_user_firstname"
-                  value={userBasicInfo.req_user_firstname}
-                  onChange={handleInputChange}
-              />
-
-              <label>Middlename</label>
-              <input 
-                  type="text"
-                  name="req_user_middlename"
-                  value={userBasicInfo.req_user_middlename}
-                  onChange={handleInputChange}
-              />
-
-              <label>Lastname</label>
-              <input 
-                  type="text"
-                  name="req_user_lastname"
-                  value={userBasicInfo.req_user_lastname}
-                  onChange={handleInputChange}
-              />
-
-              <label>Suffix</label>
-              <input 
-                  type="text"
-                  name="req_user_suffix"
-                  value={userBasicInfo.req_user_suffix}
-                  onChange={handleInputChange}
-              />
-
-              <label>Gender</label>
-              <input 
-                  type="text"
-                  name="req_user_gender"
-                  value={userBasicInfo.req_user_gender}
-                  onChange={handleInputChange}
-              />
-
-              <label>Photo Path</label>
-              <input 
-                  type="text"
-                  name="req_user_photo_path"
-                  value={userBasicInfo.req_user_photo_path}
-                  onChange={handleInputChange}
-              />
-              <label>Location type</label>
-              
-
-
-              <select
-                name="req_user_location_type"
-                onChange={handleLocationType}
+      <form onSubmit={handleSubmit}>
+        <label>Username</label>
+        <input
+          type="text"
+          name="req_user_username"
+          value={userBasicInfo.req_user_username}
+          onChange={handleInputChange}
+        />
+        <br />
+        <label>Password</label>
+        <input
+          type="password"
+          name="req_user_password"
+          value={userBasicInfo.req_user_password}
+          onChange={handleInputChange}
+        />
+        <br />
+        <label>Firstname</label>
+        <input
+          type="text"
+          name="req_user_firstname"
+          value={userBasicInfo.req_user_firstname}
+          onChange={handleInputChange}
+        />
+        <br />
+        <label>Middlename</label>
+        <input
+          type="text"
+          name="req_user_middlename"
+          value={userBasicInfo.req_user_middlename}
+          onChange={handleInputChange}
+        />
+        <br />
+        <label>Lastname</label>
+        <input
+          type="text"
+          name="req_user_lastname"
+          value={userBasicInfo.req_user_lastname}
+          onChange={handleInputChange}
+        />
+        <br />
+        <label>Suffix</label>
+        <input
+          type="text"
+          name="req_user_suffix"
+          value={userBasicInfo.req_user_suffix}
+          onChange={handleInputChange}
+        />
+        <br />
+        <label>Gender</label>
+        <input
+          type="text"
+          name="req_user_gender"
+          value={userBasicInfo.req_user_gender}
+          onChange={handleInputChange}
+        />
+        <br />
+        <label>Photo Path</label>
+        <input
+          type="file"
+          name="req_user_photo_path"
+          onChange={handleInputChange}
+        />
+        <br />
+        <label>Location type</label>
+        <select name="req_user_location_type" onChange={handleLocationType}>
+          <option selected disabled>--Select Location Type</option>
+          <option value={1}>Village / Subdivision</option>
+          <option value={2}>Local resident</option>
+        </select>
+        <br />
+        <label>Enter House number</label>
+        <input
+          type="text"
+          name="req_user_house_number"
+          value={userPrivateInfo.req_user_house_number}
+          onChange={handleInputChange}
+        />
+        <br />
+        {isLocalResident == null ? (
+          <p>Loading...</p>
+        ) : isLocalResident ? (
+          <>
+            <label>Select Street</label>
+            <select
+              name="req_user_brgy_street_id"
+              onChange={handleBrgyStreetChange}
+              value={userPrivateInfo.req_user_brgy_street_id || ""}
+            >
+              <option selected>--Select Location Type</option>
+              {brgyStreets.map(street => (
+                <option key={street.id} value={street.id}>
+                  {street.street_name}
+                </option>
+              ))}
+            </select>
+          </>
+        ) : (
+          <>
+            <label>Select Village</label>
+            <select
+              name="req_user_village_id"
+              onChange={handleVillageChange}
+              value={userPrivateInfo.req_user_village_id || ""}
               >
-                <option 
-                  selected
-                  disabled
-                >--Select Location Type</option>
-                <option value={1}>Village / Subdivision</option>
-                <option value={2}>Local resident</option>
-              </select>
-
-              <label>Enter House number</label>
-              <input 
-                  type="text"
-                  name="req_user_house_number"
-                  value={userPrivateInfo.req_user_house_number}
-                  onChange={handleInputChange}
-              />
-              {isLocalResident==null ? (
-                <p>Loading...</p>
-              )
-              :
-              isLocalResident==true ? (
-              <>
-                  <label>Select Street</label>
-                  <select 
-                      type="text"
-                      name="req_user_brgy_street_id"
-                      onChange={handleInputChange}
-                      value={0}
-                  >
-                    <option>--Select Street--</option>
-                    {brgyStreets.map(streets => (
-                      <option key={streets.id} value={streets.id}>
-                          {streets.street_name} {/* Adjust properties based on your API response */}
-                      </option>
-                    ))}
-                  </select>
-
-              </>
-                
-              ):(
-                <>
-                  <label>Select Village</label>
-                  <select 
-                      type="text"
-                      name="req_user_village_id"
-                      onChange={handleInputChange}
-                      value={0}
-                  >
-                    <option>--Select Village--</option>
-                    {villages.map(village => (
-                      <option key={village.id} value={village.id}>
-                          {village.village_name} {/* Adjust properties based on your API response */}
-                      </option>
-                    ))}
-                  </select>
-
-                  <label>Village Street</label>
-                  <input 
-                    type="text"
-                    name="req_user_village_street"
-                    value={userPrivateInfo.req_user_village_street}
-                    onChange={handleInputChange}
-                  />
-                  <label>Lot Number</label>
-                  <input 
-                    type="text"
-                    name="req_user_lot_number"
-                    value={userPrivateInfo.req_user_lot_number}
-                    onChange={handleInputChange}
-                  />
-                  <label>Block Number</label>
-                  <input 
-                    type="text"
-                    name="req_user_block_number"
-                    value={userPrivateInfo.req_user_block_number}
-                    onChange={handleInputChange}
-                  />
-                </>
-              )}
-
-              <label>Email address</label>
-              <input 
-                type="text"
-                name="req_user_email_address"
-                value={userPrivateInfo.req_user_email_address}
-                onChange={handleEmailChange}
-              />
-
-              <label>Re-enter Email address</label>
-              <input 
-                type="text"
-                name="req_user_email_address2"
-                onChange={handleVerificationEmailChange}
-              />
-
-              <label>Phone Number</label>
-              <input 
-                type="text"
-                value={userPrivateInfo.req_user_phone_number}
-                name="req_user_phone_number"
-                onChange={handleInputChange}
-              />
-
-              <label>Phone number (optional))</label>
-              <input 
-                type="text"
-                value={userPrivateInfo.req_user_phone_number2}
-                name="req_user_phone_number2"
-                onChange={handleInputChange}
-              />
-
-              <label>Upload Selfie</label>
-              <input 
-                type="file"
-                name="req_user_selfie_photo_path"
-                value={userPrivateInfo.req_user_selfie_photo_path}
-                onChange={handleInputChange}
-              />
-
-              <label>Government ID</label>
-              <input 
-                type="text"
-                name="req_user_gov_id_photo_path"
-                value={userPrivateInfo.req_user_gov_id_photo_path}
-                onChange={handleInputChange}
-              />
-
-              {!emailsMatch && <p>Emails do not match</p>}
-              {!isValidEmail && <p>Invalid email format</p>}
-              <button>
-                Submit
-              </button>
-          </form>
-      </div>
+              <option>--Select Village--</option>
+              {villages.map(village => (
+                <option key={village.id} value={village.id}>
+                  {village.village_name}
+                </option>
+              ))}
+            </select>
+            <br />
+            <label>Village Street</label>
+            <input
+              type="text"
+              name="req_user_village_street"
+              onChange={handleInputChange}
+            />
+            <br />
+            <label>Lot Number</label>
+            <input
+              type="text"
+              name="req_user_lot_number"
+              value={userPrivateInfo.req_user_lot_number}
+              onChange={handleInputChange}
+            />
+            <br />
+            <label>Block Number</label>
+            <input
+              type="text"
+              name="req_user_block_number"
+              value={userPrivateInfo.req_user_block_number}
+              onChange={handleInputChange}
+            />
+          </>
+        )}
+        <br />
+        <label>Email address</label>
+        <input
+          type="text"
+          name="req_user_email_address"
+          value={userPrivateInfo.req_user_email_address}
+          onChange={handleEmailChange}
+        />
+        <br />
+        <label>Re-enter Email address</label>
+        <input
+          type="text"
+          name="req_user_email_address2"
+          onChange={handleVerificationEmailChange}
+        />
+        <br />
+        <label>Phone Number</label>
+        <input
+          type="text"
+          name="req_user_phone_number"
+          value={userPrivateInfo.req_user_phone_number}
+          onChange={handleInputChange}
+        />
+        <br />
+        <label>Phone Number 2</label>
+        <input
+          type="text"
+          name="req_user_phone_number2"
+          value={userPrivateInfo.req_user_phone_number2}
+          onChange={handleInputChange}
+        />
+        <br />
+        <label>Selfie Photo</label>
+        <input
+          type="file"
+          name="req_user_selfie_photo_path"
+          onChange={handleInputChange}
+        />
+        <br />
+        <label>Government ID Photo</label>
+        <input
+          type="file"
+          name="req_user_gov_id_photo_path"
+          onChange={handleInputChange}
+        />
+        <br />
+        {!emailsMatch && <p>Emails do not match</p>}
+        {!isValidEmail && <p>Invalid email format</p>}
+        <button type="submit">Register</button>
+      </form>
+    </div>
   );
 }
 
-  export default Register;
-  
+export default Register;

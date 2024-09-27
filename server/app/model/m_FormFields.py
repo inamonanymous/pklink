@@ -9,4 +9,4 @@ class FormFields(db.Model):
     field_type = db.Column(db.String(255), nullable=False)
     is_required = db.Column(db.Boolean, default=True)
 
-    forms = db.relationship('Forms', backref=db.backref('formfields', lazy=True))
+    forms = db.relationship('Forms', foreign_keys=[form_id], backref=db.backref('formfields', lazy=True))

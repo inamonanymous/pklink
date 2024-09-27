@@ -20,6 +20,6 @@ class UserDetails(db.Model):
     last_modified = db.Column(db.DateTime, default=dt.datetime.now())
     modified_by = db.Column(db.String(255), nullable=False)
 
-    users = db.relationship('Users', backref=db.backref('userdetails', lazy=True))
-    villages = db.relationship('Villages', backref=db.backref('userdetails'))
-    streets = db.relationship('BrgyStreets', backref=db.backref('userdetails'))
+    users = db.relationship('Users', foreign_keys=[user_id], backref=db.backref('userdetails', lazy=True))
+    villages = db.relationship('Villages', foreign_keys=[village_id], backref=db.backref('userdetails'))
+    streets = db.relationship('BrgyStreets', foreign_keys=[brgy_street_id], backref=db.backref('userdetails'))

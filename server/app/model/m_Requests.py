@@ -12,5 +12,5 @@ class Requests(db.Model):
     last_modified = db.Column(db.DateTime, default=dt.datetime.now())
     qr_code_path = db.Column(db.String(255))
 
-    verified_user = db.relationship('VerifiedUsers', backref=db.backref('requests'))
+    verified_user = db.relationship('VerifiedUsers', foreign_keys=[user_id], backref=db.backref('requests'))
     

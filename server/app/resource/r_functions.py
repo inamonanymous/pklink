@@ -72,7 +72,19 @@ def get_current_user_privilege() -> dict:
             'manage_post': resident_type['resident_manage_post'],
         }
     else:
-        return {}
+        user_privileges = {
+            'username': user['user_username'],
+            'resident_id': None,
+            'type_name': "Unverified Resident",
+            'view_accounts': False,
+            'control_accounts': False,
+            'add_announcement': False,
+            'manage_announcement': False,
+            'add_event': False,
+            'manage_event': False,
+            'add_post': False,
+            'manage_post': False,
+        }
     return user_privileges
 
 def get_current_user_username() -> str:

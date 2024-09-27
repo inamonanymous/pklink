@@ -10,5 +10,5 @@ class DocumentRequests(db.Model):
     resolved_at = db.Column(db.DateTime)
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
 
-    request = db.relationship('Requests', backref=db.backref('document_requests'))
+    request = db.relationship('Requests',  foreign_keys=[request_id], backref=db.backref('document_requests'))
 

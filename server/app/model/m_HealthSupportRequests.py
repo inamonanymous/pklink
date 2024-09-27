@@ -9,4 +9,4 @@ class HealthSupportRequests(db.Model):
     additional_info = db.Column(db.String(255))
     resolved_at = db.Column(db.DateTime)
 
-    request = db.relationship('Requests', backref=db.backref('health_support_requests'))
+    request = db.relationship('Requests', foreign_keys=[request_id], backref=db.backref('health_support_requests'))

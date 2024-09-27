@@ -10,5 +10,6 @@ class Incidents(db.Model):
     location = db.Column(db.String(255), nullable=False)
     photo_path = db.Column(db.String(255))
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
-    verified_user = db.relationship('VerifiedUsers', backref=db.backref('incidents'))
+
+    verified_user = db.relationship('VerifiedUsers', foreign_keys=[user_id], backref=db.backref('incidents'))
     
