@@ -14,3 +14,5 @@ class Users(db.Model):
     gender = db.Column(db.String(255), nullable=False)
     photo_path = db.Column(db.String(255), nullable=True)
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
+
+    resident = db.relationship('ResidentType', foreign_keys=[resident_id], backref=db.backref('Users', lazy=True))

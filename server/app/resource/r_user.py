@@ -1,5 +1,5 @@
 from app.resource import Resource, abort, reqparse, session, request, VUS_ins, AS_ins, US_ins, UDS_ins, VS_ins, BSS_ins
-from .functions import require_user_session, get_current_user_username, get_current_user_privilege
+from .r_functions import require_user_session, get_current_user_username, get_current_user_privilege
 
 #--------------- Variable Values ---------------#
 """ 
@@ -40,7 +40,7 @@ class UserAuth(Resource):
         #check if user not in <Verified Table> or <Admin Table>
         if not (verified_users or admin_users):
             abort(401, message="Account not verified")
-            
+        
         session['user_username'] = current_user.username
         user_data = {
             "res_user_username": current_user.username,
@@ -77,7 +77,7 @@ class UserRegistration(Resource):
         user_photo = request.files['req_user_photo_path']
         selfie = request.files['req_user_selfie_photo_path']
         gov_id = request.files['req_user_gov_id_photo_path']
-
+        print(args)
         user_data = {
             'username': args['req_user_username'],
             'password': args['req_user_password'],

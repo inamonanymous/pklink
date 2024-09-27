@@ -7,4 +7,6 @@ class VerifiedUsers(db.Model):
     user_id = db.Column(db.String(255), db.ForeignKey('users.id'), unique=True, nullable=False)
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
     verified_by = db.Column(db.String(32), db.ForeignKey('users.id'))
-    users = db.relationship('Users', backref=db.backref('verifiedusers', lazy=True))
+    
+    user = db.relationship('Users', foreign_keys=[user_id], backref=db.backref('verifiedusers', lazy=True))
+    

@@ -7,4 +7,4 @@ class Admin(db.Model):
     user_id = db.Column(db.String(255), db.ForeignKey('users.id'), unique=True, nullable=False)
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
 
-    users = db.relationship('Users', backref=db.backref('admin', lazy=True))
+    users = db.relationship('Users', foreign_keys=[user_id], backref=db.backref('admin', lazy=True))

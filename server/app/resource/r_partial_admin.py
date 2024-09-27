@@ -1,5 +1,5 @@
 from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins
-from .functions import require_user_session, get_current_user_privilege
+from .r_functions import require_user_session, get_current_user_privilege
 
 #--------------- Variable Values ---------------#
 """ 

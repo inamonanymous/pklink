@@ -9,4 +9,5 @@ class Announcements(db.Model):
     is_published = db.Column(db.Boolean)
     category = db.Column(db.String(255))
 
-    post = db.relationship('Posts', backref=db.backref('announcements'))
+    post = db.relationship('Posts',  foreign_keys=[posts_id], backref=db.backref('announcements'))
+    

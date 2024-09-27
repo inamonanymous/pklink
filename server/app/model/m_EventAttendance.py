@@ -9,6 +9,6 @@ class EventAttendance(db.Model):
     status = db.Column(db.String(255), nullable=False)
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
 
-    event = db.relationship('Events', backref=db.backref('eventattendance', lazy=True))
-    v_user = db.relationship('VerifiedUsers', backref=db.backref('formresponses', lazy=True))
+    event = db.relationship('Events', foreign_keys=[event_id], backref=db.backref('eventattendance', lazy=True))
+    v_user = db.relationship('VerifiedUsers', foreign_keys=[user_id], backref=db.backref('formresponses', lazy=True))
     
