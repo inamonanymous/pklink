@@ -53,16 +53,26 @@ function ManageAccounts() {
 
     //get data from allusers object by filtering names with search
     useEffect(() => {
-        if (Array.isArray(allUsers)) {
-          const filtered = allUsers.filter(user =>
-            user.user_lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.user_middlename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.user_firstname.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-
+        const trimmedQuery = searchQuery.trim().toLowerCase();
+      
+        if (Array.isArray(allUsers) && trimmedQuery.length > 0) {
+          // Split search query into individual words (space-separated)
+          const searchWords = trimmedQuery.split(/\s+/); // Splits by any space(s)
+      
+          const filtered = allUsers.filter(user => {
+            const fullName = `${user.user_firstname} ${user.user_middlename} ${user.user_lastname}`.toLowerCase();
+      
+            // Check if every search word is found somewhere in the full name
+            return searchWords.every(word => fullName.includes(word));
+          });
+      
           setFilteredUsers(filtered);
+        } else {
+          // Reset the filtered users if the search query is empty
+          setFilteredUsers(allUsers);
         }
-      }, [searchQuery]);
+      }, [searchQuery, allUsers]);
+      
 
     // Handle input change
     const handleSearchChange = (event) => {

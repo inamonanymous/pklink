@@ -37,6 +37,7 @@ def get_current_user_privilege() -> dict:
                 - 'username': Username of the current user.
                 - 'resident_id': ID of the resident linked to the user.
                 - 'type_name': The type of the user (either 'ADMIN' or the resident type name).
+                - 'partial_admin': Boolean flag representing the user's authentication access.
                 - 'view_accounts', 'control_accounts', 'add_announcement', etc.: Boolean flags representing the user's access rights.
             - Returns an empty dictionary if the user or resident type cannot be found
     """
@@ -56,6 +57,8 @@ def get_current_user_privilege() -> dict:
             'manage_event': True,
             'add_post': True,
             'manage_post': True,
+            'partial_admin': True,
+
         }
     elif resident_type: # If the user is a resident, assign specific privileges based on their type
         user_privileges = {
@@ -70,6 +73,7 @@ def get_current_user_privilege() -> dict:
             'manage_event': resident_type['resident_manage_event'],
             'add_post': resident_type['resident_add_post'],
             'manage_post': resident_type['resident_manage_post'],
+            'partial_admin': resident_type['resident_partial_admin'],
         }
     else:
         user_privileges = {
@@ -84,6 +88,7 @@ def get_current_user_privilege() -> dict:
             'manage_event': False,
             'add_post': False,
             'manage_post': False,
+            'partial_admin': False,
         }
     return user_privileges
 

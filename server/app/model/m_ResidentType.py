@@ -13,6 +13,7 @@ class ResidentType(db.Model):
     add_announcement = db.Column(db.Boolean, default=False)
     view_accounts = db.Column(db.Boolean, default=False)
     control_accounts = db.Column(db.Boolean, default=False)
+    partial_admin = db.Column(db.Boolean, default=False)
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
     last_modified = db.Column(db.DateTime, default=dt.datetime.now())
     modified_by = db.Column(db.String(255), nullable=False)

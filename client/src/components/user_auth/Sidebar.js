@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate  } from 'react-router-dom';
 
 //onViewChange parameter for dashboard that will change content panel 
-function Sidebar( { onViewChange } ) {
+function Sidebar( { onViewChange, priveleges } ) {
     //route navigator
     const navigate = useNavigate()
     
@@ -13,7 +13,6 @@ function Sidebar( { onViewChange } ) {
     const [userInformation, setUserInformation] = useState({
         'user_data': Object(null),
         'user_details_data': Object(null),
-        'user_resident_type': String(null)
     });
 
     //user logout 
@@ -40,8 +39,8 @@ function Sidebar( { onViewChange } ) {
                 setUserInformation({
                    'user_data': resp.data.res_user_data, 
                    'user_details_data': resp.data.res_user_details_data,
-                   'user_resident_type': resp.data.res_user_resident_name
                 });
+                console.log(priveleges);
             } catch (error) {
                 if (error.response.status===401){
                     alert('session not found');
@@ -62,7 +61,6 @@ function Sidebar( { onViewChange } ) {
 
 
     return(
-        <ProtectedComponent>
             <aside id="login-sidebar">
                 <h4>
                     {userInformation.user_data ? (
@@ -78,7 +76,7 @@ function Sidebar( { onViewChange } ) {
                 </h4>
                 {/* resident type */}
                 <h5>
-                    {userInformation.user_resident_type}
+                    {priveleges.type_name}
                 </h5>
                 {/* location type */}
                 <h5>
@@ -109,27 +107,31 @@ function Sidebar( { onViewChange } ) {
                         House no: {userInformation.user_details_data.house_number}
                     </li>
                 </ul>
-                <button onClick={() => {onViewChange('manage_accounts');}} >
-                    Manage Accounts
-                </button>
-
-                <button onClick={() => {onViewChange('manage_events');}}>
+                {priveleges?.view_accounts ? (
+                    <button onClick={() => {onViewChange('manage_accounts');}} >
+                        Manage Accounts
+                    </button>
+                ) : null}
+                {priveleges?.manage_event ? (
+                    <button onClick={() => {onViewChange('manage_event');}}>
                     Manage Events
                 </button>
-                
-                <button onClick={() => {onViewChange('manage_posts');}}>
+                ) : null}
+                {priveleges?.manage_post ? (
+                    <button onClick={() => {onViewChange('manage_posts');}}>
                     Manage Posts
                 </button>
-
+                ): null}
+                
+                
                 <button onClick={() => {onViewChange('manage_my_account');}}>
                     Manage My Account
                 </button>
-
+                
                 <button onClick={handleLogoutClick}>
                     Logout
                 </button>
             </aside>
-        </ProtectedComponent>
     );
 }
 

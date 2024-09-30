@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import httpClient from '../../httpClient';
 
 const ProtectedComponent = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userPriveleges, setUserPriveleges] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -13,20 +14,31 @@ const ProtectedComponent = ({ children }) => {
                 const resp = await httpClient.get('/api/user/check_session');
 
                 //if response does not qualify redirect to login
-                if (resp.status !== 200 || !resp.data.is_authenticated) {
-                    navigate('/login');
-                } else if(resp.status===401) {
-                    alert('user unauthorized');
-                    setIsAuthenticated(false);
+                if (resp.status !== 200) {
                     navigate('/login');
                 } else {
                     //if response does qualify show component
-                    setIsAuthenticated(true);
+                    const data = resp.data;
+                    setIsLoggedIn(true);
+                    setUserPriveleges({
+                        'username': data['username'],
+                        'resident_id': data['resident_id'],
+                        'type_name': data['type_name'],
+                        'view_accounts': data['view_accounts'],
+                        'control_accounts': data['control_accounts'],
+                        'add_announcement': data['add_announcement'],
+                        'manage_announcement': data['manage_announcement'],
+                        'add_event': data['add_event'],
+                        'manage_event': data['manage_event'],
+                        'add_post': data['add_post'],
+                        'manage_post': data['manage_post'],
+                        'partial_admin': data['partial_admin'],
+                    });
                 }
 
             } catch (error) {
-                if(error.response.status && error.response.status===401){
-                    setIsAuthenticated(false);
+                if(error.response.status===406){
+                    setIsLoggedIn(false);
                     alert('session not found');
                     navigate('/login');
                 }
@@ -43,11 +55,9 @@ const ProtectedComponent = ({ children }) => {
     if (isLoading) {
         return <div>Loading...</div>; // Optionally show a loading state
     }
-    return (
-        <>
-            {isAuthenticated ? children : null}
-        </>
-    );
+
+    
+    return isLoggedIn && typeof children === 'function' ? children(userPriveleges) : null;
 };
 
 export default ProtectedComponent;

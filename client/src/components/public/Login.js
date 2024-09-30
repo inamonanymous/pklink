@@ -26,13 +26,18 @@ function Login() {
       try {
         const resp = await httpClient.post('/api/user/auth', data);
   
-        if (resp.status !== 200) {
-          alert("wrong response status");
-          return;
-        } 
+        if (resp.status === 200) {
           navigate('/user/dashboard');
+        } 
+        else {
+          alert("wrong response status");
+        }
       } catch (error) {
         if (error.status===406){
+          alert("wrong credentials");
+          return;
+        }
+        else if (error.status===410){
           alert("wrong credentials");
           return;
         }
