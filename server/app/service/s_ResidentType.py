@@ -15,5 +15,6 @@ class ResidentTypeService:
             'resident_add_announcement': query.add_announcement,
             'resident_view_accounts': query.view_accounts,
             'resident_control_accounts': query.control_accounts,
+            'resident_partial_admin': query.partial_admin,
         }
         return resident_data

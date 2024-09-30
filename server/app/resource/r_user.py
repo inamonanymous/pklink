@@ -34,20 +34,8 @@ class UserAuth(Resource):
         #check if no user returned
         if current_user is None:
             abort(406, message="Wrong credentials")
-
-        verified_users = VUS_ins.get_verified_user_obj_by_user_id(current_user.id)            
-        admin_users = AS_ins.get_admin_by_user_id(current_user.id)            
-        #check if user not in <Verified Table> or <Admin Table>
-        if not (verified_users or admin_users):
-            abort(401, message="Account not verified")
-        
         session['user_username'] = current_user.username
-        user_data = {
-            "res_user_username": current_user.username,
-            "res_user_password": current_user.password,
-            "session": session.get('user_username')
-        }
-        return user_data, 200
+        return {"login_mode": "user"}, 200
     
     #GET request for user information
     @require_user_session
@@ -55,13 +43,10 @@ class UserAuth(Resource):
         current_username = get_current_user_username()
         user = US_ins.get_user_dict_by_username(current_username)
         user_details = UDS_ins.get_user_details_dict_by_user_id(user['user_id'])
-        user_privelege = get_current_user_privilege()
         user_and_user_details_combined = {
             'res_user_data': user,
-            'res_user_details_data': user_details,
-            'res_user_resident_name': user_privelege['type_name'] if user_privelege is not None else 'Verified'
+            'res_user_details_data': user_details
         }
-
         return user_and_user_details_combined, 200
 
 
@@ -116,16 +101,7 @@ class RegisteredBrgyStreets(Resource):
 class CheckSession(Resource):
     @require_user_session
     def get(self):
-        user_username = get_current_user_username()        
-        isAuth = bool()
-        message = "Not logged in"
-        if user_username:
-            message = "Logged in"
-            isAuth = True
-        else:
-            isAuth = False
-        data = {
-            "message": message,
-            "is_authenticated": isAuth
-        }
-        return data
+        data = get_current_user_privilege()
+        if data is None: 
+            return {"message": "not logged in"}, 406
+        return data, 200

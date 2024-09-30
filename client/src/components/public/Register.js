@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import httpClient from "../../httpClient";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +7,44 @@ function Register() {
 
   const [villages, setVillages] = useState([]);
   const [brgyStreets, setBrgyStreets] = useState([]);
+
+  useEffect(() => {
+    handleBrgyStreets();
+    handleVillages();
+  }, []);
+
+  const handleLocationType = (e) => {
+    const value = e.target.value;
+    setIsLocalResident(value === '2');
+    setUserPrivateInfo(prevInfo => ({
+      ...prevInfo,
+      req_user_location_type: value === '2' ? "Local Resident" : "Village / Subdivision"
+    }));
+  };
+
+  const handleVillages = async () => {
+    try {
+      const resp = await httpClient.get('/api/user/villages');
+      if (resp.status === 200) {
+        setVillages(resp.data);
+      }
+      console.log("villages", resp.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleBrgyStreets = async () => {
+    try {
+      const resp = await httpClient.get('/api/user/brgystreets');
+      if (resp.status === 200) {
+        setBrgyStreets(resp.data);
+        console.log("streets", resp.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const [userBasicInfo, setUserBasicInfo] = useState({
     req_user_username: '',
@@ -57,25 +95,24 @@ function Register() {
     console.log("Updated village ID:", value);
   };
 
-  const handleInputChange = (e) => {
-    const { name, value, type, files } = e.target;
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setUserPrivateInfo(prevInfo => ({
+      ...prevInfo,
+      [name]: files[0],
+    }));
+  };
 
-    if (type === 'file') {
-      setUserPrivateInfo(prevInfo => ({
-        ...prevInfo,
-        [name]: files[0],
-      }));
-    } else {
-      setUserBasicInfo(prevInfo => ({
-        ...prevInfo,
-        [name]: value,
-      }));
-      setUserPrivateInfo(prevInfo => ({
-        ...prevInfo,
-        [name]: value,
-      }));
-    }
-    console.log(userPrivateInfo);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserBasicInfo(prevInfo => ({
+      ...prevInfo,
+      [name]: value,
+    }));
+    setUserPrivateInfo(prevInfo => ({
+      ...prevInfo,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -126,40 +163,7 @@ function Register() {
     }
   };
 
-  const handleLocationType = (e) => {
-    const value = e.target.value;
-    setIsLocalResident(value === '2');
-    setUserPrivateInfo(prevInfo => ({
-      ...prevInfo,
-      req_user_location_type: value === '2' ? "Local Resident" : "Village / Subdivision"
-    }));
-      handleBrgyStreets();
-      handleVillages();
-  };
-
-  const handleVillages = async () => {
-    try {
-      const resp = await httpClient.get('/api/user/villages');
-      if (resp.status === 200) {
-        setVillages(resp.data);
-      }
-      console.log("villages", resp.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleBrgyStreets = async () => {
-    try {
-      const resp = await httpClient.get('/api/user/brgystreets');
-      if (resp.status === 200) {
-        setBrgyStreets(resp.data);
-        console.log("streets", resp.data);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+ 
 
   return (
     <div>
@@ -224,7 +228,7 @@ function Register() {
         <input
           type="file"
           name="req_user_photo_path"
-          onChange={handleInputChange}
+          onChange={handleFileChange}
         />
         <br />
         <label>Location type</label>
@@ -336,14 +340,14 @@ function Register() {
         <input
           type="file"
           name="req_user_selfie_photo_path"
-          onChange={handleInputChange}
+          onChange={handleFileChange}
         />
         <br />
         <label>Government ID Photo</label>
         <input
           type="file"
           name="req_user_gov_id_photo_path"
-          onChange={handleInputChange}
+          onChange={handleFileChange}
         />
         <br />
         {!emailsMatch && <p>Emails do not match</p>}
