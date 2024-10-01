@@ -5,15 +5,15 @@ import LandingPage from './pages/LandingPage';
 import Register from './components/public/Register';
 import Login from './components/public/Login';
 import Dashboard from './components/user_auth/Dashboard';
+import Authentication from './pages/Authentication';
 function App() {
   return (
       <>
         <Router>
             <Routes>
               <Route path="/" element={<LandingPage />} />
-              <Route path="/register" exact element={<Register />} />
-              <Route path="/login" exact element={<Login />} />
               
+              <Route path="/authentication" exact element={<Authentication isLogIn={true}/>} />
               <Route path="/user/dashboard" exact element={<Dashboard />} />
             </Routes>
         </Router>

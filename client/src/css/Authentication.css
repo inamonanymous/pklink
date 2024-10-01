@@ -1,0 +1,93 @@
+#authentication {
+    height: 100vh;
+    background: url('../img/hero_login.jpg') no-repeat;
+    background-size: cover;
+}
+
+#authentication > div {
+    max-width: 100%;
+}
+
+#authentication aside {
+    position: absolute !important;
+    right: 0;
+    height: 100vh;
+    background: white;
+}
+
+#authentication aside > div {
+    padding: 50px 50px 0;
+}
+
+#authentication aside h1 {
+    font-size: 32px;
+}
+
+#authentication aside div.imgs-con {
+    justify-content: unset;
+    gap: 0 10px;
+}
+
+#authentication aside > div > .text-con {
+    padding: 45px 0 25px;
+    color: #1A1A1A;
+}
+
+#authentication .form-con {
+    width: 360px;
+}
+
+#authentication .form-con form {
+    justify-content: center;
+    gap: 15px 0;
+}
+
+#authentication .form-con form .text-con {
+    margin-left: auto;
+}
+
+#authentication .form-con form .text-con a {
+    color: #007AFF;
+}
+
+#authentication button {
+    padding: 10px 0;
+    background: #007AFF;
+    color: white;
+    border: .5px solid #e5e5e5;
+    cursor: pointer;
+    transition: .3s;
+    width: 100%;
+    border-radius: 6px;
+}
+
+#authentication button:hover {
+    box-shadow: 0 3px 10px rgb(0 0 0);
+}
+
+#authentication .input-con {
+    color: #333333;
+    gap: 10px 0;
+}
+
+
+#authentication .input-con input {
+    padding: 15px 0 15px 15px;
+    border: none;
+    background-color: #E5E5E5;
+    border-radius: 6px;
+}
+
+#authentication .input-con input::placeholder {
+    font-size: 15px;
+    color: #808080;
+    font-family: var(--sorts-mill-font);
+}
+
+#authentication footer {
+    color: #666666;
+    position: absolute;
+    right: 50px;
+    bottom: 50px;
+}
+
