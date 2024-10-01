@@ -46,27 +46,39 @@ function Login() {
       }
     };
     return (
-      <div>
-        <form onSubmit={handleSubmit}>
-          <input 
-          type="text"
-            name="req_user_username" 
-            placeholder="email"
-            value={data.req_user_username}
-            onChange={handleChange}
-          />
-          <input
-          type="password" 
-            name="req_user_password" 
-            placeholder="password"
-            value={data.req_user_password}
-            onChange={handleChange}
-          />  
-          <button>
-            Submit
+      <>
+        <form onSubmit={handleSubmit} className='flex-col'>
+          <div className='input-con flex-col'>
+            <label for="req_user_username">Username</label>
+            <input 
+              type="text"
+              name="req_user_username" 
+              placeholder="username"
+              value={data.req_user_username}
+              onChange={handleChange}
+            />
+          </div>
+          <div className='input-con flex-col'>
+            <label for="req_user_username">Password</label>
+            <input
+              type="password" 
+              name="req_user_password" 
+              placeholder="password"
+              value={data.req_user_password}
+              onChange={handleChange}
+            />  
+          </div>
+          <div className='text-con'>
+            <a href="">Forgot password?</a>
+          </div>
+          <button 
+            className='button'
+            type='submit'>
+            Sign In
           </button>
         </form>
-      </div>
+      </>
+      
     );
   }
   

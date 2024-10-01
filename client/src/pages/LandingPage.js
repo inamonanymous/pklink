@@ -40,15 +40,11 @@ function LandingPage() {
             </nav>
 
             <div className='buttons flex'>
-              <Link to="/login">
-                  <a className='button'>
-                      Login
-                  </a>
+              <Link to="/authentication" state={{ isLoggingIn: true }} className='button'>
+                Login
               </Link>
-              <Link to="/register">
-                  <a className='button alt-2'>
-                      Register
-                  </a>
+              <Link to="/authentication" state={{ isLoggingIn: false }} className='button alt-2'>
+                Register
               </Link>
             </div>
           </div>
