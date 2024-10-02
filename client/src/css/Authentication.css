@@ -1,6 +1,6 @@
 #authentication {
     height: 100vh;
-    background: url('../img/hero_login.jpg') no-repeat;
+    background: url('../img/drone_shot.jpg') no-repeat right center;
     background-size: cover;
 }
 
@@ -13,10 +13,22 @@
     right: 0;
     height: 100vh;
     background: white;
+    transition: transform 0.5s ease-in-out;
+    box-shadow: -4px 4px 30px 5px rgba(0,0,0);
+    overflow: scroll;
+}
+
+#authentication aside.slide-in {
+    transform: translateX(0); /* Default position */
+}
+  
+#authentication aside.slide-out {
+    transform: translateX(100%); /* Slide to the right when switching */
 }
 
 #authentication aside > div {
     padding: 50px 50px 0;
+    height: calc(100% - 10%);
 }
 
 #authentication aside h1 {
@@ -35,6 +47,7 @@
 
 #authentication .form-con {
     width: 360px;
+    margin-bottom: 30px;   
 }
 
 #authentication .form-con form {
@@ -46,7 +59,12 @@
     margin-left: auto;
 }
 
-#authentication .form-con form .text-con a {
+#authentication .form-con .switcher {
+    margin-top: 10px;
+    gap: 0 10px;
+}
+
+#authentication .form-con .text-con a {
     color: #007AFF;
 }
 
@@ -86,8 +104,8 @@
 
 #authentication footer {
     color: #666666;
-    position: absolute;
-    right: 50px;
-    bottom: 50px;
+    margin-top: auto;
+    margin-left: auto;
+    width: fit-content;
 }
 

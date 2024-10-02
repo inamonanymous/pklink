@@ -80,12 +80,15 @@ class UserService:
                     gov_id=gov_id
                 )
 
-                if photo_paths['user_photo_path']:
-                    save_user_registration_image(selfie, photo_paths['selfie_path'])
+                if photo_paths['user_photo_path'] is not None:
+                    #save_user_registration_image(user_photo, photo_paths['user_photo_path'])
+                    user_photo.save(photo_paths['user_photo_path'])
                     user_entry.photo_path = photo_paths['user_photo_path']
 
-                save_user_registration_image(selfie, photo_paths['selfie_path'])
-                save_user_registration_image(gov_id, photo_paths['gov_id_path'])
+                """ save_user_registration_image(selfie, photo_paths['selfie_path'])
+                save_user_registration_image(gov_id, photo_paths['gov_id_path']) """
+                selfie.save(photo_paths['selfie_path'])
+                gov_id.save(photo_paths['gov_id_path'])
 
                 user_details_entry.selfie_photo_path=photo_paths['selfie_path']
                 user_details_entry.gov_id_photo_path=photo_paths['gov_id_path']

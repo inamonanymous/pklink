@@ -117,25 +117,58 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userInformationMerged = {
-      ...userBasicInfo,
-      ...userPrivateInfo
-    };
+  
+    // Create a FormData object to handle the file upload
+    const formData = new FormData();
+  
+    // Append basic and private info fields (without files)
+    for (const key in userBasicInfo) {
+      formData.append(key, userBasicInfo[key]);
+    }
+  
+    // Ensure optional fields are sent, even if not provided
+    if (!userBasicInfo.req_user_photo_path) {
+      formData.append('req_user_photo_path', '');  // Send empty string if no photo is uploaded
+    } else {
+      formData.append('req_user_photo_path', userBasicInfo.req_user_photo_path);
+    }
 
+    for (const key in userPrivateInfo) {
+      if (key !== 'req_user_selfie_photo_path' && key !== 'req_user_gov_id_photo_path') {
+        formData.append(key, userPrivateInfo[key]);
+      }
+    }
+  
+    // Append the files separately
+    if (userPrivateInfo.req_user_selfie_photo_path) {
+      formData.append('req_user_selfie_photo_path', userPrivateInfo.req_user_selfie_photo_path);
+    }
+    if (userPrivateInfo.req_user_gov_id_photo_path) {
+      formData.append('req_user_gov_id_photo_path', userPrivateInfo.req_user_gov_id_photo_path);
+    }
+  
+    // Log each key-value pair of the formData
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+  
     try {
-      const resp = await httpClient.post('/api/user/registration', userInformationMerged, {
+      const resp = await httpClient.post('/api/user/registration', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+  
       if (resp.status === 409) {
         alert('Username already exists');
         return;
       }
+  
       if (resp.status !== 201) {
         alert('Invalid');
         return;
       }
+  
       alert('User registration sent to server');
       navigate('/');
     } catch (e) {
@@ -143,7 +176,7 @@ function Register() {
       alert('Error during registration');
     }
   };
-
+  
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -167,89 +200,109 @@ function Register() {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <label>Username</label>
-        <input
-          type="text"
-          name="req_user_username"
-          value={userBasicInfo.req_user_username}
-          onChange={handleInputChange}
-        />
-        <br />
-        <label>Password</label>
-        <input
-          type="password"
-          name="req_user_password"
-          value={userBasicInfo.req_user_password}
-          onChange={handleInputChange}
-        />
-        <br />
-        <label>Firstname</label>
-        <input
-          type="text"
-          name="req_user_firstname"
-          value={userBasicInfo.req_user_firstname}
-          onChange={handleInputChange}
-        />
-        <br />
-        <label>Middlename</label>
-        <input
-          type="text"
-          name="req_user_middlename"
-          value={userBasicInfo.req_user_middlename}
-          onChange={handleInputChange}
-        />
-        <br />
-        <label>Lastname</label>
-        <input
-          type="text"
-          name="req_user_lastname"
-          value={userBasicInfo.req_user_lastname}
-          onChange={handleInputChange}
-        />
-        <br />
-        <label>Suffix</label>
-        <input
-          type="text"
-          name="req_user_suffix"
-          value={userBasicInfo.req_user_suffix}
-          onChange={handleInputChange}
-        />
-        <br />
-        <label>Gender</label>
-        <input
-          type="text"
-          name="req_user_gender"
-          value={userBasicInfo.req_user_gender}
-          onChange={handleInputChange}
-        />
-        <br />
-        <label>Photo Path</label>
-        <input
-          type="file"
-          name="req_user_photo_path"
-          onChange={handleFileChange}
-        />
-        <br />
-        <label>Location type</label>
-        <select name="req_user_location_type" onChange={handleLocationType}>
-          <option selected disabled>--Select Location Type</option>
-          <option value={1}>Village / Subdivision</option>
-          <option value={2}>Local resident</option>
-        </select>
-        <br />
-        <label>Enter House number</label>
-        <input
-          type="text"
-          name="req_user_house_number"
-          value={userPrivateInfo.req_user_house_number}
-          onChange={handleInputChange}
-        />
-        <br />
+      <form onSubmit={handleSubmit} className='flex-col'>
+        <div className='input-con flex-col'>
+          <label>Username</label>
+          <input
+            type="text"
+            name="req_user_username"
+            value={userBasicInfo.req_user_username}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Password</label>
+          <input
+            type="password"
+            name="req_user_password"
+            value={userBasicInfo.req_user_password}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Firstname</label>
+          <input
+            type="text"
+            name="req_user_firstname"
+            value={userBasicInfo.req_user_firstname}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Middlename</label>
+          <input
+            type="text"
+            name="req_user_middlename"
+            value={userBasicInfo.req_user_middlename}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Lastname</label>
+          <input
+            type="text"
+            name="req_user_lastname"
+            value={userBasicInfo.req_user_lastname}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Suffix</label>
+          <input
+            type="text"
+            name="req_user_suffix"
+            value={userBasicInfo.req_user_suffix}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Gender</label>
+          <input
+            type="text"
+            name="req_user_gender"
+            value={userBasicInfo.req_user_gender}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Photo Path</label>
+          <input
+            type="file"
+            name="req_user_photo_path"
+            onChange={handleFileChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Location type</label>
+          <select name="req_user_location_type" onChange={handleLocationType}>
+            <option selected disabled>--Select Location Type</option>
+            <option value={1}>Village / Subdivision</option>
+            <option value={2}>Local resident</option>
+          </select>
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Enter House number</label>
+          <input
+            type="text"
+            name="req_user_house_number"
+            value={userPrivateInfo.req_user_house_number}
+            onChange={handleInputChange}
+          />
+        </div>
+
         {isLocalResident == null ? (
           <p>Loading...</p>
         ) : isLocalResident ? (
-          <>
+          <div className='input-con flex-col'>
             <label>Select Street</label>
             <select
               name="req_user_brgy_street_id"
@@ -263,93 +316,113 @@ function Register() {
                 </option>
               ))}
             </select>
-          </>
+          </div>
         ) : (
           <>
-            <label>Select Village</label>
-            <select
-              name="req_user_village_id"
-              onChange={handleVillageChange}
-              value={userPrivateInfo.req_user_village_id || ""}
+            <div className='input-con flex-col'>
+              <label>Select Village</label>
+              <select
+                name="req_user_village_id"
+                onChange={handleVillageChange}
+                value={userPrivateInfo.req_user_village_id || ""}
               >
-              <option>--Select Village--</option>
-              {villages.map(village => (
-                <option key={village.id} value={village.id}>
-                  {village.village_name}
-                </option>
-              ))}
-            </select>
-            <br />
-            <label>Village Street</label>
-            <input
-              type="text"
-              name="req_user_village_street"
-              onChange={handleInputChange}
-            />
-            <br />
-            <label>Lot Number</label>
-            <input
-              type="text"
-              name="req_user_lot_number"
-              value={userPrivateInfo.req_user_lot_number}
-              onChange={handleInputChange}
-            />
-            <br />
-            <label>Block Number</label>
-            <input
-              type="text"
-              name="req_user_block_number"
-              value={userPrivateInfo.req_user_block_number}
-              onChange={handleInputChange}
-            />
+                <option>--Select Village--</option>
+                {villages.map(village => (
+                  <option key={village.id} value={village.id}>
+                    {village.village_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className='input-con flex-col'>
+              <label>Village Street</label>
+              <input
+                type="text"
+                name="req_user_village_street"
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className='input-con flex-col'>
+              <label>Lot Number</label>
+              <input
+                type="text"
+                name="req_user_lot_number"
+                value={userPrivateInfo.req_user_lot_number}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className='input-con flex-col'>
+              <label>Block Number</label>
+              <input
+                type="text"
+                name="req_user_block_number"
+                value={userPrivateInfo.req_user_block_number}
+                onChange={handleInputChange}
+              />
+            </div>
           </>
         )}
-        <br />
-        <label>Email address</label>
-        <input
-          type="text"
-          name="req_user_email_address"
-          value={userPrivateInfo.req_user_email_address}
-          onChange={handleEmailChange}
-        />
-        <br />
-        <label>Re-enter Email address</label>
-        <input
-          type="text"
-          name="req_user_email_address2"
-          onChange={handleVerificationEmailChange}
-        />
-        <br />
-        <label>Phone Number</label>
-        <input
-          type="text"
-          name="req_user_phone_number"
-          value={userPrivateInfo.req_user_phone_number}
-          onChange={handleInputChange}
-        />
-        <br />
-        <label>Phone Number 2</label>
-        <input
-          type="text"
-          name="req_user_phone_number2"
-          value={userPrivateInfo.req_user_phone_number2}
-          onChange={handleInputChange}
-        />
-        <br />
-        <label>Selfie Photo</label>
-        <input
-          type="file"
-          name="req_user_selfie_photo_path"
-          onChange={handleFileChange}
-        />
-        <br />
-        <label>Government ID Photo</label>
-        <input
-          type="file"
-          name="req_user_gov_id_photo_path"
-          onChange={handleFileChange}
-        />
-        <br />
+
+        <div className='input-con flex-col'>
+          <label>Email address</label>
+          <input
+            type="text"
+            name="req_user_email_address"
+            value={userPrivateInfo.req_user_email_address}
+            onChange={handleEmailChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Re-enter Email address</label>
+          <input
+            type="text"
+            name="req_user_email_address2"
+            onChange={handleVerificationEmailChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Phone Number</label>
+          <input
+            type="text"
+            name="req_user_phone_number"
+            value={userPrivateInfo.req_user_phone_number}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Phone Number 2</label>
+          <input
+            type="text"
+            name="req_user_phone_number2"
+            value={userPrivateInfo.req_user_phone_number2}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Selfie Photo</label>
+          <input
+            type="file"
+            name="req_user_selfie_photo_path"
+            onChange={handleFileChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Government ID Photo</label>
+          <input
+            type="file"
+            name="req_user_gov_id_photo_path"
+            onChange={handleFileChange}
+          />
+        </div>
+
         {!emailsMatch && <p>Emails do not match</p>}
         {!isValidEmail && <p>Invalid email format</p>}
         <button type="submit">Register</button>
