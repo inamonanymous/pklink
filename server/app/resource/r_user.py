@@ -70,7 +70,7 @@ class UserRegistration(Resource):
             'middlename': args['req_user_middlename'],
             'lastname': args['req_user_lastname'],
             'suffix': args['req_user_suffix'],
-            'gender': args['req_user_gender'],
+            'gender': args['req_user_gender']
         }
         details_data = {
             'village_id': args['req_user_village_id'],

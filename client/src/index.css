@@ -139,10 +139,6 @@ ul {
   list-style: none;
 }
 
-.text-con{
-  position: relative;
-  z-index: 1;
-}
 
 .flex {
   display: flex;
@@ -155,6 +151,15 @@ ul {
 }
 .flex-wrap {
   flex-wrap: wrap;
+}
+
+.text-con{
+  position: relative;
+  z-index: 1;
+}
+
+.form-con {
+  position: relative;
 }
 
 .img-con {

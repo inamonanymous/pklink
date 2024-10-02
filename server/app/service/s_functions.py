@@ -45,24 +45,36 @@ def get_image_registration_path(user_dir, **kwargs) -> dict:
                 - 'user_photo_path' (str, optional): Path to the user photo, if provided.
             - Returns an empty dictionary if images are invalid.
     """
-    user_photo = ""
-    selfie = kwargs['selfie']
-    gov_id = kwargs['gov_id']
+    
+    # Initialize paths
+    paths = {
+        'user_photo_path': '',
+        'selfie_path': '',
+        'gov_id_path': ''
+    }
 
+    # Extract images from kwargs
+    selfie = kwargs.get('selfie')
+    gov_id = kwargs.get('gov_id')
+    user_photo = kwargs.get('user_photo', None)
+
+    # Validate images
     if not check_image_validity(selfie, gov_id):
         return {}
-    user_photo_path = ""
-    if user_photo!="":
-        user_photo = kwargs['user_photo']
-        user_photo_path = os.path.join(user_dir, user_photo.filename)
-        user_photo.save(user_photo_path)
-    selfie_path = os.path.join(user_dir, selfie.filename)
-    gov_id_path = os.path.join(user_dir, gov_id.filename)
-    return  {
-                'user_photo_path': user_photo_path if user_photo_path != "" else "",
-                'selfie_path': selfie_path,
-                'gov_id_path': gov_id_path
-            }
+
+    # Create user directory if it doesn't exist
+    if not os.path.exists(user_dir):
+        os.makedirs(user_dir)
+
+    # Generate paths for selfie and government ID
+    paths['selfie_path'] = os.path.join(user_dir, selfie.filename) if selfie else ''
+    paths['gov_id_path'] = os.path.join(user_dir, gov_id.filename) if gov_id else ''
+
+    # If user photo is provided, generate its path
+    if user_photo:
+        paths['user_photo_path'] = os.path.join(user_dir, user_photo.filename)
+
+    return paths
 
 def create_user_directory(user_id) -> str:
     """
@@ -81,23 +93,15 @@ def create_user_directory(user_id) -> str:
     return user_directory
 
 def save_user_registration_image(img, img_path) -> bool:
-    """
-    Saves an image to the specified path.
-
-    Args:
-        img (file): The image file to be saved.
-        img_path (str): The full path where the image should be saved.
-    
-    Returns:
-        bool: 
-            - True if the image is successfully saved.
-            - False if an error occurs during saving.
-    """
     try:
+        print(f'Saving image to: {img_path}')
         img.save(img_path)
+        print(f'Image saved successfully: {img_path}')
         return True
-    except:
+    except Exception as e:
+        print(f'Error saving image: {e}')  # Log the exception for debugging
         return False
+
     
 def check_if_local(brgy_street_id, village_id) -> bool:
     """
@@ -146,6 +150,10 @@ def verify_face(id_photo, face_scan):
         id_photo_stream = io.BytesIO(id_photo.read())
         face_scan_stream = io.BytesIO(face_scan.read()) 
 
+        # Reset file pointers for later saving
+        id_photo.seek(0)
+        face_scan.seek(0)
+
         # Try to open the images using Pillow and convert them to RGB
         try:
             id_image = Image.open(id_photo_stream)
@@ -182,20 +190,5 @@ def verify_face(id_photo, face_scan):
         return False  # Catch any unexpected errors
     
     finally:
-        # Clean up resources to free up memory
-        
-        # Close the BytesIO streams
-        id_photo_stream.close()
-        face_scan_stream.close()
-
-        # Delete objects to free up memory
-        del face_scan
-        del id_photo
-        del id_image
-        del face_image
-        # Force garbage collection to free up memory immediately
-        gc.collect()
-
-        # End the timer and print the execution time
         end_time = time.time()
         print(f"Time taken to execute verify_face: {end_time - start_time:.2f} seconds")
