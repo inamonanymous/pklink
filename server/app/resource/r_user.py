@@ -59,10 +59,14 @@ class UserRegistration(Resource):
             return {"error": "Both selfie and government ID are required."}, 400
 
         args = request.form
-        user_photo = request.files['req_user_photo_path']
+        user_photo = request.files.get('req_user_photo_path', None)  # Set to None if not provided
+            
+        
         selfie = request.files['req_user_selfie_photo_path']
         gov_id = request.files['req_user_gov_id_photo_path']
-        print(args)
+        print("display photo: ", user_photo)
+        print("selfie: ", selfie)
+        print("government : ", gov_id)
         user_data = {
             'username': args['req_user_username'],
             'password': args['req_user_password'],
