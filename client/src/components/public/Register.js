@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import httpClient from "../../httpClient";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
-function Register() {
+function Register({ onRegistrationSuccess }) {
   const navigate = useNavigate();
 
   const [villages, setVillages] = useState([]);
   const [brgyStreets, setBrgyStreets] = useState([]);
+
+  const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
     handleBrgyStreets();
@@ -117,7 +119,7 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Create a FormData object to handle the file upload
     const formData = new FormData();
   
@@ -126,13 +128,8 @@ function Register() {
       formData.append(key, userBasicInfo[key]);
     }
   
-    // Ensure optional fields are sent, even if not provided
-    if (!userBasicInfo.req_user_photo_path) {
-      formData.append('req_user_photo_path', '');  // Send empty string if no photo is uploaded
-    } else {
-      formData.append('req_user_photo_path', userBasicInfo.req_user_photo_path);
-    }
-
+    formData.append('req_user_photo_path', userBasicInfo.req_user_photo_path);
+    
     for (const key in userPrivateInfo) {
       if (key !== 'req_user_selfie_photo_path' && key !== 'req_user_gov_id_photo_path') {
         formData.append(key, userPrivateInfo[key]);
@@ -170,7 +167,7 @@ function Register() {
       }
   
       alert('User registration sent to server');
-      navigate('/');
+      onRegistrationSuccess();
     } catch (e) {
       console.error(e);
       alert('Error during registration');
@@ -199,6 +196,10 @@ function Register() {
  
 
   return (
+    <>
+      {isAllowed ? (
+        
+      
     <div>
       <form onSubmit={handleSubmit} className='flex-col'>
         <div className='input-con flex-col'>
@@ -207,6 +208,7 @@ function Register() {
             type="text"
             name="req_user_username"
             value={userBasicInfo.req_user_username}
+            required
             onChange={handleInputChange}
           />
         </div>
@@ -216,6 +218,7 @@ function Register() {
           <input
             type="password"
             name="req_user_password"
+            required
             value={userBasicInfo.req_user_password}
             onChange={handleInputChange}
           />
@@ -226,6 +229,7 @@ function Register() {
           <input
             type="text"
             name="req_user_firstname"
+            required
             value={userBasicInfo.req_user_firstname}
             onChange={handleInputChange}
           />
@@ -246,6 +250,7 @@ function Register() {
           <input
             type="text"
             name="req_user_lastname"
+            required
             value={userBasicInfo.req_user_lastname}
             onChange={handleInputChange}
           />
@@ -266,6 +271,7 @@ function Register() {
           <input
             type="text"
             name="req_user_gender"
+            required
             value={userBasicInfo.req_user_gender}
             onChange={handleInputChange}
           />
@@ -282,7 +288,11 @@ function Register() {
 
         <div className='input-con flex-col'>
           <label>Location type</label>
-          <select name="req_user_location_type" onChange={handleLocationType}>
+          <select 
+          name="req_user_location_type" 
+          onChange={handleLocationType}
+          required
+          >
             <option selected disabled>--Select Location Type</option>
             <option value={1}>Village / Subdivision</option>
             <option value={2}>Local resident</option>
@@ -294,6 +304,7 @@ function Register() {
           <input
             type="text"
             name="req_user_house_number"
+            required
             value={userPrivateInfo.req_user_house_number}
             onChange={handleInputChange}
           />
@@ -306,6 +317,7 @@ function Register() {
             <label>Select Street</label>
             <select
               name="req_user_brgy_street_id"
+              required
               onChange={handleBrgyStreetChange}
               value={userPrivateInfo.req_user_brgy_street_id || ""}
             >
@@ -323,6 +335,7 @@ function Register() {
               <label>Select Village</label>
               <select
                 name="req_user_village_id"
+                required
                 onChange={handleVillageChange}
                 value={userPrivateInfo.req_user_village_id || ""}
               >
@@ -339,6 +352,7 @@ function Register() {
               <label>Village Street</label>
               <input
                 type="text"
+                required
                 name="req_user_village_street"
                 onChange={handleInputChange}
               />
@@ -349,6 +363,7 @@ function Register() {
               <input
                 type="text"
                 name="req_user_lot_number"
+                required
                 value={userPrivateInfo.req_user_lot_number}
                 onChange={handleInputChange}
               />
@@ -359,6 +374,7 @@ function Register() {
               <input
                 type="text"
                 name="req_user_block_number"
+                required
                 value={userPrivateInfo.req_user_block_number}
                 onChange={handleInputChange}
               />
@@ -371,6 +387,7 @@ function Register() {
           <input
             type="text"
             name="req_user_email_address"
+            required
             value={userPrivateInfo.req_user_email_address}
             onChange={handleEmailChange}
           />
@@ -381,6 +398,7 @@ function Register() {
           <input
             type="text"
             name="req_user_email_address2"
+            required
             onChange={handleVerificationEmailChange}
           />
         </div>
@@ -390,6 +408,7 @@ function Register() {
           <input
             type="text"
             name="req_user_phone_number"
+            required
             value={userPrivateInfo.req_user_phone_number}
             onChange={handleInputChange}
           />
@@ -410,6 +429,7 @@ function Register() {
           <input
             type="file"
             name="req_user_selfie_photo_path"
+            required
             onChange={handleFileChange}
           />
         </div>
@@ -419,15 +439,41 @@ function Register() {
           <input
             type="file"
             name="req_user_gov_id_photo_path"
+            required
             onChange={handleFileChange}
           />
         </div>
 
         {!emailsMatch && <p>Emails do not match</p>}
         {!isValidEmail && <p>Invalid email format</p>}
-        <button type="submit">Register</button>
+        <button 
+          type="submit"
+          disabled={!emailsMatch || !isValidEmail}
+          >
+            Register
+          </button>
       </form>
     </div>
+    ) : (
+      <div className="text-con">
+          <h5>Do you live inside Puting Kahoy, Silang Cavite</h5>
+          <div className="btns-con flex-col">
+            <button
+              onClick={() => {setIsAllowed(true)}}
+            >
+              Yes
+            </button>
+            <Link to={'/'}>
+              <button
+                className="reject"
+              >
+                No
+              </button>
+            </Link>
+          </div>
+      </div>
+    )}
+  </>
   );
 }
 

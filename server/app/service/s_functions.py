@@ -7,23 +7,29 @@ import gc
 
 USER_FOLDER = f"uploads/users"
 
-def check_image_validity(*args) -> bool:
+def check_image_validity(img):
     """
-    Validates the uploaded images by checking their file extensions.
+    Validates the uploaded image by checking its file extension.
 
     Args:
-        *args: Variable number of file objects (e.g., selfie, gov_id).
+        img: file object (e.g., selfie, gov_id, photo).
     
     Returns:
-        bool: 
-            - True if all files are valid images (with extensions '.png', '.jpg', '.jpeg').
-            - False if any file is missing or has an invalid extension.
+        str or bool: 
+            - Returns the valid extension if the file is a valid image (with extensions '.png', '.jpg', '.jpeg').
+            - Returns False if the file is missing or has an invalid extension.
     """
-    valid_photo_ext = ('.png', '.jpg' ,'.jpeg')
-    for i in args:
-        if i.filename=='' or not i.filename.lower().endswith(valid_photo_ext):
-            return False
-    return True
+    valid_photo_ext = ('.png', '.jpg', '.jpeg')
+    
+    # Check if the file has a valid filename and extension
+    if img.filename == '':
+        return False
+    
+    if img.filename.lower().endswith(valid_photo_ext):
+        return img.filename.lower().split('.')[-1]  # Return the valid extension
+    
+    return False  # Return False if the extension is invalid
+
 
 def get_image_registration_path(user_dir, **kwargs) -> dict:
     """
@@ -59,7 +65,10 @@ def get_image_registration_path(user_dir, **kwargs) -> dict:
     user_photo = kwargs.get('user_photo', None)
 
     # Validate images
-    if not check_image_validity(selfie, gov_id):
+    seflie_ext = check_image_validity(selfie)
+    gov_id_ext = check_image_validity(gov_id)
+
+    if not (seflie_ext or gov_id_ext): 
         return {}
 
     # Create user directory if it doesn't exist
@@ -67,12 +76,13 @@ def get_image_registration_path(user_dir, **kwargs) -> dict:
         os.makedirs(user_dir)
 
     # Generate paths for selfie and government ID
-    paths['selfie_path'] = os.path.join(user_dir, selfie.filename) if selfie else ''
-    paths['gov_id_path'] = os.path.join(user_dir, gov_id.filename) if gov_id else ''
+    paths['selfie_path'] = os.path.join(user_dir, f"selfie.{seflie_ext}") if selfie else ''
+    paths['gov_id_path'] = os.path.join(user_dir, f"gov_id.{gov_id_ext}") if gov_id else ''
 
     # If user photo is provided, generate its path
     if user_photo:
-        paths['user_photo_path'] = os.path.join(user_dir, user_photo.filename)
+        user_photo_ext = check_image_validity(user_photo)
+        paths['user_photo_path'] = os.path.join(user_dir, f"user_photo.{user_photo_ext}")
 
     return paths
 
@@ -141,8 +151,11 @@ def verify_face(id_photo, face_scan):
             - True if the face in the ID photo and the face in the face scan is valid.
             - False if there is no face is detected, or an error occurs.
     """
-    if not check_image_validity(face_scan, id_photo):
-        print('image not valid')
+    if not check_image_validity(face_scan):
+        print('face scan not valid')
+        return False
+    if not check_image_validity(id_photo):
+        print('government id not valid')
         return False
     start_time = time.time()
     try:

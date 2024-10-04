@@ -25,6 +25,10 @@ function Authentication() {
     }, 500);  // Time must match your CSS transition duration
   };
 
+  const handleRegistrationSuccess = () => {
+    setIsLoggingIn(true); // Set isLoggingIn to true after successful registration
+  };
+
   return (
     <>
       <section id="authentication">
@@ -49,7 +53,7 @@ function Authentication() {
                   </div>
                   
                   <div className='form-con'>
-                    {isLoggingIn ? <Login /> : <Register />}
+                    {isLoggingIn ? <Login /> : <Register onRegistrationSuccess={handleRegistrationSuccess} />}
                   
                     <div className='text-con switcher flex'>
                       {isLoggingIn ? (
