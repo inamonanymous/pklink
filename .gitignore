@@ -1,3 +1,5 @@
 server/venv/
 server/__pycache__/
 server/instance/
+server/uploads/
+server/selfies_id/
