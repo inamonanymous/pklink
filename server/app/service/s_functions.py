@@ -140,6 +140,7 @@ def check_if_local(brgy_street_id, village_id) -> bool:
 import time
 def verify_face(id_photo, face_scan):
     """
+    stephen pogi
     Verifies if the face in the provided ID photo and face scan is valid.
 
     Args:
