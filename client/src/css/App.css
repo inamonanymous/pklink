@@ -1,13 +1,33 @@
 :root {
     --dark-gray: #282828;
     --cream: #EDE1C2;
+    --sf-pro-font: 'SF Pro Display';
 }
 
 
 header.user-auth > div,
-section.user-auth > div,
+main.user-auth > div,
 footer.user-auth > div {
     max-width: 1800px;
+    margin: 0 auto;
+}
+
+/* 
+==============================
+==============================
+==============================
+HEADER-USER AUTH ==============================
+==============================
+==============================
+==============================
+*/
+#header-ua {
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    top: 0;
+    background-color: var(--dark-gray);
+    filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
 }
 
 #header-ua > div {
@@ -18,9 +38,6 @@ footer.user-auth > div {
     padding: 10px 0;
 }
 
-#header-ua {
-    background-color: var(--dark-gray);
-}
 
 #header-ua .content-nav > ul {
     gap: 0 45px;
@@ -39,6 +56,8 @@ footer.user-auth > div {
 #header-ua > div .img-con.logo svg {
     width: 55px;
 }
+
+
 
 #header-ua nav > ul .img-con svg path {
     transition: fill 0.2s ease; /* Smooth transition */
@@ -87,12 +106,102 @@ footer.user-auth > div {
     width: 360px;
     border-radius: 6px;
 }
+/* 
+==============================
+==============================
+==============================
+MAIN-USER AUTH ==============================
+==============================
+==============================
+==============================
+*/
+
+#main-ua {
+    background: url('../img/drone_shot2.jpg') no-repeat center;
+    background-size: cover;
+    height: 100vh;
+    position: relative;
+}
+
+#main-ua:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(56, 56, 56, 0.6) 0%, #000000 81.28%);
+}
+#main-ua > div {
+    padding: 130px 0;
+    gap: 0 50px;
+    align-items: start; 
+    justify-content: start;
+}
+
+
+
+/* 
+==============================
+==============================
+==============================
+SIDEBAR-USER AUTH ==============================
+==============================
+==============================
+==============================
+*/
+#sidebar-ua {
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), rgba(255, 255, 255, 0.1);
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    gap: 45px 0;
+    width: fit-content;
+    padding: 125px 115px 25px 30px;
+}
+
+#sidebar-ua a{
+    font-family: var(--sf-pro-font);
+    font-size: 20px;
+    color: white;
+}
+
+#sidebar-ua .text-con {
+    justify-content: unset;
+    gap: 0 30px;
+}
+
+#sidebar-ua > .img-con {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+}
+
+/* 
+==============================
+==============================
+==============================
+CONTENT-PANEL-USER AUTH ==============================
+==============================
+==============================
+==============================
+*/
+
+#content-panel-ua {
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(20px);
+}
+
+#content-panel-ua > div {
+    padding: 20px 20px 65px;
+    color: white;
+}
 
 @media only screen and (max-width: 1860px) {
     header.user-auth > div,
-    section.user-auth > div,
+    main.user-auth > div,
     footer.user-auth > div {
-        margin-left: 40px;
-        margin-right: 40px;
+        margin-left: 20px;
+        margin-right: 20px;
     }
 }

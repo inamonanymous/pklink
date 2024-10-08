@@ -3,6 +3,8 @@ import ManageAccounts from "./manage_data/ManageAccounts";
 function ContentPanel({ currentView }) {
     const renderContent = () => {
         switch (currentView) {
+          case 'posts':
+            return <div>none</div>;
           case 'manage_accounts':
             return <ManageAccounts />;
           case 'manage_events':
@@ -22,7 +24,11 @@ function ContentPanel({ currentView }) {
         }
       };
     return (
-        renderContent()        
+      <section id="content-panel-ua">
+        <div>
+          {renderContent()}
+        </div>
+      </section>
     );
 }
 
