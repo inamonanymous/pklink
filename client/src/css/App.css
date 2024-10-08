@@ -1,18 +1,98 @@
-#login-sidebar {
-    position: absolute;
-    right: 0;
+:root {
+    --dark-gray: #282828;
+    --cream: #EDE1C2;
 }
 
-.manage-accounts-list div{
-    border: 1px solid;
-    width: fit-content;
-    padding: 5px;
+
+header.user-auth > div,
+section.user-auth > div,
+footer.user-auth > div {
+    max-width: 1800px;
+}
+
+#header-ua > div {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    justify-content: space-between;
+    align-items: center; 
+    padding: 10px 0;
+}
+
+#header-ua {
+    background-color: var(--dark-gray);
+}
+
+#header-ua .content-nav > ul {
+    gap: 0 45px;
+}
+
+#header-ua nav > ul .img-con {
     cursor: pointer;
+    transition: .3s;
+    transform: translateY(0);
 }
 
-.manage-individual-account {
-    display: flex;
-    justify-content: center;
-    align-items: start;
-    gap: 50px;
+#header-ua nav.content-nav > ul .img-con:focus-within {
+    transform: translateY(-5px);
+}
+
+#header-ua > div .img-con.logo svg {
+    width: 55px;
+}
+
+#header-ua nav > ul .img-con svg path {
+    transition: fill 0.2s ease; /* Smooth transition */
+}
+
+/* Change color on hover */
+#header-ua nav > ul .img-con:hover svg path {
+    fill: var(--cream); /* Change color to cream */
+}
+
+#header-ua nav > ul .img-con a:focus svg path {
+    fill: var(--cream); /* Change color to cream */
+}
+
+#header-ua .user-nav > ul {
+    gap: 0 50px;
+}
+
+#header-ua .user-nav > ul li {
+    position: relative;
+}
+
+#header-ua .user-nav > ul li:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    background: rgba(255, 255, 255, .1);
+    border: none;
+}
+
+#header-ua nav {
+    width: auto;
+}
+
+#header-ua .user-dropdown {
+    position: absolute;
+    background-color: var(--cream);
+    top: 40px;
+    left: -420px;
+    padding: 40px;
+    width: 360px;
+    border-radius: 6px;
+}
+
+@media only screen and (max-width: 1860px) {
+    header.user-auth > div,
+    section.user-auth > div,
+    footer.user-auth > div {
+        margin-left: 40px;
+        margin-right: 40px;
+    }
 }

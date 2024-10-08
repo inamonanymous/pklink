@@ -166,6 +166,7 @@ ul {
   width: fit-content;
   height: auto;
   position: relative;
+  align-items: center;
 }
 
 .img-con img,
