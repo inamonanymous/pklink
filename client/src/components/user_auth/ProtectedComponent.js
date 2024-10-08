@@ -15,7 +15,7 @@ const ProtectedComponent = ({ children }) => {
 
                 //if response does not qualify redirect to login
                 if (resp.status !== 200) {
-                    navigate('/login');
+                    navigate('/authentication');
                 } else {
                     //if response does qualify show component
                     const data = resp.data;
@@ -40,10 +40,10 @@ const ProtectedComponent = ({ children }) => {
                 if(error.response.status===406){
                     setIsLoggedIn(false);
                     alert('session not found');
-                    navigate('/login');
+                    navigate('/authentication');
                 }
                 console.error('Unexpected error checking session:', error);
-                navigate('/login');
+                navigate('/authentication');
             } finally {
                 setIsLoading(false);
             }
