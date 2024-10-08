@@ -17,8 +17,12 @@ function Dashboard() {
       {userPriveleges => (
         <>
           <Header priveleges={userPriveleges} />
-          <Sidebar onViewChange={handleViewChange} />
-          <ContentPanel currentView={currentView} />
+          <main id="main-ua" className="user-auth">
+            <div className="flex">
+              <Sidebar onViewChange={handleViewChange} priveleges={userPriveleges} />
+              <ContentPanel currentView={currentView} />
+            </div>
+          </main>
         </>
       )}
     </ProtectedComponent>
