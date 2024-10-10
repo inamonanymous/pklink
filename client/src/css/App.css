@@ -49,9 +49,6 @@ HEADER-USER AUTH ==============================
     transform: translateY(0);
 }
 
-#header-ua nav.content-nav > ul .img-con:focus-within {
-    transform: translateY(-5px);
-}
 
 #header-ua > div .img-con.logo svg {
     width: 55px;
@@ -68,9 +65,9 @@ HEADER-USER AUTH ==============================
     fill: var(--cream); /* Change color to cream */
 }
 
-#header-ua nav > ul .img-con a:focus svg path {
-    fill: var(--cream); /* Change color to cream */
-}
+/* #header-ua nav > ul .img-con a:focus svg path {
+    fill: var(--cream); /* Change color to cream 
+} */
 
 #header-ua .user-nav > ul {
     gap: 0 50px;
@@ -91,6 +88,22 @@ HEADER-USER AUTH ==============================
     border-radius: 100%;
     background: rgba(255, 255, 255, .1);
     border: none;
+}
+#header-ua .img-con a {
+    position: relative;
+}
+
+#header-ua .img-con a:before {
+    content: '';
+    position: absolute;
+    width: calc(100% + 15px);
+    bottom: -5px;
+    left: 50%;
+    height: 3px;
+    background-color: var(--cream);
+    transform: translate(-50%, 100%);
+    transition: .5s ease-in-out;
+    opacity: 0;
 }
 
 #header-ua nav {
@@ -137,7 +150,26 @@ MAIN-USER AUTH ==============================
     justify-content: start;
 }
 
+#main-ua .focused a,
+#header-ua .focused a {
+    color: var(--cream); /* Or any color for the focused state */
+}
 
+#main-ua .focused svg path,
+#header-ua .focused svg path {
+    fill: var(--cream); /* Apply the fill color for focused icons */
+}
+
+/* Optional: Make the focused icon pop a bit */
+#main-ua .focused.img-con,
+#header-ua .focused.img-con {
+    transform: translateY(-5px); /* Slightly move it up */
+}
+
+#header-ua .focused.img-con a:before {
+    opacity: 1;
+    transform: translate(-50%, 100%);
+}
 
 /* 
 ==============================
@@ -163,6 +195,10 @@ SIDEBAR-USER AUTH ==============================
     font-size: 20px;
     color: white;
 }
+
+/* #sidebar-ua a:focus {
+    color: var(--cream);
+} */
 
 #sidebar-ua .text-con {
     justify-content: unset;
@@ -205,3 +241,4 @@ CONTENT-PANEL-USER AUTH ==============================
         margin-right: 20px;
     }
 }
+

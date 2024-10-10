@@ -6,7 +6,7 @@ import '../css/UserAuth.css';
 import { useState } from "react";
 
 function Dashboard() {
-  const [currentView, setCurrentView] = useState('');
+  const [activeView, setCurrentView] = useState('');
   
   const handleViewChange = (view) => {
     setCurrentView(view);
@@ -16,11 +16,11 @@ function Dashboard() {
     <ProtectedComponent>
       {userPriveleges => (
         <>
-          <Header priveleges={userPriveleges} />
+          <Header activeView={activeView} onViewChange={handleViewChange} priveleges={userPriveleges} />
           <main id="main-ua" className="user-auth">
             <div className="flex">
-              <Sidebar onViewChange={handleViewChange} priveleges={userPriveleges} />
-              <ContentPanel currentView={currentView} />
+              <Sidebar activeView={activeView} onViewChange={handleViewChange} priveleges={userPriveleges} />
+              <ContentPanel currentView={activeView} />
             </div>
           </main>
         </>

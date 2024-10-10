@@ -1,4 +1,4 @@
-from app.resource import Resource, abort, reqparse, session, request, VUS_ins, AS_ins, US_ins, UDS_ins, VS_ins, BSS_ins
+from app.resource import Resource, abort, reqparse, session, request, VUS_ins, AS_ins, US_ins, UDS_ins, VS_ins, BSS_ins, PS_ins
 from .r_functions import require_user_session, get_current_user_username, get_current_user_privilege
 
 #--------------- Variable Values ---------------#
@@ -10,6 +10,7 @@ from .r_functions import require_user_session, get_current_user_username, get_cu
     US_ins = <UserService> object instance
     VUS_ins = <VerifiedUsersService> object instance
     VS_ins = <VillagesService> object instance
+    PS_ins = <PostsService> object instance
 """
 
 #User authentication api
@@ -90,6 +91,12 @@ class UserRegistration(Resource):
         if not US_ins.insert_user_and_details(user_data, details_data, user_photo, selfie, gov_id):
             return {"message": "registration unsuccessful"}, 406
         return {"message": "registration success"}, 201
+
+class PostsData(Resource):
+    def get(self):
+        data = PS_ins.get_all_posts_dict()
+        print(PS_ins.get_post_details_by_user_id('99794abce4ae4661a9517f9f0a47cfa7'))
+        return data, 200
 
 class RegisteredVillages(Resource):
     def get(self):

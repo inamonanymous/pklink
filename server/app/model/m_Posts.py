@@ -6,6 +6,7 @@ class Posts(db.Model):
     id = db.Column(db.String(32), primary_key=True, default=get_uuid)
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.String(255), nullable=False)
+    photo_path = db.Column(db.String(255))
     created_by = db.Column(db.String(32), db.ForeignKey('verifiedusers.user_id'))
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
 
