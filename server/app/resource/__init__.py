@@ -7,6 +7,7 @@ from app.service.s_UserDetails import UserDetailsService
 from app.service.s_Users import UserService 
 from app.service.s_VerifiedUsers import VerifiedUsersService
 from app.service.s_Villages import VillagesService
+from app.service.s_Posts import PostsService
 
 AS_ins = AdminService()
 BSS_ins = BrgyStreetService()
@@ -15,3 +16,4 @@ UDS_ins = UserDetailsService()
 US_ins = UserService()
 VUS_ins = VerifiedUsersService()
 VS_ins = VillagesService()
+PS_ins = PostsService()

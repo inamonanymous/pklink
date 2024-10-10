@@ -7,104 +7,61 @@ import { ReactComponent as FormsLogo } from '../../img/forms_logo.svg';
 
 import { ReactComponent as TextLogoWhite } from '../../img/text_logo_white.svg';
 
+const menuItems = [
+    { name: 'Community Updates', view: 'posts', Icon: AnnouncementLogo },
+    { name: 'Upcoming Events', view: 'events', Icon: CalendarLogo },
+    { name: 'Document Requests', view: 'document', Icon: DocRequestLogo },
+    { name: 'Health Assistance', view: 'health', Icon: HealthLogo },
+    { name: 'Report an Issue', view: 'report', Icon: ReportLogo },
+    { name: 'Fill out Forms', view: 'forms', Icon: FormsLogo },
+];
 
-//onViewChange parameter for dashboard that will change content panel 
-function Sidebar( { onViewChange, priveleges } ) {
+const privilegedItems = [
+    { name: 'Manage Accounts', view: 'manage_accounts', privilege: 'view_accounts' },
+    { name: 'Manage Events', view: 'manage_event', privilege: 'manage_event' },
+    { name: 'Manage Posts', view: 'manage_posts', privilege: 'manage_post' },
+];
 
-    return(
-            <aside id="sidebar-ua" className="flex-col">
-                <div className="img-con">
-                    <TextLogoWhite />
-                </div>
-                <div className="text-con flex">
+function Sidebar({ onViewChange, activeView, priveleges }) {
+    return (
+        <aside id="sidebar-ua" className="flex-col" >
+            <div className="img-con">
+                <TextLogoWhite />
+            </div>
+
+            {menuItems.map((item) => (
+                <div key={item.view} className={`text-con flex ${activeView === item.view ? 'focused' : ''}`}>
                     <div className="img-con">
-                        <AnnouncementLogo />
+                        <item.Icon />
                     </div>
-                    <a href="#" onClick={() => {onViewChange('posts');}}> 
-                        Community Updates
+                    <a href="#" onClick={() => { onViewChange(item.view); }}>
+                        {item.name}
                     </a>
                 </div>
-                <div className="text-con flex">
-                    <div className="img-con">
-                        <CalendarLogo />
-                    </div>
-                    <a href="#"> 
-                        Upcoming Events
-                    </a>
-                </div>
-                <div className="text-con flex">
-                    <div className="img-con">
-                        <DocRequestLogo />
-                    </div>
-                    <a href="#"> 
-                        Document Requests
-                    </a>
-                </div>
-                <div className="text-con flex">
-                    <div className="img-con">
-                        <HealthLogo />
-                    </div>
-                    <a href="#"> 
-                        Health Assistance
-                    </a>
-                </div>
-                <div className="text-con flex">
-                    <div className="img-con">
-                        <ReportLogo />
-                    </div>
-                    <a href="#"> 
-                        Report an Issue
-                    </a>
-                </div>
-                <div className="text-con flex">
-                    <div className="img-con">
-                        <FormsLogo />
-                    </div>
-                    <a href="#"> 
-                        Fill out Forms
-                    </a>
-                </div>
-                {priveleges?.view_accounts ? (
-                    <div className="text-con flex">
+            ))}
+
+            {privilegedItems.map((item) => (
+                priveleges?.[item.privilege] && (
+                    <div key={item.view} className="text-con flex">
                         <div className="img-con">
                             <img src="" alt="" />
                         </div>
-                        <a href="#" onClick={() => {onViewChange('manage_accounts');}} >
-                            Manage Accounts
+                        <a href="#" onClick={() => { onViewChange(item.view); }}>
+                            {item.name}
                         </a>
                     </div>
-                ) : null}
-                {priveleges?.manage_event ? (
-                    <div className="text-con flex">
-                        <div className="img-con">
-                            <img src="" alt="" />
-                        </div>
-                        <a href="#" onClick={() => {onViewChange('manage_event');}}>
-                        Manage Events
-                    </a>
-                    </div>
-                ) : null}
-                {priveleges?.manage_post ? (
-                    <div className="text-con flex">
-                        <div className="img-con">
-                            <img src="" alt="" />
-                        </div>
-                        <a href="#" onClick={() => {onViewChange('manage_posts');}}>
-                        Manage Posts
-                    </a>
-                    </div>
-                ): null}
-                
-                
-                <div className="text-con flex">
-                    <div className="img-con">
-                        <img src="" alt="" />
-                    </div>
-                    <a href="#" onClick={() => {onViewChange('manage_my_account');}}>
-                        Manage My Account
-                    </a>
+                )
+            ))}
+
+            <div className="text-con flex">
+                <div className="img-con">
+                    <img src="" alt="" />
                 </div>
-            </aside>
+                <a href="#" onClick={() => { onViewChange('manage_my_account'); }}>
+                    Manage My Account
+                </a>
+            </div>
+        </aside>
     );
 }
 

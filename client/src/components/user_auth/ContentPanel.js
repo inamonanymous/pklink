@@ -1,10 +1,21 @@
 import ManageAccounts from "./manage_data/ManageAccounts";
+import Posts from "./view_data/Posts";
 
 function ContentPanel({ currentView }) {
     const renderContent = () => {
         switch (currentView) {
           case 'posts':
-            return <div>none</div>;
+            return <Posts />;
+          case 'events':
+            return <div>events</div>;
+          case 'document':
+            return <div>Document</div>;
+          case 'health':
+            return <div>Health</div>;
+          case 'report':
+            return <div>Report</div>;
+          case 'forms':
+            return <div>Forms</div>;
           case 'manage_accounts':
             return <ManageAccounts />;
           case 'manage_events':

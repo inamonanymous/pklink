@@ -12,7 +12,16 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate  } from 'react-router-dom';
 import httpClient from '../../httpClient';
 
-function Header({ priveleges }) {
+function Header({ onViewChange, priveleges, activeView }) {
+    const navItems = [
+        { view: 'posts', logo: <AnnouncementLogo />, name: 'Community Updates' },
+        { view: 'events', logo: <CalendarLogo />, name: 'Events' },
+        { view: 'document', logo: <DocRequestLogo />, name: 'Documents' },
+        { view: 'health', logo: <HealthLogo />, name: 'Health' },
+        { view: 'report', logo: <ReportLogo />, name: 'Reports' },
+        { view: 'forms', logo: <FormsLogo />, name: 'Forms' },
+      ];
+
     //route navigator
     const navigate = useNavigate()
     //user dropdown toggle
@@ -85,48 +94,18 @@ function Header({ priveleges }) {
                 </div>
                 <nav className='content-nav'>
                     <ul className='flex'>
-                        <li>
-                            <div className='img-con'>
-                                <a href="#">
-                                    <AnnouncementLogo />
+                        {navItems.map((item, index) => (
+                            <li key={item.view}>
+                            <div className={`img-con ${activeView === item.view ? 'focused' : ''}`}>
+                                <a
+                                href="#"
+                                onClick={() => onViewChange(item.view, index)}
+                                >
+                                {item.logo}
                                 </a>
                             </div>
-                        </li>
-                        <li>
-                            <div className='img-con'>
-                                <a href="#">
-                                    <CalendarLogo />
-                                </a>
-                            </div>
-                        </li>
-                        <li>
-                            <div className='img-con'>
-                                <a href="#">
-                                    <DocRequestLogo />
-                                </a>
-                            </div>
-                        </li>
-                        <li>
-                            <div className='img-con'>
-                                <a href="#">
-                                    <HealthLogo />
-                                </a>
-                            </div>
-                        </li>
-                        <li>
-                            <div className='img-con'>
-                                <a href="#">
-                                    <ReportLogo />
-                                </a>
-                            </div>
-                        </li>
-                        <li>
-                            <div className='img-con'>
-                                <a href="#">
-                                    <FormsLogo />
-                                </a>
-                            </div>
-                        </li>
+                            </li>
+                        ))}
                     </ul>
                 </nav>
                 <nav className='user-nav'>
