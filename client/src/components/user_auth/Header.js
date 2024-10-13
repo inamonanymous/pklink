@@ -109,7 +109,7 @@ function Header({ onViewChange, priveleges, activeView }) {
                     </ul>
                 </nav>
                 <nav className='user-nav'>
-                    <ul className='flex'>
+                    <ul className='flex logos'>
                         <li>
                             <div className='img-con'>
                                 <a href="#">
