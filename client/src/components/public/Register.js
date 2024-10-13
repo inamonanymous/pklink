@@ -11,8 +11,7 @@ function Register({ onRegistrationSuccess }) {
   const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
-    handleBrgyStreets();
-    handleVillages();
+    
   }, []);
 
   const handleLocationType = (e) => {
@@ -22,6 +21,8 @@ function Register({ onRegistrationSuccess }) {
       ...prevInfo,
       req_user_location_type: value === '2' ? "Local Resident" : "Village / Subdivision"
     }));
+    handleBrgyStreets();
+    handleVillages();
   };
 
   const handleVillages = async () => {
@@ -322,11 +323,16 @@ function Register({ onRegistrationSuccess }) {
               value={userPrivateInfo.req_user_brgy_street_id || ""}
             >
               <option selected>--Select Location Type</option>
-              {brgyStreets.map(street => (
-                <option key={street.id} value={street.id}>
-                  {street.street_name}
-                </option>
-              ))}
+
+              {brgyStreets === null ? (
+                <option>No results</option>
+              ) : (
+                brgyStreets.map(street => (
+                  <option key={street.id} value={street.id}>
+                    {street.street_name}
+                  </option>
+                ))
+              )}
             </select>
           </div>
         ) : (
@@ -340,11 +346,15 @@ function Register({ onRegistrationSuccess }) {
                 value={userPrivateInfo.req_user_village_id || ""}
               >
                 <option>--Select Village--</option>
-                {villages.map(village => (
-                  <option key={village.id} value={village.id}>
-                    {village.village_name}
-                  </option>
-                ))}
+                {villages === null || villages.length === 0 ? (
+                  <option>No results</option>
+                ) : (
+                  villages.map(village => (
+                    <option key={village.id} value={village.id}>
+                      {village.village_name}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 

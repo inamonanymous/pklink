@@ -52,7 +52,7 @@ def create_app():
     api.add_resource(UnverifiedUserData, '/api/partial_admin/unverified_users')
     api.add_resource(UserVerification, '/api/partial_admin/verify')
 
-    """ with app.app_context():
+    with app.app_context():
         Users,
         ResidentType,
         Admin,
@@ -73,6 +73,6 @@ def create_app():
         DocumentRequests,
         HealthSupportRequests,
         Requests
-        db.create_all() """
+        db.create_all()
     return app
     
