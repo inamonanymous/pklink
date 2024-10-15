@@ -6,7 +6,7 @@ import '../css/UserAuth.css';
 import { useState } from "react";
 
 function Dashboard() {
-  const [activeView, setCurrentView] = useState('');
+  const [activeView, setCurrentView] = useState('posts');
   
   const handleViewChange = (view) => {
     setCurrentView(view);

@@ -25,6 +25,7 @@ class PostsService:
                 'user_middlename': user.middlename,
                 'user_lastname': user.lastname,
                 'user_resident_type': resident_type.resident_type_name if resident_type else None,
+                'user_photo_path': user.photo_path if user.photo_path else None,
                 'post_photo_path': post.photo_path,
                 'post_date_created': post.date_created.isoformat()
             }

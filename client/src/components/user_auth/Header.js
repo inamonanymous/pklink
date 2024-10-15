@@ -21,7 +21,7 @@ function Header({ onViewChange, priveleges, activeView }) {
         { view: 'report', logo: <ReportLogo />, name: 'Reports' },
         { view: 'forms', logo: <FormsLogo />, name: 'Forms' },
       ];
-
+      
     //route navigator
     const navigate = useNavigate()
     //user dropdown toggle
@@ -125,9 +125,16 @@ function Header({ onViewChange, priveleges, activeView }) {
                             </div>
                         </li>
                         <li>
-                            <div className='img-con'>
+                            <div className='img-con user-avatar'>
                                 <a href="#" onClick={userDropdownToggle}>
-                                    <UserLogo />
+                                    {!userInformation.user_data.user_photo_path ? (
+                                        <UserLogo />
+                                    ) : (
+                                        <img 
+                                            src={`http://127.0.0.1:5001/api/${userInformation.user_data.user_photo_path.replace(/\\/g, '/')}`} 
+                                            alt={`${userInformation.user_data.user_lastname}, ${userInformation.user_data.user_firstname} ${userInformation.user_data.user_middlename}'s profile`} 
+                                        />
+                                    )}
                                 </a>
                             </div>
                             {isUserDropdownOpen && (
