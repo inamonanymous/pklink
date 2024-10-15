@@ -1,6 +1,7 @@
+html,
 body {
   position: relative;
-  
+  height: 100%;
 }
 * {
   margin: 0;
@@ -13,6 +14,10 @@ body {
   --cream-darker: #FBFBE7;
   --cream-darkest: #C5A582;
   --sorts-mill-font: 'Sorts Mill Goudy';
+}
+
+#root {
+  overflow: hidden;
 }
 
 header,
@@ -35,7 +40,7 @@ footer > div{
 
 h1, h2, h4, h3, h5, h6, li, a {
   font-family: var(--sorts-mill-font);
-  font-weight: 500;
+  font-weight: 400;
 }
 
 h1 {
@@ -64,6 +69,7 @@ h5 {
 
 h6 {
   font-size: 18px;
+  line-height: 1.06em;
 }
 
 p {
@@ -78,6 +84,7 @@ a {
   text-decoration: none;
   color: unset;
   transition: .3s;
+  position: relative;
 }
 
 nav {

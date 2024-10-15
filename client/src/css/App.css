@@ -1,3 +1,6 @@
+* {
+    font-family: var(--sf-pro-font) !important;
+}
 :root {
     --dark-gray: #282828;
     --cream: #EDE1C2;
@@ -32,8 +35,8 @@ HEADER-USER AUTH ==============================
 
 #header-ua > div {
     display: grid;
-    grid-template-columns: auto auto auto;
-    justify-content: space-between;
+    grid-template-columns: 1fr auto 1fr;
+    justify-content: center;
     align-items: center; 
     padding: 10px 0;
 }
@@ -51,7 +54,8 @@ HEADER-USER AUTH ==============================
 
 
 #header-ua > div .img-con.logo svg {
-    width: 55px;
+    width: 45px;
+    height: 45px;
 }
 
 
@@ -93,6 +97,28 @@ HEADER-USER AUTH ==============================
     position: relative;
 }
 
+#header-ua .user-nav .user-avatar {
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    border-radius: 100%;
+    position: relative;
+    overflow: clip;
+}
+
+#header-ua .user-nav .user-avatar img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+    filter: brightness(1);
+    transition: 0.6s;
+}
+
+#header-ua .user-nav .user-avatar:hover img {
+    filter: brightness(0.5); /* Darkens the image on hover */
+}
+
 #header-ua .img-con a:before {
     content: '';
     position: absolute;
@@ -131,9 +157,9 @@ MAIN-USER AUTH ==============================
 */
 
 #main-ua {
-    background: url('../img/drone_shot2.jpg') no-repeat center;
+    background: url('../img/drone_shot2.jpg') no-repeat top center;
     background-size: cover;
-    height: 100vh;
+    background-attachment: fixed;
     position: relative;
 }
 
@@ -145,7 +171,7 @@ MAIN-USER AUTH ==============================
     background: linear-gradient(180deg, rgba(56, 56, 56, 0.6) 0%, #000000 81.28%);
 }
 #main-ua > div {
-    padding: 130px 0;
+    padding: 85px 0;
     gap: 0 50px;
     align-items: start; 
     justify-content: start;
@@ -188,7 +214,9 @@ SIDEBAR-USER AUTH ==============================
     border-radius: 20px;
     gap: 45px 0;
     width: fit-content;
-    padding: 125px 115px 25px 30px;
+    padding: 95px 115px 25px 30px;
+    position: fixed;
+    z-index: 1;
 }
 
 #sidebar-ua a{
@@ -227,6 +255,7 @@ CONTENT-PANEL-USER AUTH ==============================
     border-radius: 20px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(20px);
+    margin: 0 auto;
 }
 
 #content-panel-ua > div {
@@ -246,8 +275,6 @@ POSTS-USER AUTH ==============================
 
 #posts-con {
     width: 760px;
-    height: 900px;
-    overflow-y: scroll;
 }
 #posts-con::-webkit-scrollbar {
     width: 8px; /* Width of the scrollbar */
@@ -281,9 +308,22 @@ POSTS-USER AUTH ==============================
 
 #posts-con .user-metadata .poster-name,
 #posts-con .user-metadata .poster-name span,
-#posts-con .post-metadata .post-content {
+#posts-con .post-data .post-content {
     font-family: var(--sf-pro-font);
 
+}
+
+#posts-con .user-metadata .poster-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+#posts-con .user-metadata .poster-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 #posts-con .user-metadata .poster-name span {
@@ -294,21 +334,110 @@ POSTS-USER AUTH ==============================
     margin-top: 5px;
     color: rgba(255, 255, 255, .6);
 }
-#posts-con .post-metadata {
-    align-items: center;
+#posts-con .post-data {
     gap: 20px;
 }
 
-#posts-con .post-metadata .img-con img {
+#posts-con .post-data .img-con {
+    align-self: center;
+}
+
+#posts-con .post-data .img-con img {
     border-radius: 24px;
 }
 
-#posts-con .post-metadata .post-content {
+#posts-con .post-data .post-content {
     line-height: 1.33em;
     letter-spacing: 0.03em;
     font-weight: 400;
 }
 
+#posts-con .post-data .post-metadata {
+    justify-content: space-between;
+}
+
+#posts-con .post-data .btn-con {
+    justify-content: space-around;
+}
+
+#posts-con .post-data .btn-con a {
+    width: 100%;
+    text-align: center;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 10px 0;
+}
+
+#posts-con .post-data .btn-con a:hover {
+    border-color: white;
+}
+
+#posts-con .post-data .btn-con a.like-btn::before {   
+    position: absolute;
+    content: '';
+    background: url('../img/like.svg');
+    top: 50%;
+    left: 120px;
+    transform: translateY(-50%);
+    width: 25px;
+    height: 25px;
+}
+
+#posts-con .post-data .btn-con a.comment-btn::before {   
+    position: absolute;
+    content: '';
+    background: url('../img/comment.svg');
+    top: 50%;
+    left: 105px;
+    transform: translateY(-50%);
+    width: 25px;
+    height: 25px;
+}
+
+/* 
+==============================
+==============================
+==============================
+EVENTS-USER AUTH ==============================
+==============================
+==============================
+==============================
+*/
+#events-con {
+    gap: 0 30px;
+    align-items: start;
+    padding: 20px;
+}
+
+#events-con .react-calendar {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0.55%, rgba(255, 255, 255, 0.0128453) 96.81%, rgba(255, 255, 255, 0) 100%);
+    backdrop-filter: blur(21px);
+    border-radius: 24px;
+}
+
+#events-con .event-details {
+    gap: 40px 0;
+    align-items: start;
+}
+
+#events-con .event-details .text-con:first-of-type {
+    margin-bottom: 40px;
+}
+
+#events-con .event-details .agenda, 
+#events-con .event-details .reminders {
+    margin-top: 25px;
+}
+
+#events-con .event-details ul {
+    list-style: unset;
+}
+
+#events-con .event-details ol,
+#events-con .event-details ul {
+    margin-top: 25px;
+    padding-left: 25px; /* Adjust the padding as needed */
+}
 @media only screen and (max-width: 1860px) {
     header.user-auth > div,
     main.user-auth > div,

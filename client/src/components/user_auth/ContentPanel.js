@@ -1,13 +1,13 @@
 import ManageAccounts from "./manage_data/ManageAccounts";
 import Posts from "./view_data/Posts";
-
+import Events from "./Events";
 function ContentPanel({ currentView }) {
     const renderContent = () => {
         switch (currentView) {
           case 'posts':
             return <Posts />;
-          case 'events':
-            return <div>events</div>;
+            case 'events':
+              return <Events />;
           case 'document':
             return <div>Document</div>;
           case 'health':
@@ -17,7 +17,7 @@ function ContentPanel({ currentView }) {
           case 'forms':
             return <div>Forms</div>;
           case 'manage_accounts':
-            return <ManageAccounts />;
+            return <ManageAccounts /> ;
           case 'manage_events':
             return <div>Manage Events View</div>;
           case 'manage_posts':
@@ -31,7 +31,7 @@ function ContentPanel({ currentView }) {
           case 'manage_my_account':
             return <div>Manage my account</div>;
           default:
-            return <div>Select</div>;
+            return <Posts />;
         }
       };
     return (
