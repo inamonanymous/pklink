@@ -6,7 +6,7 @@ class ApplicationConfig:
     SQLALCHEMY_ECHO = True """
     SECRET_KEY = 'T^R,dWiKCP_a'
     SESSION_TYPE = 'sqlalchemy'
-    SESSION_PERMANENT = False
+    SESSION_PERMANENT = True
     SESSION_USE_SIGNER = True
     SESSION_SQLALCHEMY = db
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)

@@ -215,7 +215,6 @@ SIDEBAR-USER AUTH ==============================
     gap: 45px 0;
     width: fit-content;
     padding: 95px 115px 25px 30px;
-    position: fixed;
     z-index: 1;
 }
 
@@ -255,7 +254,6 @@ CONTENT-PANEL-USER AUTH ==============================
     border-radius: 20px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(20px);
-    margin: 0 auto;
 }
 
 #content-panel-ua > div {
@@ -438,6 +436,101 @@ EVENTS-USER AUTH ==============================
     margin-top: 25px;
     padding-left: 25px; /* Adjust the padding as needed */
 }
+
+/* 
+==============================
+==============================
+==============================
+DOCUMENT-REQUEST-USER AUTH ==============================
+==============================
+==============================
+==============================
+*/
+#document-req-con {
+    padding: 35px 80px 20px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0.55%, rgba(255, 255, 255, 0.0128453) 96.81%, rgba(255, 255, 255, 0) 100%);
+    border-radius: 24px;
+}
+
+#document-req-con .text-con.head {
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+#document-req-con .text-con.head h4 {
+    font-weight: 700;
+}
+
+#document-req-con .text-con.head input {
+    width: 399px;
+    height: 40px;
+    border: 1px solid #FFFFFF;
+    border-radius: 12px;
+    background-color: transparent;
+    padding-left: 55px;
+    color: white;
+}
+
+#document-req-con .text-con.head input::placeholder{
+    font-size: 12px;
+}
+
+#document-req-con .slick-slider {
+    width: 1000px;
+    margin: 0 auto;
+}
+
+#document-req-con .slick-slide {
+    opacity: 0.5; /* Dim non-centered slides */
+    transition: 0.3s;
+    transform: scale(0.7);
+    
+}
+
+
+#document-req-con .slick-center {
+    opacity: 1; /* Highlight the centered slide */
+    transform: scale(1); /* Optionally scale the centered slide */
+}
+
+#document-req-con .document-slide {
+    position: relative;
+}
+
+#document-req-con .document-slide:before {
+    position: absolute;
+    content: '';
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, #000000 100%);
+    z-index: 1;
+}
+
+#document-req-con .slick-center .document-slide .img-con{
+    border-radius: 0;
+}
+
+#document-req-con .document-slide .img-con {
+    border-radius: 12px;
+    overflow: clip;
+}
+
+#document-req-con .document-slide .img-con img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+#document-req-con .document-slide .text-con { 
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    width: 100%;
+    transform: translateX(-50%);
+    text-align: center;
+    margin-bottom: 15px;
+}
+
 @media only screen and (max-width: 1860px) {
     header.user-auth > div,
     main.user-auth > div,
