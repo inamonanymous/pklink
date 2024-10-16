@@ -1,6 +1,7 @@
 import ManageAccounts from "./manage_data/ManageAccounts";
 import Posts from "./view_data/Posts";
-import Events from "./Events";
+import Events from "./view_data/Events";
+import DocumentReq from "./view_data/DocumentReq";
 function ContentPanel({ currentView }) {
     const renderContent = () => {
         switch (currentView) {
@@ -9,7 +10,7 @@ function ContentPanel({ currentView }) {
             case 'events':
               return <Events />;
           case 'document':
-            return <div>Document</div>;
+            return <DocumentReq />;
           case 'health':
             return <div>Health</div>;
           case 'report':
