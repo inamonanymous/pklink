@@ -12,6 +12,12 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate  } from 'react-router-dom';
 import httpClient from '../../httpClient';
 
+const privilegedItems = [
+    { name: 'Manage Accounts', view: 'manage_accounts', privilege: 'view_accounts' },
+    { name: 'Manage Events', view: 'manage_events', privilege: 'manage_event' },
+    { name: 'Manage Posts', view: 'manage_posts', privilege: 'manage_post' },
+];
+
 function Header({ onViewChange, priveleges, activeView }) {
     const navItems = [
         { view: 'posts', logo: <AnnouncementLogo />, name: 'Community Updates' },
@@ -25,6 +31,12 @@ function Header({ onViewChange, priveleges, activeView }) {
     //route navigator
     const navigate = useNavigate()
     //user dropdown toggle
+    const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
+    // Toggle dropdown visibility
+    const menuDropdownToggle = () => {
+        setIsMenuDropdownOpen(!isMenuDropdownOpen);
+    };
+
     const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
     // Toggle dropdown visibility
     const userDropdownToggle = () => {
@@ -112,10 +124,26 @@ function Header({ onViewChange, priveleges, activeView }) {
                     <ul className='flex logos'>
                         <li>
                             <div className='img-con'>
-                                <a href="#">
+                                <a href="#" onClick={menuDropdownToggle}>
                                     <MenuLogo />
                                 </a>
                             </div>
+                            {isMenuDropdownOpen && (
+                                <div className='menu-dropdown flex-col'>
+                                        {privilegedItems.map((item) => (
+                                            priveleges?.[item.privilege] && (
+                                                <div key={item.view} className="text-con flex">
+                                                    <div className="img-con">
+                                                        <img src="" alt="" />
+                                                    </div>
+                                                    <a href="#" onClick={() => { onViewChange(item.view); }}>
+                                                        {item.name}
+                                                    </a>
+                                                </div>
+                                            )
+                                        ))}
+                                </div>
+                            )}
                         </li>
                         <li>
                             <div className='img-con'>
@@ -197,5 +225,6 @@ function Header({ onViewChange, priveleges, activeView }) {
         </header>
     );
 }
+
 
 export default Header;

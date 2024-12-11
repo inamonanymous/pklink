@@ -16,11 +16,6 @@ const menuItems = [
     { name: 'Fill out Forms', view: 'forms', Icon: FormsLogo },
 ];
 
-const privilegedItems = [
-    { name: 'Manage Accounts', view: 'manage_accounts', privilege: 'view_accounts' },
-    { name: 'Manage Events', view: 'manage_event', privilege: 'manage_event' },
-    { name: 'Manage Posts', view: 'manage_posts', privilege: 'manage_post' },
-];
 
 function Sidebar({ onViewChange, activeView, priveleges }) {
     return (
@@ -39,28 +34,6 @@ function Sidebar({ onViewChange, activeView, priveleges }) {
                     </a>
                 </div>
             ))}
-
-            {privilegedItems.map((item) => (
-                priveleges?.[item.privilege] && (
-                    <div key={item.view} className="text-con flex">
-                        <div className="img-con">
-                            <img src="" alt="" />
-                        </div>
-                        <a href="#" onClick={() => { onViewChange(item.view); }}>
-                            {item.name}
-                        </a>
-                    </div>
-                )
-            ))}
-
-            <div className="text-con flex">
-                <div className="img-con">
-                    <img src="" alt="" />
-                </div>
-                <a href="#" onClick={() => { onViewChange('manage_my_account'); }}>
-                    Manage My Account
-                </a>
-            </div>
         </aside>
     );
 }

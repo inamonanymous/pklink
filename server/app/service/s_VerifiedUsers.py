@@ -46,7 +46,7 @@ class VerifiedUsersService:
         ).outerjoin(
             ResidentType, Users.resident_id == ResidentType.id
         ).order_by(Users.lastname.asc()).all()
-
+         
         if not query:
             return []
 
