@@ -2,6 +2,8 @@ import ManageAccounts from "./manage_data/ManageAccounts";
 import Posts from "./view_data/Posts";
 import Events from "./view_data/Events";
 import DocumentReq from "./view_data/DocumentReq";
+import HealthAssist from "./view_data/HealthAssist";
+
 function ContentPanel({ currentView }) {
     const renderContent = () => {
         switch (currentView) {
@@ -12,7 +14,7 @@ function ContentPanel({ currentView }) {
           case 'document':
             return <DocumentReq />;
           case 'health':
-            return <div>Health</div>;
+            return <HealthAssist />;
           case 'report':
             return <div>Report</div>;
           case 'forms':

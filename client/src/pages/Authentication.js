@@ -8,7 +8,7 @@ import text_logo from  '../img/text_logo.svg';
 
 function Authentication() {
   const location = useLocation();
-  const [isLoggingIn, setIsLoggingIn] = useState(Boolean);  // Initialize with true by default
+  const [isLoggingIn, setIsLoggingIn] = useState(true);  // Initialize with true by default
   const [animating, setAnimating] = useState(false);
 
   useEffect(() => {
