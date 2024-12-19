@@ -1,8 +1,10 @@
+import Posts from "./request_data/Posts";
+import Events from "./request_data/Events";
+import DocumentReq from "./request_data/DocumentReq";
+import HealthAssist from "./request_data/HealthAssist";
+import ReportIncident from "./request_data/ReportIncident";
 import ManageAccounts from "./manage_data/ManageAccounts";
-import Posts from "./view_data/Posts";
-import Events from "./view_data/Events";
-import DocumentReq from "./view_data/DocumentReq";
-import HealthAssist from "./view_data/HealthAssist";
+import Forms from "./request_data/Forms";
 
 function ContentPanel({ currentView }) {
     const renderContent = () => {
@@ -16,9 +18,9 @@ function ContentPanel({ currentView }) {
           case 'health':
             return <HealthAssist />;
           case 'report':
-            return <div>Report</div>;
+            return <ReportIncident />;
           case 'forms':
-            return <div>Forms</div>;
+            return <Forms />;
           case 'manage_accounts':
             return <ManageAccounts /> ;
           case 'manage_events':

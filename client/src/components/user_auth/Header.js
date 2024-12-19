@@ -8,6 +8,9 @@ import { ReactComponent as FormsLogo } from '../../img/forms_logo.svg';
 import { ReactComponent as MenuLogo } from '../../img/menu_logo.svg';
 import { ReactComponent as NotifLogo } from '../../img/notif_logo.svg';
 import { ReactComponent as UserLogo } from '../../img/user_logo.svg';
+import { ReactComponent as InformationLogo } from '../../img/information_logo.svg';
+import { ReactComponent as SettingsLogo } from '../../img/settings_logo.svg';
+import { ReactComponent as LogoutLogo } from '../../img/logout_logo.svg';
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate  } from 'react-router-dom';
 import httpClient from '../../httpClient';
@@ -166,56 +169,49 @@ function Header({ onViewChange, priveleges, activeView }) {
                                 </a>
                             </div>
                             {isUserDropdownOpen && (
-                                <div className="user-dropdown">
-                                    <p>Welcome, User!</p>
-                                    <h4>
-                                        {userInformation.user_data ? (
-                                            <>
-                                                {userInformation.user_data.user_lastname}, {userInformation.user_data.user_firstname} {userInformation.user_data.user_middlename}
-                                            </>
-                                        ) : 
-                                        (
-                                            <p>
-                                                Loading user information...
-                                            </p>
-                                        )}
-                                    </h4>
-                                    {/* location type */}
-                                    <h5>
-                                        {userInformation.user_details_data.location_type}
-                                    </h5>
-                                    <ul>
-                                        {userInformation.user_details_data.brgy_street_obj ? (
-                                        /* if brgy_street_id is not empty */
-                                            <>
-                                                <li>
-                                                    Purok: {userInformation.user_details_data.brgy_street_obj.purok}
-                                                </li>
-                                                <li>
-                                                    Streetname: {userInformation.user_details_data.brgy_street_obj.street_name}
-                                                </li>
-                                            </>
-                                        ) : userInformation.user_details_data.village_obj ? ( 
-                                            /* if village_id is not empty */
-                                            <>
-                                                <li>
-                                                    Village / Subdivision name: {userInformation.user_details_data.village_obj.village_name} 
-                                                </li>
-                                            </>
-                                        ) : (
-                                            <li>Loading...</li>
-                                        )}
-                                        <li>
-                                            House no: {userInformation.user_details_data.house_number}
-                                        </li>
-                                    </ul>
+                                <div className="user-dropdown flex-col">
+                                    <div className='img-con user-profile-photo flex'>
+                                        <img 
+                                            src={`http://127.0.0.1:5001/api/${userInformation.user_data.user_photo_path.replace(/\\/g, '/')}`} 
+                                            alt={`${userInformation.user_data.user_lastname}, ${userInformation.user_data.user_firstname} ${userInformation.user_data.user_middlename}'s profile`} 
+                                        />
+                                    </div>
+                                    <div className='text-con'>                 
+                                        <h4 className='user-fullname'> {/* users's name */}
+                                            {userInformation.user_data ? (
+                                                <>
+                                                    {userInformation.user_data.user_lastname}, {userInformation.user_data.user_firstname} {userInformation.user_data.user_middlename}
+                                                </>
+                                            ) : 
+                                            (
+                                                <p>
+                                                    Loading user information...
+                                                </p>
+                                            )}
+                                        </h4>
+                                            
+                                        <h6 className='user-location-type'> {/* Location Type */}
+                                            {userInformation.user_details_data.location_type}
+                                        </h6>
 
-                                    <h5>
-                                        {priveleges.type_name}
-                                    </h5>
-                                    <button onClick={handleLogoutClick}>
-                                        Logout
-                                    </button>
+                                        <p className='user-privilege-type'>
+                                            {priveleges.type_name}
+                                        </p>
+                                    </div>
+                                    <div className='control-buttons-con flex-col'>
+                                        <a href="#" className='button'>
+                                            <InformationLogo />
+                                            View Profile
+                                        </a>
+                                        <a href="#" className='button'>
+                                            <SettingsLogo />
+                                            Settings
+                                        </a>
+                                        <a href="#" className='button logout-button' onClick={handleLogoutClick}>
+                                            <LogoutLogo />
+                                            Logout
+                                        </a>
+                                    </div>
                                 </div>
                             )}
                         </li>

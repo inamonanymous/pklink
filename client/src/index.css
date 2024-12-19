@@ -146,6 +146,10 @@ ul {
   list-style: none;
 }
 
+button {
+  cursor: pointer;
+  transition: 0.3s;
+}
 
 .flex {
   display: flex;
@@ -167,6 +171,12 @@ ul {
 
 .form-con {
   position: relative;
+  width: fit-content;
+}
+
+.table-con {
+  position: relative;
+  width: fit-content;
 }
 
 .img-con {

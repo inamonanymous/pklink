@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import httpClient from "../../../httpClient";
-import ProtectedComponent from "../ProtectedComponent";
 
 function ManageAccounts() {
     const [loading, setLoading] = useState(false);//for loading effects
