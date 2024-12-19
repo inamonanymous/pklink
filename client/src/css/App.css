@@ -4,6 +4,7 @@
 :root {
     --dark-gray: #282828;
     --cream: #EDE1C2;
+    --white-black-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0.55%, rgba(255, 255, 255, 0.0128453) 96.81%, rgba(255, 255, 255, 0) 100%);
     --sf-pro-font: 'SF Pro Display';
 }
 
@@ -143,9 +144,65 @@ HEADER-USER AUTH ==============================
     left: -175px;
     padding: 20px;
     width: 360px;
-    border-radius: 6px;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    align-items: center;
+    transform: 0.3s;
+}
+
+#header-ua .user-dropdown .img-con.user-profile-photo img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+}
+
+#header-ua .user-dropdown .img-con.user-profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 100%;
+    overflow: clip;
+    border: 10px solid #987F4E;
+}
+
+#header-ua .user-dropdown h4.user-fullname {
+    font-weight: 700;
+    text-decoration: underline;
+    margin: 10px 0 10px;
+    text-transform: capitalize;
+}
+
+#header-ua .user-dropdown p.user-privilege-type {
+    margin: 5px 0 35px;
+}
+
+#header-ua .user-dropdown .control-buttons-con.flex-col {
+    gap: 15px;
+}
+
+#header-ua .user-dropdown .control-buttons-con a.button {
+    background: #EDE1C2;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 12px 10px 35px;
+    color: black;
+    font-size: 12px;
+    position: relative;
+    text-align: left;
+}
+
+ 
+#header-ua .user-dropdown .control-buttons-con a.logout-button {
+    background: #4B0000;
     color: white;
 }
+
+#header-ua .user-dropdown .control-buttons-con a.button svg {
+    position: absolute;
+    left: 12px;
+}
+
 
 #header-ua .menu-dropdown {
     position: absolute;
@@ -421,7 +478,7 @@ EVENTS-USER AUTH ==============================
 }
 
 #events-con .react-calendar {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0.55%, rgba(255, 255, 255, 0.0128453) 96.81%, rgba(255, 255, 255, 0) 100%);
+    background: var(--white-black-gradient);
     backdrop-filter: blur(21px);
     border-radius: 24px;
 }
@@ -461,7 +518,7 @@ DOCUMENT-REQUEST-USER AUTH ==============================
 */
 #document-req-con {
     padding: 35px 80px 20px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0.55%, rgba(255, 255, 255, 0.0128453) 96.81%, rgba(255, 255, 255, 0) 100%);
+    background: var(--white-black-gradient);
     border-radius: 24px;
 }
 
@@ -598,7 +655,7 @@ HEALTH-ASSIST-USER AUTH ==============================
 
 #health-assist-con {
     padding: 35px 80px 20px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0.55%, rgba(255, 255, 255, 0.0128453) 96.81%, rgba(255, 255, 255, 0) 100%);
+    background: var(--white-black-gradient);
     border-radius: 24px;
     width: 1000px;
 }
@@ -607,6 +664,120 @@ HEALTH-ASSIST-USER AUTH ==============================
     margin: 60px auto 0;
     width: 550px;
 }
+
+/* 
+==============================
+==============================
+==============================
+REPORT-INCIDENT-USER AUTH ==============================
+==============================
+==============================
+==============================
+*/
+
+#report-incident-con {
+    padding: 35px 80px 20px;
+    background: var(--white-black-gradient);
+    border-radius: 24px;
+    width: 1000px;
+}
+
+#report-incident-con .form-con {
+    margin: 60px auto 0;
+    width: 550px;
+}
+
+/* 
+==============================
+==============================
+==============================
+FORMS-USER AUTH ==============================
+==============================
+==============================
+==============================
+*/
+
+#forms-con {
+    padding: 35px 80px 20px;
+    background: var(--white-black-gradient);
+    border-radius: 24px;
+    width: 1000px;
+}
+
+#forms-con .table-con  {
+    background-color: white;
+    color: black;
+    border-radius: 24px;
+    border: none;
+    padding: 70px 35px 30px;
+    margin-top: 60px;
+    align-self: center;
+}
+
+#forms-con .table-con p.title {
+    position: absolute;
+    top: 30px;
+    left: 35px;
+    font-weight: 600;
+}
+
+#forms-con .table-con table thead,
+#forms-con .table-con table tbody tr  {
+    position: relative;
+}
+
+#forms-con .table-con table thead:before,
+#forms-con .table-con table tbody tr::before {
+    background-color: rgba(163, 163, 163, 0.25);
+    height: 1px;
+    content: '';
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+}
+
+#forms-con .table-con table th {
+    text-align: left;
+    width: auto;
+    padding: 10px;
+    font-weight: 300;
+    color: #656575;
+}
+
+#forms-con .table-con td {
+    line-height: 1.19em;
+    text-align: left;
+    padding: 10px;
+    word-wrap: break-word;
+}
+
+#forms-con .table-con td.form-submits {
+    width: 70px;
+    text-align: center;
+}
+
+#forms-con .table-con td.form-submits p {
+    background-color: rgba(153, 153, 153, 0.1);
+    padding: 5px 10px;
+}
+
+#forms-con .table-con td.form-title {
+    width: 110px;
+}
+
+#forms-con .table-con td.form-status {
+    width: 130px;
+}
+
+#forms-con .table-con .proceed-btn {
+    background-color: #006AFF;
+    border-radius: 4px;
+    border: none;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+}
+
 
 @media only screen and (max-width: 1860px) {
     header.user-auth > div,
