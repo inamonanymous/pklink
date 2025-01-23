@@ -313,6 +313,140 @@ SIDEBAR-USER AUTH ==============================
 ==============================
 ==============================
 ==============================
+MANAGE-ACCOUTNS-USER AUTH ==============================
+==============================
+==============================
+==============================
+*/
+
+#manage-accounts {
+    gap: 0 25px;
+    align-items: start;
+}
+
+
+#manage-accounts-search-list {
+    
+}
+
+/* Wrapper for the toggle switch */
+#manage-accounts-search-list .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+#manage-accounts-search-list .toggle-switch input {
+    display: none; /* Hide the checkbox */
+}
+
+#manage-accounts-search-list .toggle-switch .slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 24px;
+    transition: 0.3s;
+}
+
+#manage-accounts-search-list .toggle-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    background-color: white;
+    border-radius: 50%;
+    bottom: 3px;
+    left: 3px;
+    transition: 0.3s;
+}
+
+/* Checked state */
+#manage-accounts-search-list .toggle-switch input:checked + .slider {
+    background-color: #4caf50;
+}
+
+#manage-accounts-search-list .toggle-switch input:checked + .slider:before {
+    transform: translateX(26px); /* Slide the knob */
+}
+
+/* Disabled state */
+#manage-accounts-search-list .toggle-switch input:disabled + .slider {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+#manage-accounts-search-list span.account-status {
+    position: absolute;
+    left: 60px;
+    width: max-content;
+}
+
+#manage-accounts-search-list input.search-input {
+    margin: 25px 0;
+}
+
+#manage-accounts-search-list ul {
+    gap: 10px 0;
+}
+
+#manage-accounts .manage-individual-account .user-information {
+    align-items: start;
+    gap: 0 15px;
+}
+
+#manage-accounts-list ul li {
+    margin-bottom: 30px;
+}
+
+#manage-accounts-list ul {
+    gap: 10px;
+}
+
+#manage-accounts .manage-individual-account .img-con {
+    width: 385px;
+    height: 300px;
+}
+
+#manage-accounts .manage-individual-account .img-con img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 40px;
+}
+
+#manage-accounts .manage-individual-account {
+    align-items: center;
+    gap: 50px;
+}
+
+#manage-accounts .manage-individual-account .user-information div h4 {
+    margin-bottom: 10px;
+}
+
+#manage-accounts .manage-individual-account .user-information div h6 {
+    
+}
+
+#manage-accounts .manage-individual-account .user-information div h6:not(:last-of-type) {
+    margin-bottom: 5px;
+}
+
+#manage-accounts .manage-individual-account .user-information button {
+    margin-top: 40px;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+/* 
+==============================
+==============================
+==============================
 CONTENT-PANEL-USER AUTH ==============================
 ==============================
 ==============================
@@ -329,6 +463,7 @@ CONTENT-PANEL-USER AUTH ==============================
 #content-panel-ua > div {
     padding: 20px 20px 65px;
     color: white;
+    position: relative;
 }
 
 /* 
@@ -530,7 +665,8 @@ DOCUMENT-REQUEST-USER AUTH ==============================
     font-weight: 700;
 }
 
-#document-req-con .text-con.head input {
+#document-req-con .text-con.head input,
+#manage-accounts-search-list .search-input {
     width: 399px;
     height: 40px;
     border: 1px solid #FFFFFF;
@@ -545,7 +681,7 @@ DOCUMENT-REQUEST-USER AUTH ==============================
 }
 
 #document-req-con .slick-slider {
-    width: 1000px;
+    width: 650px;
     margin: 0 auto;
 }
 

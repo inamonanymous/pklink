@@ -4,6 +4,7 @@ from app.model.m_UserDetails import UserDetails
 from app.service.s_functions import get_image_registration_path, create_user_directory, save_user_registration_image, check_if_local
 from sqlalchemy.exc import SQLAlchemyError
 from app.service.s_functions import verify_face
+from datetime import datetime
 
 class UserService:
     #verify user authentication 
@@ -37,7 +38,8 @@ class UserService:
                     middlename=user_data['middlename'],
                     lastname=user_data['lastname'],
                     suffix=user_data['suffix'],
-                    gender=user_data['gender']
+                    gender=user_data['gender'],
+                    date_created=datetime.now()
                 )
                 db.session.add(user_entry)
                 db.session.flush()
@@ -49,7 +51,8 @@ class UserService:
                     email_address = details_data['email_address'],
                     phone_number = details_data['phone_number'],
                     phone_number2 = details_data['phone_number2'],
-                    modified_by = user_entry.id
+                    modified_by = user_entry.id,
+                    date_created=datetime.now()
                 )
 
                 # Check if local, with explicit handling for ValueError

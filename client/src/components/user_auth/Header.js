@@ -11,6 +11,7 @@ import { ReactComponent as UserLogo } from '../../img/user_logo.svg';
 import { ReactComponent as InformationLogo } from '../../img/information_logo.svg';
 import { ReactComponent as SettingsLogo } from '../../img/settings_logo.svg';
 import { ReactComponent as LogoutLogo } from '../../img/logout_logo.svg';
+import  no_profile from '../../img/no_profile.png';
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate  } from 'react-router-dom';
 import httpClient from '../../httpClient';
@@ -139,7 +140,13 @@ function Header({ onViewChange, priveleges, activeView }) {
                                                     <div className="img-con">
                                                         <img src="" alt="" />
                                                     </div>
-                                                    <a href="#" onClick={() => { onViewChange(item.view); }}>
+                                                    <a
+                                                        href="#"
+                                                        onClick={() => {
+                                                            menuDropdownToggle(); // Call the function properly
+                                                            onViewChange(item.view); // Pass item.view to onViewChange
+                                                        }}
+                                                    >
                                                         {item.name}
                                                     </a>
                                                 </div>
@@ -171,10 +178,17 @@ function Header({ onViewChange, priveleges, activeView }) {
                             {isUserDropdownOpen && (
                                 <div className="user-dropdown flex-col">
                                     <div className='img-con user-profile-photo flex'>
-                                        <img 
-                                            src={`http://127.0.0.1:5001/api/${userInformation.user_data.user_photo_path.replace(/\\/g, '/')}`} 
-                                            alt={`${userInformation.user_data.user_lastname}, ${userInformation.user_data.user_firstname} ${userInformation.user_data.user_middlename}'s profile`} 
-                                        />
+                                        {!userInformation.user_data.user_photo_path ? (
+                                            <img
+                                                src={no_profile}
+                                            />
+                                        ) : (
+                                            <img 
+                                                src={`http://127.0.0.1:5001/api/${userInformation.user_data.user_photo_path.replace(/\\/g, '/')}`} 
+                                                alt={`${userInformation.user_data.user_lastname}, ${userInformation.user_data.user_firstname} ${userInformation.user_data.user_middlename}'s profile`} 
+                                            />
+                                        )}
+                                        
                                     </div>
                                     <div className='text-con'>                 
                                         <h4 className='user-fullname'> {/* users's name */}
