@@ -3,14 +3,16 @@ import Events from "./request_data/Events";
 import DocumentReq from "./request_data/DocumentReq";
 import HealthAssist from "./request_data/HealthAssist";
 import ReportIncident from "./request_data/ReportIncident";
-import ManageAccounts from "./manage_data/ManageAccounts";
 import Forms from "./request_data/Forms";
+import ManageAccounts from "./manage_data/ManageAccounts";
+import ManagePosts from "./manage_data/ManagePosts";
+import ManageEvents from "./manage_data/ManageEvents";
 
 function ContentPanel({ currentView }) {
     const renderContent = () => {
         switch (currentView) {
           case 'posts':
-            return <Posts />;
+            return <Posts  />;
             case 'events':
               return <Events />;
           case 'document':
@@ -24,9 +26,9 @@ function ContentPanel({ currentView }) {
           case 'manage_accounts':
             return <ManageAccounts /> ;
           case 'manage_events':
-            return <div>Manage Events View</div>;
+            return <ManageEvents />;
           case 'manage_posts':
-            return <div>Manage Posts View</div>;
+            return <ManagePosts />;
           case 'manage_health':
             return <div>Manage Health Support Entries</div>;
           case 'manage_incidents':

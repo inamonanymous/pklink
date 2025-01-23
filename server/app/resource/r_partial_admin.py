@@ -1,4 +1,4 @@
-from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins
+from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins, PS_ins, session
 from .r_functions import require_user_session, get_current_user_privilege
 
 #--------------- Variable Values ---------------#
@@ -7,6 +7,7 @@ from .r_functions import require_user_session, get_current_user_privilege
     AS_ins = <AdminService> object instance
     US_ins = <UserService> object instance
     UDS_ins = <UserDetailsService> object instance
+    PS_ins = <PostService> object instance
 """
 
 class UnverifiedUserData(Resource):
@@ -23,14 +24,14 @@ class UserVerification(Resource):
     #this user still exists on users table
     @require_user_session
     def delete(self):
-        delete_parser = reqparse.RequestParser()
-        delete_parser.add_argument("req_user_id", type=str, required=True, help="username is required")
         current_user_privelege = get_current_user_privilege()
         if current_user_privelege is None:
             abort(404, message="current user not found")    
         if not current_user_privelege['control_accounts']:
             abort(401, message="current user not allowed")    
-        user_id  = request.args.get('req_user_id')
+        delete_parser = reqparse.RequestParser()
+        delete_parser.add_argument("req_user_id", type=str, required=True, help="username is required")
+        user_id = request.args.get('req_user_id')
         if AS_ins.get_admin_by_user_id(user_id):
             abort(409, message="target user is listead as admin")    
         if not VUS_ins.delete_verified_user(user_id):
@@ -87,4 +88,51 @@ class UserVerification(Resource):
         user['user_details_obj'] = user_details
         return user
         
+class PostManagement(Resource):
+    @require_user_session
+    def delete(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(404, message="current user not found")    
+        if not current_user_privelege['manage_post']:
+            abort(401, message="current user not allowed")    
+
+        delete_parser = reqparse.RequestParser()
+        delete_parser.add_argument("req_post_id", type=str, required=True, help="post id is required")        
+        post_id = request.args.get('req_post_id')
         
+        status = PS_ins.delete_post(post_id)
+        if not status:
+            return {"message": "failed to delete"}, 405
+        
+        return {"post deleted": "post"}, 201
+    
+    
+    @require_user_session
+    def post(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['add_post']:
+            abort(401, message="current user not allowed")    
+
+        args = request.form
+        post_photo = request.files.get('req_post_photo')
+        print(args)
+        if args is None:
+            return {"message": "invalid request"}, 400
+        user = US_ins.get_user_dict_by_username(session.get('user_username'))
+        if user is None:
+            return {"message": "invalid! no user found"}, 406
+        PS_ins.insert_post(
+            title=args['req_post_title'],
+            content=args['req_post_content'],
+            photo=post_photo,
+            created_by=user['user_id']
+        )
+        return {"post added": "post"}, 200
+    
+   
+
+
+

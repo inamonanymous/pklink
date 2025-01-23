@@ -1,4 +1,4 @@
-from app.resource import Resource, abort, reqparse, session, request, VUS_ins, AS_ins, US_ins, UDS_ins, VS_ins, BSS_ins, PS_ins
+from app.resource import Resource, abort, reqparse, session, request, VUS_ins, ES_ins, US_ins, UDS_ins, VS_ins, BSS_ins, PS_ins
 from .r_functions import require_user_session, get_current_user_username, get_current_user_privilege
 
 #--------------- Variable Values ---------------#
@@ -92,10 +92,14 @@ class UserRegistration(Resource):
             return {"message": "registration unsuccessful"}, 406
         return {"message": "registration success"}, 201
 
+class EventsData(Resource):
+    def get(self):
+        data = ES_ins.get_all_events_dict()
+        return data, 200
+    
 class PostsData(Resource):
     def get(self):
         data = PS_ins.get_all_posts_dict()
-        print(PS_ins.get_post_details_by_user_id('99794abce4ae4661a9517f9f0a47cfa7'))
         return data, 200
 
 class RegisteredVillages(Resource):

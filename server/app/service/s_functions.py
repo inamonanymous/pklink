@@ -4,8 +4,66 @@ import face_recognition
 from PIL import Image
 import numpy as np 
 import gc
+from werkzeug.utils import secure_filename
+
 
 USER_FOLDER = f"uploads/users"
+
+
+def save_post_image(user_id, post_id, img) -> str:
+    """
+    Receives an image and saves it to the user's post directory.
+
+    Args:
+        user_id (int): Unique identifier for the user.
+        post_id (int): Unique identifier for the post.
+        img (FileStorage): The uploaded image to be saved.
+
+    Returns:
+        str: The path to the saved image if it was saved successfully, or an empty string if there was an error.
+    """
+    # Create the post directory for the user and post
+    post_directory = create_post_directory(user_id, post_id)
+    
+    # Check if the image is valid
+    img_ext = check_image_validity(img)
+    if not img_ext:
+        print("Invalid image extension.")
+        return ""  # Return empty string in case of error
+    
+    # Generate a secure filename for the image
+    img_filename = f"post_image.{img_ext}"
+    img_path = os.path.join(post_directory, img_filename)
+    
+    # Save the image
+    try:
+        img.save(img_path)
+        print(f"Image saved successfully: {img_path}")
+        return img_path  # Return the path to the saved image
+    except Exception as e:
+        print(f"Error saving image: {e}")  # Log the exception for debugging
+        return ""  # Return empty string in case of error
+    
+def create_post_directory(user_id, post_id) -> str:
+    """
+    Creates a directory for storing user-specific posts, including a subdirectory for each post.
+
+    Args:
+        user_id (int): Unique identifier for the user.
+        post_id (int): Unique identifier for the post.
+    
+    Returns:
+        str: The path to the user's post directory for the specific post.
+    """
+    # Path to the post directory with an additional post-specific subdirectory
+    post_directory = f"{USER_FOLDER}/user_{str(user_id)}/posts/post_{post_id}"
+    
+    # Check if the directory already exists, and create it if not
+    if not os.path.exists(post_directory):
+        os.makedirs(post_directory)  # Create the specific post directory
+        print(f"Post directory created: {post_directory}")
+    
+    return post_directory
 
 def check_image_validity(img):
     """
@@ -29,7 +87,7 @@ def check_image_validity(img):
         return img.filename.lower().split('.')[-1]  # Return the valid extension
     
     return False  # Return False if the extension is invalid
-
+    
 
 def get_image_registration_path(user_dir, **kwargs) -> dict:
     """

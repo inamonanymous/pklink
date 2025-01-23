@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import httpClient from "../../../httpClient";
+import no_profile from "../../../img/no_profile.png";
 
 function ManageAccounts() {
     const [loading, setLoading] = useState(false);//for loading effects
@@ -167,58 +168,65 @@ function ManageAccounts() {
 
    
     return (
-        <>
-        
-            <label>
-                <input
-                type="checkbox"
-                checked={isVerifiedChecked}
-                onChange={handleIsVerifiedChange}
-                style={{ cursor: loading ? 'wait' : 'default' }}
-                />
-                <span>{isVerifiedChecked ? 'Verified' : 'Unverified'}</span>
-            </label>
-            <div className="manage-accounts-list">
-                <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    placeholder="Search by username"
-                />
-                <ul>
-                    {/* check if there's items inside searched filtered users state */}
-                    {filteredUsers !==null ? (
-                        filteredUsers.map(user => (
-                        <li key={user.user_id}>
-                            <div
-                            style={{ cursor: loading ? 'wait' : 'pointer' }}
-                            onClick={handleUserInListClick}
-                            data-value={user.user_username}
-                            >
-                            <dt>{`${user.user_lastname}, ${user.user_firstname} ${user.user_middlename}`}</dt>
-                            </div>
-                        </li>
-                        ))
-                    /* check if there's items inside all users state */
-                    ) : allUsers ? (
-                        allUsers.map(user => (
-                        <li key={user.user_id}>
-                            <div
-                            style={{ cursor: loading ? 'wait' : 'pointer' }}
-                            onClick={handleUserInListClick}
-                            data-value={user.user_username}
-                            >
-                            <dt>{`${user.user_lastname}, ${user.user_firstname} ${user.user_middlename}`}</dt>
-                            </div>
-                        </li>
-                        ))
-                    ) : (
-                        <li>No users found.</li>
-                    )}
-                </ul>
+        <div id="manage-accounts" className="flex">
+            <div id="manage-accounts-search-list">
+            
+                <label className="toggle-switch">
+                    <input
+                        type="checkbox"
+                        checked={isVerifiedChecked}
+                        onChange={handleIsVerifiedChange}
+                        disabled={loading}
+                    />
+                    <span className="slider"></span>
+                    <span className="account-status">
+                        <h5>{isVerifiedChecked ? "Verified Accounts" : "Unverified Accounts"}</h5>
+                    </span>
+                </label>
+                <div className="manage-accounts-list">
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        placeholder="Search by username"
+                        className="search-input"
+                    />
+                    <ul className="flex-col">
+                        {/* check if there's items inside searched filtered users state */}
+                        {filteredUsers !==null ? (
+                            filteredUsers.map(user => (
+                            <li key={user.user_id}>
+                                <div
+                                style={{ cursor: loading ? 'wait' : 'pointer' }}
+                                onClick={handleUserInListClick}
+                                data-value={user.user_username}
+                                >
+                                    <h5>{`${user.user_lastname}, ${user.user_firstname} ${user.user_middlename}`}</h5>
+                                </div>
+                            </li>
+                            ))
+                        /* check if there's items inside all users state */
+                        ) : allUsers ? (
+                            allUsers.map(user => (
+                            <li key={user.user_id}>
+                                <div
+                                style={{ cursor: loading ? 'wait' : 'pointer' }}
+                                onClick={handleUserInListClick}
+                                data-value={user.user_username}
+                                >
+                                    <h6>{`${user.user_lastname}, ${user.user_firstname} ${user.user_middlename}`}</h6>
+                                </div>
+                            </li>
+                            ))
+                        ) : (
+                            <li>No users found.</li>
+                        )}
+                    </ul>
 
+                </div>
+            
             </div>
-            <div className="manage-individual-account">
+            <div className="manage-individual-account flex-col">
                 {!showUserDetails ? (
                     <>
                         Select User
@@ -229,76 +237,91 @@ function ManageAccounts() {
                     </>
                 ) : (
                     <>
-                        <div className="basic-info">
-                            <h6>Basic info</h6>
-                            <p> {/* users' name */}
-                                {individualUserInformation.user_lastname}, &nbsp;
-                                {individualUserInformation.user_firstname} &nbsp;
-                                {individualUserInformation.user_middlename} &nbsp;
-                                {individualUserInformation.user_suffix
-                            }</p>
-                            <p>{individualUserInformation.user_gender}</p>
-                            <p>{individualUserInformation.user_date_created}</p>
-
-                            {/* /* if fetch method is unverified users */}
-                            {isVerifiedChecked ? (
-                                <>
-                                    Verified
-                                </>
+                        <div className="img-con">
+                            {!individualUserInformation.user_photo_path ? (
+                                <img src={no_profile} />
                             ) : (
-                                <button  
-                                    onClick={handleVerifyButton}
-                                    data-value={individualUserInformation.user_id}
-                                >Verify</button>
-                                )}
-                        </div>
-
-                        <div className="contact-info">
-                            <h6>Contact info</h6>
-                            <p>{individualUserInformation.user_details_obj.email_address}</p>
-                            <p>{individualUserInformation.user_details_obj.phone_number}</p>
-                            <p>{individualUserInformation.user_details_obj.phone_number2}</p>                            
-                        </div>
-                        <div className="contact-info">
-                            <h6>Address info</h6>
-                            <p>Location Type: {individualUserInformation.user_details_obj.location_type}</p>
-                            <p>House Number: {individualUserInformation.user_details_obj.house_number}</p>
-                            {/* if location is village type */}
-                            {individualUserInformation.user_details_obj.village_obj ? (
-                                <>
-                                    <p>Block: {individualUserInformation.user_details_obj.block_number}</p>
-                                    <p>Lot: {individualUserInformation.user_details_obj.lot_number}</p>
-                                    <p>Village street: {individualUserInformation.user_details_obj.village_street}</p>
-                                
-                                </>
-                            ) : (
-                                <>
-                                    {/* if location is local type */}
-                                    <p>Purok: {individualUserInformation.user_details_obj.brgy_street_obj.purok}</p>
-                                    <p>Street: {individualUserInformation.user_details_obj.brgy_street_obj.street_name}</p>
-                                </>
+                                <img 
+                                    src={`http://127.0.0.1:5001/api/${individualUserInformation.user_photo_path.replace(/\\/g, '/')}`} 
+                                    alt={`${individualUserInformation.user_firstname} ${individualUserInformation.user_lastname}'s profile`} 
+                                />
                             )}
                             
-                        <div className="button-con">
-                            {!isVerifiedChecked ? (
-                                <>
-                                    Pending status
-                                </>
-                            ) : (
-                                <button  
-                                    onClick={handleRemoveFromVerified}
-                                    data-value={individualUserInformation.user_id}
-                                >Remove</button>
-                                )}
                         </div>
-                            
-                            
+                        <div className="user-information flex">
+                            <div className="basic-info">
+                                <h4>Basic info</h4>
+                                <h6> {/* users' name */}
+                                    {individualUserInformation.user_lastname}, &nbsp;
+                                    {individualUserInformation.user_firstname} &nbsp;
+                                    {individualUserInformation.user_middlename} &nbsp;
+                                    {individualUserInformation.user_suffix
+                                }</h6>
+                                <h6>{individualUserInformation.user_gender}</h6>
+                                <h6>{individualUserInformation.user_date_created}</h6>
+
+                                {/* /* if fetch method is unverified users */}
+                                {isVerifiedChecked ? (
+                                    <>
+                                        <h6>Verified</h6>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h6>Unverified</h6>
+                                        <button  
+                                            onClick={handleVerifyButton}
+                                            data-value={individualUserInformation.user_id}
+                                        >Verify</button>
+                                    </>
+                                    )}
+                            </div>
+
+                            <div className="contact-info">
+                                <h4>Contact Info</h4>
+                                <h6>{individualUserInformation.user_details_obj.email_address}</h6>
+                                <h6>{individualUserInformation.user_details_obj.phone_number}</h6>
+                                <h6>{individualUserInformation.user_details_obj.phone_number2}</h6>                            
+                            </div>
+                            <div className="contact-info">
+                                <h4>Address info</h4>
+                                <h6>Location Type: {individualUserInformation.user_details_obj.location_type}</h6>
+                                <h6>House Number: {individualUserInformation.user_details_obj.house_number}</h6>
+                                {/* if location is village type */}
+                                {individualUserInformation.user_details_obj.village_obj ? (
+                                    <>
+                                        <h6>Block: {individualUserInformation.user_details_obj.block_number}</h6>
+                                        <h6>Lot: {individualUserInformation.user_details_obj.lot_number}</h6>
+                                        <h6>Village street: {individualUserInformation.user_details_obj.village_street}</h6>
+                                    
+                                    </>
+                                ) : (
+                                    <>
+                                        {/* if location is local type */}
+                                        <h6>Purok: {individualUserInformation.user_details_obj.brgy_street_obj.purok}</h6>
+                                        <h6>Street: {individualUserInformation.user_details_obj.brgy_street_obj.street_name}</h6>
+                                    </>
+                                )}
+                                
+                            <div className="button-con">
+                                {!isVerifiedChecked ? (
+                                    <>
+                                        Pending status
+                                    </>
+                                ) : (
+                                    <button  
+                                        onClick={handleRemoveFromVerified}
+                                        data-value={individualUserInformation.user_id}
+                                    >Remove</button>
+                                    )}
+                            </div>
+                                
+                                
+                            </div>
                         </div>
                     </>
                 )}
-            </div>
-           
-        </>
+            </div>  
+        </div>
     );
 }
 
