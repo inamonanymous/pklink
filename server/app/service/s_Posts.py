@@ -2,40 +2,62 @@ from app.model.m_Posts import Posts
 from app.model.m_Users import Users
 from app.model.m_ResidentType import ResidentType
 from app.ext import db
-from app.service.s_functions import save_post_image
+from app.service.s_functions import generate_gcs_post_image_path, upload_image_to_gcs, check_image_validity, delete_post_folder_from_gcs
 from datetime import datetime
+from sqlalchemy.exc import SQLAlchemyError
 
 class PostsService:
     def delete_post(self, post_id):
         post = Posts.query.filter_by(id=post_id).first()
         if post is None:
             return False
-        db.session.delete(post)
-        db.session.commit()
-        return True
+
+         # Delete the photo from GCS if it exists
+        if post.photo_path:
+            print(delete_post_folder_from_gcs(post.created_by, post.id))
+
+        # Delete the post from the database
+        try:
+            db.session.delete(post)
+            db.session.commit()
+            return True
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return False
 
     def insert_post(self, title, content, photo, created_by):
         # Create a new post entry and save it to the database
-        post_entry = Posts(
-            title=title,
-            content=content,
-            created_by=created_by,
-            date_created=datetime.now()
-        )
-        db.session.add(post_entry)
-        db.session.commit()
+        try:
+            post_entry = Posts(
+                title=title,
+                content=content,
+                created_by=created_by,
+                date_created=datetime.now()
+            )
+            db.session.add(post_entry)
+            db.session.commit()
 
-        photo_path = None
-        # Save the post photo and get the file path
-        if photo:
-            photo_path = save_post_image(created_by, post_entry.id, photo)  # Use the existing function
-            if not photo_path:
-                return {"message": "Failed to save image."}, 500  # Return error if image save failed
-        else:
-            photo_path = None
-        post_entry.photo_path = photo_path
-        db.session.commit()
-        return {"message": "Post added successfully."}, 200
+            photo_path_gcs = None
+            # Save the post photo and get the file path
+            if photo:
+                photo_ext = check_image_validity(photo)
+                if not photo_ext:
+                    return {"message": "Failed to save image. image not valid"}, 400  # Return error if image save failed
+                photo_path_gcs = generate_gcs_post_image_path(user_id=created_by, post_id=post_entry.id, image_ext=photo_ext)
+                photo.seek(0)
+                print(upload_image_to_gcs(photo, photo_path_gcs))
+                if not photo_path_gcs:
+                    return {"message": "Failed to save image."}, 500  # Return error if image save failed
+            else:
+                photo_path_gcs = None
+            post_entry.photo_path = photo_path_gcs
+            db.session.commit()
+            return True
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(e)
+            return False
 
 
     def get_all_posts_dict(self):

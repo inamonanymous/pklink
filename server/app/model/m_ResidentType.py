@@ -10,6 +10,7 @@ class ResidentType(db.Model):
     manage_event = db.Column(db.Boolean, default=False)
     add_event = db.Column(db.Boolean, default=False)
     manage_announcement = db.Column(db.Boolean, default=False)
+    manage_request = db.Column(db.Boolean, default=False)
     add_announcement = db.Column(db.Boolean, default=False)
     view_accounts = db.Column(db.Boolean, default=False)
     control_accounts = db.Column(db.Boolean, default=False)

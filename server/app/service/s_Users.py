@@ -1,7 +1,7 @@
 from app.service import check_password_hash, generate_password_hash, db, abort
 from app.model.m_Users import Users
 from app.model.m_UserDetails import UserDetails
-from app.service.s_functions import get_image_registration_path, create_user_directory, save_user_registration_image, check_if_local
+from app.service.s_functions import check_if_local, upload_image_to_gcs, generate_gcs_registration_image_path, check_image_validity
 from sqlalchemy.exc import SQLAlchemyError
 from app.service.s_functions import verify_face
 from datetime import datetime
@@ -74,25 +74,26 @@ class UserService:
                 db.session.add(user_details_entry)
                 db.session.flush()
                 
-                user_directory = create_user_directory(user_entry.id)
                 
-                photo_paths = get_image_registration_path(
-                    user_directory,
-                    user_photo=user_photo,
-                    selfie=selfie,
-                    gov_id=gov_id
-                )
+                selfie_ext = check_image_validity(selfie)
+                gov_id_ext = check_image_validity(gov_id)
+                user_photo_ext = check_image_validity(user_photo)
+                
+                selfie_path = generate_gcs_registration_image_path(user_entry.id, 'selfie', selfie_ext)
+                gov_id_path = generate_gcs_registration_image_path(user_entry.id, 'gov_id', gov_id_ext)
+                user_photo_path = generate_gcs_registration_image_path(user_entry.id, 'user_photo', user_photo_ext)
+
 
                 if user_photo is not None:
-                    user_photo.save(photo_paths['user_photo_path'])
-                    user_entry.photo_path = photo_paths['user_photo_path']
+                    user_entry.photo_path = user_photo_path
+                    print(upload_image_to_gcs(user_photo, user_photo_path))
 
+                print(upload_image_to_gcs(selfie, selfie_path))
+                print(upload_image_to_gcs(gov_id, gov_id_path))
+                
 
-                selfie.save(photo_paths['selfie_path'])
-                gov_id.save(photo_paths['gov_id_path'])
-
-                user_details_entry.selfie_photo_path=photo_paths['selfie_path']
-                user_details_entry.gov_id_photo_path=photo_paths['gov_id_path']
+                user_details_entry.selfie_photo_path=selfie_path
+                user_details_entry.gov_id_photo_path=gov_id_path
             db.session.commit()
             return True
         except SQLAlchemyError as e:

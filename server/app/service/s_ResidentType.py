@@ -16,5 +16,6 @@ class ResidentTypeService:
             'resident_view_accounts': query.view_accounts,
             'resident_control_accounts': query.control_accounts,
             'resident_partial_admin': query.partial_admin,
+            'resident_manage_request': query.manage_request,
         }
         return resident_data

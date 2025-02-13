@@ -33,6 +33,7 @@ useEffect(() => {
                         add_post: data.add_post,
                         manage_post: data.manage_post,
                         partial_admin: data.partial_admin,
+                        manage_request: data.manage_request,
                     });
                 }
             } catch (error) {

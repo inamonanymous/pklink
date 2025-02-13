@@ -130,7 +130,7 @@ function ManageAccounts() {
         setLoading(true);
         try {
             const resp = await httpClient.put('/api/partial_admin/verify', {
-                    "req_user_id": e.currentTarget.getAttribute('data-value')
+                    "req_user_username": e.currentTarget.getAttribute('data-value')
                 });
             if (resp.status !== 201){
                 return;
@@ -242,7 +242,7 @@ function ManageAccounts() {
                                 <img src={no_profile} />
                             ) : (
                                 <img 
-                                    src={`http://127.0.0.1:5001/api/${individualUserInformation.user_photo_path.replace(/\\/g, '/')}`} 
+                                    src={`https://storage.googleapis.com/pklink/${individualUserInformation.user_photo_path.replace(/\\/g, "/")}`} 
                                     alt={`${individualUserInformation.user_firstname} ${individualUserInformation.user_lastname}'s profile`} 
                                 />
                             )}

@@ -20,6 +20,8 @@ const privilegedItems = [
     { name: 'Manage Accounts', view: 'manage_accounts', privilege: 'view_accounts' },
     { name: 'Manage Events', view: 'manage_events', privilege: 'manage_event' },
     { name: 'Manage Posts', view: 'manage_posts', privilege: 'manage_post' },
+    { name: 'Manage Document Requests', view: 'manage_document_req', privilege: 'manage_request' },
+    { name: 'Manage Health Assistance Requests', view: 'manage_health', privilege: 'manage_request' },
 ];
 
 function Header({ onViewChange, priveleges, activeView }) {
@@ -88,6 +90,7 @@ function Header({ onViewChange, priveleges, activeView }) {
                 'user_data': resp.data.res_user_data, 
                 'user_details_data': resp.data.res_user_details_data,
                 });
+                console.log(userInformation)
             } catch (error) {
                 if (error.response.status===401){
                     alert('session not found');
@@ -169,7 +172,8 @@ function Header({ onViewChange, priveleges, activeView }) {
                                         <UserLogo />
                                     ) : (
                                         <img 
-                                            src={`http://127.0.0.1:5001/api/${userInformation.user_data.user_photo_path.replace(/\\/g, '/')}`} 
+                                        src={`https://storage.googleapis.com/pklink/${userInformation.user_data.user_photo_path.replace(/\\/g, "/")}`}
+
                                             alt={`${userInformation.user_data.user_lastname}, ${userInformation.user_data.user_firstname} ${userInformation.user_data.user_middlename}'s profile`} 
                                         />
                                     )}
@@ -184,7 +188,7 @@ function Header({ onViewChange, priveleges, activeView }) {
                                             />
                                         ) : (
                                             <img 
-                                                src={`http://127.0.0.1:5001/api/${userInformation.user_data.user_photo_path.replace(/\\/g, '/')}`} 
+                                            src={`https://storage.googleapis.com/pklink/${userInformation.user_data.user_photo_path.replace(/\\/g, "/")}`}
                                                 alt={`${userInformation.user_data.user_lastname}, ${userInformation.user_data.user_firstname} ${userInformation.user_data.user_middlename}'s profile`} 
                                             />
                                         )}

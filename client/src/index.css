@@ -88,7 +88,7 @@ a {
 }
 
 nav {
-  margin: 0 auto;
+  margin-left: auto;
 }
 
 nav ul li a,
@@ -149,6 +149,20 @@ ul {
 button {
   cursor: pointer;
   transition: 0.3s;
+}
+
+button.large {
+  align-self: center;
+  font-size: 22;
+  font-weight: 700;
+  color: black;
+  padding: 10px 110px;
+  border-radius: 5px;
+  background: #EDE1C2;
+}
+
+button.large:hover {
+  box-shadow: 0 2px 8px white;
 }
 
 .flex {

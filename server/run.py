@@ -2,7 +2,7 @@ from app import create_app, request, send_from_directory
 import os
 
 app = create_app()
-@app.route('/api/uploads/users/<path:filename>', methods=['GET'])
+""" @app.route('/api/uploads/users/<path:filename>', methods=['GET'])
 def fetch_user_photo_path(filename):
     return send_from_directory(os.path.join(os.getcwd(), 'uploads', 'users'), filename)
 
@@ -17,7 +17,7 @@ def fetch_user_post_image(user_id, filename):
 @app.route('/api/image')
 def serve_image():
     return send_from_directory(os.path.join(os.getcwd(), 'static'), 'user_photo.jpg')
-
+ """
 
 if __name__ == "__main__":
     app.run(
