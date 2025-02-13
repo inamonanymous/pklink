@@ -58,6 +58,7 @@ def get_current_user_privilege() -> dict:
             'add_post': True,
             'manage_post': True,
             'partial_admin': True,
+            'manage_request': True,
 
         }
     elif resident_type: # If the user is a resident, assign specific privileges based on their type
@@ -74,6 +75,7 @@ def get_current_user_privilege() -> dict:
             'add_post': resident_type['resident_add_post'],
             'manage_post': resident_type['resident_manage_post'],
             'partial_admin': resident_type['resident_partial_admin'],
+            'manage_request': resident_type['resident_manage_request'],
         }
     else:
         user_privileges = {
@@ -88,7 +90,7 @@ def get_current_user_privilege() -> dict:
             'manage_event': False,
             'add_post': False,
             'manage_post': False,
-            'partial_admin': False,
+            'manage_request': False,
         }
     return user_privileges
 

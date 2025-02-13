@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import httpClient from "../../httpClient";
 
-const GetPosts = (endpoint, refreshTrigger) => {
-  const [posts, setPosts] = useState([]);
+const FetchData = (endpoint, refreshTrigger) => {
+  const [data, setData] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -11,7 +11,7 @@ const GetPosts = (endpoint, refreshTrigger) => {
       try {
         const resp = await httpClient.get(endpoint); // Use the passed endpoint
         if (resp.status === 200) {
-          setPosts(resp.data); // Set the posts data
+          setData(resp.data); // Set the posts data
         }
       } catch (err) {
         setError(err); // Set the error if fetching fails
@@ -25,7 +25,8 @@ const GetPosts = (endpoint, refreshTrigger) => {
     
   }, [refreshTrigger]); // Now depends on both `endpoint` and `refreshTrigger`
 
-  return { posts, error, loading };
+  return { data, error, loading };
 };
 
-export default GetPosts;
+export default FetchData;
+

@@ -9,6 +9,8 @@ from app.service.s_VerifiedUsers import VerifiedUsersService
 from app.service.s_Villages import VillagesService
 from app.service.s_Posts import PostsService
 from app.service.s_Events import EventService
+from app.service.s_Request import RequestsService
+from app.service.s_Incidents import IncidentsService
 
 AS_ins = AdminService()
 BSS_ins = BrgyStreetService()
@@ -19,3 +21,5 @@ VUS_ins = VerifiedUsersService()
 VS_ins = VillagesService()
 PS_ins = PostsService()
 ES_ins = EventService()
+R_ins = RequestsService()
+I_ins = IncidentsService()

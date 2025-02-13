@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import GetPosts from "../FetchFunction";
+import FetchData from "../FetchFunction";
 import httpClient from "../../../httpClient";
+import Swal from "sweetalert2";
 
 function ManagePosts() {
     const [postInfoLoading, setPostInfoLoading] = useState(false);
     const [refreshPosts, setRefreshPosts] = useState(0);
-    const { posts: allPostsData, error, loading } = GetPosts("/api/user/posts", refreshPosts);
+    const { data: allPostsData, error, loading } = FetchData("/api/user/posts", refreshPosts);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showPostInfo, setShowPostInfo] = useState(false);
     const [clickedPostInfo, setClickedPostInfo] = useState({});
-
-
 
     const [postData, setPostData] = useState({
         req_post_title: '',
@@ -18,45 +17,45 @@ function ManagePosts() {
         req_post_user_id: '',
         req_post_photo: null,
     });
-    
 
-    const handleDeletePost = async (e) => {
+    const handleDeletePost = async (e, postId) => {
         e.preventDefault();
-        const confirmDialogue = window.confirm("Do you want to continue deleting this post?");
-        if (!confirmDialogue) {
+    
+        const confirmDialogue = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to continue deleting this post?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+    
+        if (!confirmDialogue.isConfirmed) {
             return;
         }
+    
         try {
-            const id = e.currentTarget.getAttribute('data-value');
-            const  resp = await httpClient.delete('/api/partial_admin/posts', {
-                params: { req_post_id: id }
+            console.log(`Deleting post with ID: ${postId}`); // Debugging
+            await httpClient.delete(`/api/partial_admin/posts`, {
+                params: { req_post_id: postId }
             });
-            console.log("Before state update");
-            setRefreshPosts((prev) => {
-                console.log("Inside state update, prev:", prev); // Check if this runs
-                return !prev;
-            });
+    
+            setRefreshPosts((prev) => !prev);
             setShowPostInfo(false);
-            alert('post deleted');
-              
+    
+            Swal.fire('Deleted!', 'The post has been deleted.', 'success');
         } catch (error) {
-            if (error.status === 406){
-                console.error(error);
-                alert('current user is not allowed');
-                return;
-            }
-            if (error.status === 404){
-                console.error(error);
-                alert('target post is not found');
-                return;
-            }
-            if (error.status === 400){
-                console.error(error);
-                alert('invalid request');
-                return;
-            }
+            console.error("Delete error:", error.response?.data || error.message);
+    
+            let errorMsg = 'An error occurred while deleting the post.';
+            if (error.response?.status === 403) errorMsg = 'Current user is not allowed.';
+            if (error.response?.status === 404) errorMsg = 'Target post not found.';
+            if (error.response?.status === 400) errorMsg = 'Invalid request.';
+    
+            Swal.fire('Error', errorMsg, 'error');
         }
-    }
+    };
+    
 
     const handleModalToggle = () => {
         setIsModalOpen((prevState) => !prevState);
@@ -76,57 +75,56 @@ function ManagePosts() {
             ...prevInfo,
             [name]: value,
         }));
-    }; // <-- Missing closing curly brace was here
+    };
 
     const handlePostInRowClick = async (e, post_id) => {
         e.preventDefault();
         setPostInfoLoading(true);
-    
+
         const clickedPost = allPostsData.find((post) => post.post_id === post_id);
-        console.log(post_id);
         if (!clickedPost) {
             console.error("Post not found");
             setPostInfoLoading(false);
             return;
         }
-    
+
         // Directly set clickedPostInfo and showPostInfo
         setClickedPostInfo(clickedPost);
         setPostInfoLoading(false);
         setShowPostInfo(true);
         setRefreshPosts((prev) => {
-            console.log("Previous state:", prev);
             return !prev; // Toggle state
         });
     };
-    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData();
 
-        formData.append('req_post_title', postData.req_post_title)
-        formData.append('req_post_content', postData.req_post_content)
-        formData.append('req_post_photo', postData.req_post_photo)
-        
+        formData.append('req_post_title', postData.req_post_title);
+        formData.append('req_post_content', postData.req_post_content);
+        formData.append('req_post_photo', postData.req_post_photo);
+
         try {
             const resp = await httpClient.post('/api/partial_admin/posts', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+
             if (resp.status === 400) {
-                alert('Bad Request');
+                Swal.fire('Error', 'Bad Request', 'error');
                 return;
             }
-          
+
             if (resp.status === 404) {
-                alert('No User Found');
+                Swal.fire('Error', 'No User Found', 'error');
                 return;
             }
-        
-            alert('Post added');
-            document.getElementById("addPostForm").reset(); 
+
+            Swal.fire('Success', 'Post added successfully!', 'success');
+
+            document.getElementById("addPostForm").reset();
             setPostData({
                 req_post_title: '',
                 req_post_content: '',
@@ -135,16 +133,14 @@ function ManagePosts() {
             });
             setIsModalOpen(false);
             setRefreshPosts((prev) => {
-                console.log("Previous state:", prev);
                 return !prev; // Toggle state
-              });
-            
+            });
+
         } catch (error) {
             console.error(error);
-            alert('Error adding post');
+            Swal.fire('Error', 'Error adding post', 'error');
         }
-
-    }
+    };
 
     return (
         <div id="manage-posts" className="flex">
@@ -238,7 +234,6 @@ function ManagePosts() {
                     <>
                      <h3>Select Post</h3>
                     </>
-
                 ) : postInfoLoading ? (
                     <>
                         <h3>Loading...</h3>
@@ -249,10 +244,7 @@ function ManagePosts() {
                         <h4>{clickedPostInfo.post_content}</h4>
                         <h4>{clickedPostInfo.post_date_created}</h4>
                         <h5>{clickedPostInfo.user_lastname}, {clickedPostInfo.user_firstname} {clickedPostInfo.user_middlename}</h5>
-                        <button
-                            onClick={handleDeletePost}
-                            data-value={clickedPostInfo.post_id}
-                        >
+                        <button onClick={(e) => handleDeletePost(e, clickedPostInfo.post_id)}>
                             Delete Post
                         </button>
                         <button>Edit Post</button>

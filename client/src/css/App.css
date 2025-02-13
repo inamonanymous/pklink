@@ -231,6 +231,7 @@ MAIN-USER AUTH ==============================
     background-size: cover;
     background-attachment: fixed;
     position: relative;
+    height: 100vh;
 }
 
 #main-ua:before {
@@ -478,13 +479,28 @@ POSTS-USER AUTH ==============================
 
 #posts-con {
     width: 760px;
-}
-#posts-con::-webkit-scrollbar {
-    width: 8px; /* Width of the scrollbar */
+    height: 800px;
 }
 
-#posts-con::-webkit-scrollbar-thumb {
-    background-color: #888; /* Scrollbar color */
+#posts-con > div {
+    position: absolute;
+    top: 25px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto; /* Enable scrolling when content overflows */
+    padding-bottom: 300px;
+    box-sizing: border-box;
+}
+
+#posts-con > div::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+    background-color: white;
+    border-radius: 10px; /* Rounded edges */
+}
+
+#posts-con > div::-webkit-scrollbar-thumb {
+    background-color: #282828; /* Scrollbar color */
     border-radius: 10px; /* Rounded edges */
 }
 
@@ -641,7 +657,17 @@ EVENTS-USER AUTH ==============================
     margin-top: 25px;
     padding-left: 25px; /* Adjust the padding as needed */
 }
+.react-calendar__tile.highlight-event {
+    background-color: #ffcccb !important; /* Light red highlight */
+    color: #000; /* Black text */
+    font-weight: bold;
+    border-radius: 50%; /* Circular background */
+}
 
+.react-calendar__tile.highlight-event:hover {
+    background-color: #ff9999 !important; /* Darker red on hover */
+    color: white;
+}
 /* 
 ==============================
 ==============================
@@ -735,8 +761,17 @@ DOCUMENT-REQUEST-USER AUTH ==============================
     transform: translateX(-50%);
     text-align: center;
     margin-bottom: 15px;
+    width: fit-content;
 }
 
+#document-req-con .form-con {
+    margin: 60px auto 0;
+    width: 550px;
+}
+
+#document-req-con button.large {
+    margin: 60px 0 0;
+}
 /* 
 ==============================
 USER-REQUEST-FORMS USER-AUTH ===============
@@ -754,7 +789,8 @@ form.user-side-forms .input-con label {
     margin-bottom: 15px;
 }
 
-form.user-side-forms .input-con input {
+form.user-side-forms .input-con input, 
+form.user-side-forms .input-con textarea {
     background: black;
     padding: 15px 0 15px 15px;
     border-radius: 5px;

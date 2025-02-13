@@ -1,4 +1,4 @@
-from app.resource import Resource, abort, reqparse, session, request, VUS_ins, ES_ins, US_ins, UDS_ins, VS_ins, BSS_ins, PS_ins
+from app.resource import Resource, abort, reqparse, session, request, VUS_ins, ES_ins, US_ins, UDS_ins, VS_ins, BSS_ins, PS_ins, R_ins, I_ins
 from .r_functions import require_user_session, get_current_user_username, get_current_user_privilege
 
 #--------------- Variable Values ---------------#
@@ -11,6 +11,8 @@ from .r_functions import require_user_session, get_current_user_username, get_cu
     VUS_ins = <VerifiedUsersService> object instance
     VS_ins = <VillagesService> object instance
     PS_ins = <PostsService> object instance
+    R_ins = <RequestsService> object instance
+    I_ins = <IncidentsService> object instance
 """
 
 #User authentication api
@@ -91,6 +93,62 @@ class UserRegistration(Resource):
         if not US_ins.insert_user_and_details(user_data, details_data, user_photo, selfie, gov_id):
             return {"message": "registration unsuccessful"}, 406
         return {"message": "registration success"}, 201
+
+class Incident(Resource):
+    @require_user_session
+    def post(self):
+        args = request.form
+        incident_photo = request.files.get('req_incident_photo')
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        if not I_ins.insert_incident(
+            user_id=current_user['user_id'],
+            description=args['req_description'],
+            location=args['req_location'],
+            photo=incident_photo
+        ):
+            return {"incident not added": "incident"}, 400
+        return {"incident added": "incident"}, 200
+
+
+class DocumentRequest(Resource):
+    @require_user_session
+    def post(self):
+        post_req = reqparse.RequestParser()
+        post_req.add_argument("req_document_type" , type=str, required=True, help='Document Type is required')
+        post_req.add_argument("req_additional_info" , type=str, required=False)
+        post_req.add_argument("req_reason" , type=str, required=True, help='Reason is required')
+        post_req.add_argument("req_description" , type=str, required=False)
+
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        args = post_req.parse_args()
+        if not R_ins.insert_document_request(
+            current_user['user_id'],
+            args['req_document_type'],
+            args['req_additional_info'],
+            args['req_reason'],
+            args['req_description'],
+        ):
+            return {"message": "document request unsuccessful"}, 406
+        return {"message": "added document request"}, 201
+
+class HealthSupportRequest(Resource):
+    @require_user_session
+    def post(self):
+        post_req = reqparse.RequestParser()
+        post_req.add_argument("req_support_type" , type=str, required=True, help='Support Type is required')
+        post_req.add_argument("req_additional_info" , type=str, required=False)
+        post_req.add_argument("req_description" , type=str, required=False)
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        args = post_req.parse_args()
+        if not R_ins.insert_health_support_request(
+            current_user['user_id'],
+            args['req_support_type'],
+            args['req_additional_info'],
+            args['req_description']
+        ):
+            return {"message": "health support request unsuccessful"}, 406
+        return {"message": "added health support request"}, 201
+
 
 class EventsData(Resource):
     def get(self):

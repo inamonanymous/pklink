@@ -5,65 +5,112 @@ from PIL import Image
 import numpy as np 
 import gc
 from werkzeug.utils import secure_filename
+from google.cloud import storage
 
 
-USER_FOLDER = f"uploads/users"
+GCS_BUCKET_NAME = 'pklink'
 
-
-def save_post_image(user_id, post_id, img) -> str:
-    """
-    Receives an image and saves it to the user's post directory.
-
-    Args:
-        user_id (int): Unique identifier for the user.
-        post_id (int): Unique identifier for the post.
-        img (FileStorage): The uploaded image to be saved.
-
-    Returns:
-        str: The path to the saved image if it was saved successfully, or an empty string if there was an error.
-    """
-    # Create the post directory for the user and post
-    post_directory = create_post_directory(user_id, post_id)
-    
-    # Check if the image is valid
-    img_ext = check_image_validity(img)
-    if not img_ext:
-        print("Invalid image extension.")
-        return ""  # Return empty string in case of error
-    
-    # Generate a secure filename for the image
-    img_filename = f"post_image.{img_ext}"
-    img_path = os.path.join(post_directory, img_filename)
-    
-    # Save the image
+def delete_post_folder_from_gcs(user_id, post_id):
+    """Deletes all files inside a post_<post_id> folder from GCS."""
     try:
-        img.save(img_path)
-        print(f"Image saved successfully: {img_path}")
-        return img_path  # Return the path to the saved image
+        bucket_name = "pklink"  # Replace with your actual GCS bucket
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+
+        # Construct the folder path
+        folder_prefix = f"uploads/users/user_{user_id}/posts/post_{post_id}/".replace("\\", "/")  # Ensure correct format
+
+        # List all objects in the folder
+        blobs = list(bucket.list_blobs(prefix=folder_prefix))
+
+        if not blobs:
+            print(f"No files found in {folder_prefix}. Folder might already be empty or deleted.")
+            return False
+
+        # Delete all files in the folder
+        for blob in blobs:
+            blob_name = blob.name.replace("\\", "/")  # Ensure correct format
+            bucket.blob(blob_name).delete()
+            print(f"Deleted {blob_name} from GCS")
+
+        print(f"Deleted folder {folder_prefix} from GCS")
+        return True
     except Exception as e:
-        print(f"Error saving image: {e}")  # Log the exception for debugging
-        return ""  # Return empty string in case of error
-    
-def create_post_directory(user_id, post_id) -> str:
+        print(f"Error deleting folder from GCS: {e}")
+        return False
+
+
+def upload_image_to_gcs(image_file, destination_path):
     """
-    Creates a directory for storing user-specific posts, including a subdirectory for each post.
+    Uploads an image to Google Cloud Storage.
+
+    Args:
+        image_file (FileStorage): The uploaded image file.
+        destination_path (str): The path where the image will be stored in the bucket.
+
+    Returns:
+        str: The public URL of the uploaded image if successful, otherwise an empty string.
+    """
+    try:
+        # Initialize GCS client
+        client = storage.Client()
+        bucket = client.bucket(GCS_BUCKET_NAME)
+        blob = bucket.blob(destination_path)
+        
+        # Upload image to GCS
+        blob.upload_from_file(image_file, content_type=image_file.content_type)
+        
+        # Make the file public (optional)
+        blob.make_public()
+        
+        print(f"Image uploaded to GCS: {blob.public_url}")
+        return blob.public_url  # Return the URL of the uploaded image
+    except Exception as e:
+        print(f"Error uploading to GCS: {e}")
+        return ""  # Return empty string in case of failure
+
+def generate_gcs_post_image_path(user_id, post_id, image_ext):
+    """
+    Generates a GCS storage path for a given image.
 
     Args:
         user_id (int): Unique identifier for the user.
         post_id (int): Unique identifier for the post.
-    
+        image_ext (str): File extension of the image (e.g., 'jpg', 'png').
+
     Returns:
-        str: The path to the user's post directory for the specific post.
+        str: The GCS path for storing the image.
     """
-    # Path to the post directory with an additional post-specific subdirectory
-    post_directory = f"{USER_FOLDER}/user_{str(user_id)}/posts/post_{post_id}"
-    
-    # Check if the directory already exists, and create it if not
-    if not os.path.exists(post_directory):
-        os.makedirs(post_directory)  # Create the specific post directory
-        print(f"Post directory created: {post_directory}")
-    
-    return post_directory
+    return f"uploads/users/user_{user_id}/posts/post_{post_id}/post_image.{image_ext}"
+
+def generate_gcs_incident_image_path(user_id, incident_id, image_ext):
+    """
+    Generates a GCS storage path for a given image.
+
+    Args:
+        user_id (int): Unique identifier for the user.
+        incident_id (int): Unique identifier for the incident.
+        image_ext (str): File extension of the image (e.g., 'jpg', 'png').
+
+    Returns:
+        str: The GCS path for storing the image.
+    """
+    return f"uploads/users/user_{user_id}/incidents/incident_{incident_id}/incident_image.{image_ext}"
+
+def generate_gcs_registration_image_path(user_id, image_type, image_ext):
+    """
+    Generates a GCS storage path for user registration images.
+
+    Args:
+        user_id (int): Unique identifier for the user.
+        image_type (str): Type of the image (e.g., 'selfie', 'gov_id', 'user_photo').
+        image_ext (str): File extension of the image (e.g., 'jpg', 'png').
+
+    Returns:
+        str: The GCS path for storing the image.
+    """
+    return f"uploads/users/user_{user_id}/{image_type}.{image_ext}"
+
 
 def check_image_validity(img):
     """
@@ -87,90 +134,8 @@ def check_image_validity(img):
         return img.filename.lower().split('.')[-1]  # Return the valid extension
     
     return False  # Return False if the extension is invalid
-    
 
-def get_image_registration_path(user_dir, **kwargs) -> dict:
-    """
-    Generates the file paths where the user's images will be saved (selfie, gov_id, and optionally user_photo).
-    It also checks if the provided images are valid.
 
-    Args:
-        user_dir (str): The directory where images will be stored.
-        kwargs: A dictionary containing the image files:
-            - 'selfie' (file): The selfie image.
-            - 'gov_id' (file): The government ID image.
-            - 'user_photo' (optional file): The user's profile photo, if provided.
-    
-    Returns:
-        dict: 
-            - A dictionary containing the paths to saved images:
-                - 'selfie_path' (str): Path to the selfie image.
-                - 'gov_id_path' (str): Path to the government ID image.
-                - 'user_photo_path' (str, optional): Path to the user photo, if provided.
-            - Returns an empty dictionary if images are invalid.
-    """
-    
-    # Initialize paths
-    paths = {
-        'user_photo_path': '',
-        'selfie_path': '',
-        'gov_id_path': ''
-    }
-
-    # Extract images from kwargs
-    selfie = kwargs.get('selfie')
-    gov_id = kwargs.get('gov_id')
-    user_photo = kwargs.get('user_photo', None)
-
-    # Validate images
-    seflie_ext = check_image_validity(selfie)
-    gov_id_ext = check_image_validity(gov_id)
-
-    if not (seflie_ext or gov_id_ext): 
-        return {}
-
-    # Create user directory if it doesn't exist
-    if not os.path.exists(user_dir):
-        os.makedirs(user_dir)
-
-    # Generate paths for selfie and government ID
-    paths['selfie_path'] = os.path.join(user_dir, f"selfie.{seflie_ext}") if selfie else ''
-    paths['gov_id_path'] = os.path.join(user_dir, f"gov_id.{gov_id_ext}") if gov_id else ''
-
-    # If user photo is provided, generate its path
-    if user_photo:
-        user_photo_ext = check_image_validity(user_photo)
-        paths['user_photo_path'] = os.path.join(user_dir, f"user_photo.{user_photo_ext}")
-
-    return paths
-
-def create_user_directory(user_id) -> str:
-    """
-    Creates a directory for storing user-specific files if it doesn't exist.
-
-    Args:
-        user_id (int): Unique identifier for the user.
-    
-    Returns:
-        str: The path to the user's directory.
-    """
-    user_directory = f"{USER_FOLDER}/user_{str(user_id)}"
-    if not os.path.exists(user_directory):
-        os.makedirs(user_directory)  # Create directory if it does not exist
-        return user_directory
-    return user_directory
-
-def save_user_registration_image(img, img_path) -> bool:
-    try:
-        print(f'Saving image to: {img_path}')
-        img.save(img_path)
-        print(f'Image saved successfully: {img_path}')
-        return True
-    except Exception as e:
-        print(f'Error saving image: {e}')  # Log the exception for debugging
-        return False
-
-    
 def check_if_local(brgy_street_id, village_id) -> bool:
     """
     Determines whether a user is local based on their barangay street or village ID.
