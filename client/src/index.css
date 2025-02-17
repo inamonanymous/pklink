@@ -3,9 +3,23 @@ body {
   position: relative;
   height: 100%;
 }
+
+body {
+  margin: unset;
+  font-size: unset;
+  font-weight: unset;
+  line-height: unset;
+  color: unset;
+  text-align: unset;
+    background-color: unset;
+    -webkit-text-size-adjust: unset;
+    -webkit-tap-highlight-color: unset;
+}
+
 * {
   margin: 0;
   padding: 0;
+  box-sizing: unset;
 }
 
 :root {
@@ -144,6 +158,9 @@ nav.fill ul li a:hover:after {
 
 ul {
   list-style: none;
+  margin-top: unset;
+  margin-bottom: unset;
+  padding-left: unset;
 }
 
 button {
@@ -163,6 +180,13 @@ button.large {
 
 button.large:hover {
   box-shadow: 0 2px 8px white;
+}
+
+input,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  overflow: hidden;
 }
 
 .flex {
@@ -203,6 +227,27 @@ button.large:hover {
 .img-con img,
 .img-con svg {
   width: 100%;
+}
+
+.manage-data.flex {
+  align-items: start;
+  gap: 0 20px;
+}
+
+.manage-data .table-con {
+  margin-top: 30px;
+}
+
+.manage-data .table-con table.table {
+  border-radius: 15px;
+}
+
+.manage-data .table-con table.table tr {
+  cursor: pointer;
+}
+
+.manage-data .table-con table.table thead tr {
+  cursor: unset;
 }
 
 /* 

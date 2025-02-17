@@ -13,7 +13,7 @@ const menuItems = [
     { name: 'Document Requests', view: 'document', Icon: DocRequestLogo },
     { name: 'Health Assistance', view: 'health', Icon: HealthLogo },
     { name: 'Report an Issue', view: 'report', Icon: ReportLogo },
-    { name: 'Fill out Forms', view: 'forms', Icon: FormsLogo },
+    /* { name: 'Fill out Forms', view: 'forms', Icon: FormsLogo }, */
 ];
 
 

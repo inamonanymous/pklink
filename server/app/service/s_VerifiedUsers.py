@@ -17,7 +17,7 @@ class VerifiedUsersService:
         check_v_user = VerifiedUsers.query.filter_by(
             user_id=user_id
         ).first() is not None
-
+        
         #check if that user id is not in the <Users> table
         check_user = Users.query.filter_by(
             id=user_id

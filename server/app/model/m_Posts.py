@@ -7,7 +7,7 @@ class Posts(db.Model):
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.String(255), nullable=False)
     photo_path = db.Column(db.String(255))
-    created_by = db.Column(db.String(32), db.ForeignKey('verifiedusers.user_id'))
+    created_by = db.Column(db.String(32), db.ForeignKey('users.id'))
     date_created = db.Column(db.DateTime, default=dt.datetime.now())
 
-    v_user = db.relationship('VerifiedUsers', foreign_keys=[created_by], backref=db.backref('posts', lazy=True))
+    user = db.relationship('Users', foreign_keys=[created_by], backref=db.backref('posts', lazy=True))

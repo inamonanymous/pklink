@@ -100,14 +100,19 @@ class Incident(Resource):
         args = request.form
         incident_photo = request.files.get('req_incident_photo')
         current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        if not all([
+            args.get('req_description') and args['req_description'].strip(),
+            args.get('req_location') and args['req_location'].strip()
+        ]):
+            return {"message": "All fields are required and cannot be empty"}, 400
         if not I_ins.insert_incident(
             user_id=current_user['user_id'],
             description=args['req_description'],
             location=args['req_location'],
             photo=incident_photo
         ):
-            return {"incident not added": "incident"}, 400
-        return {"incident added": "incident"}, 200
+            return {"message": "error inserting incident"}, 401
+        return {"message": "incident inserted successfully"}, 200
 
 
 class DocumentRequest(Resource):
@@ -119,8 +124,16 @@ class DocumentRequest(Resource):
         post_req.add_argument("req_reason" , type=str, required=True, help='Reason is required')
         post_req.add_argument("req_description" , type=str, required=False)
 
-        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
         args = post_req.parse_args()
+        if not all([
+            args.get('req_document_type') and args['req_document_type'].strip(),
+            args.get('req_additional_info') and args['req_additional_info'].strip(),
+            args.get('req_reason') and args['req_reason'].strip(),
+            args.get('req_description') and args['req_description'].strip()
+        ]):
+            return {"message": "All fields are required and cannot be empty"}, 400
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+
         if not R_ins.insert_document_request(
             current_user['user_id'],
             args['req_document_type'],
@@ -137,7 +150,15 @@ class HealthSupportRequest(Resource):
         post_req = reqparse.RequestParser()
         post_req.add_argument("req_support_type" , type=str, required=True, help='Support Type is required')
         post_req.add_argument("req_additional_info" , type=str, required=False)
-        post_req.add_argument("req_description" , type=str, required=False)
+        post_req.add_argument("req_description" , type=str, required=False) 
+
+        if not all([
+            args.get('req_support_type') and args['req_support_type'].strip(),
+            args.get('req_additional_info') and args['req_additional_info'].strip(),
+            args.get('req_description') and args['req_description'].strip()
+        ]):
+            return {"message": "All fields are required and cannot be empty"}, 400
+
         current_user = US_ins.get_user_dict_by_username(get_current_user_username())
         args = post_req.parse_args()
         if not R_ins.insert_health_support_request(

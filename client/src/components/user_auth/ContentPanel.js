@@ -9,6 +9,7 @@ import ManagePosts from "./manage_data/ManagePosts";
 import ManageEvents from "./manage_data/ManageEvents";
 import ManageDocumentReq from "./manage_data/ManageDocumentReq";
 import ManageHealthAssist from "./manage_data/ManageHealthAssist";
+import ManageReportIncident from "./manage_data/ManageReportIncidents";
 
 function ContentPanel({ currentView }) {
     const renderContent = () => {
@@ -36,9 +37,9 @@ function ContentPanel({ currentView }) {
           case 'manage_health':
             return <ManageHealthAssist />;
           case 'manage_incidents':
-            return <div>Manage Incidents</div>;
-          case 'manage_forms':
-            return <div>Create Form</div>;
+            return <ManageReportIncident />;
+          /* case 'manage_forms':
+            return <div>Create Form</div>; */
           case 'manage_my_account':
             return <div>Manage my account</div>;
           default:

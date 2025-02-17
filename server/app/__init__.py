@@ -3,7 +3,7 @@ from flask_restful import Api
 from app.config import ApplicationConfig
 from app.ext import sess, cors, db, migrate
 from app.resource.r_user import UserAuth, UserRegistration, CheckSession, RegisteredVillages, RegisteredBrgyStreets, PostsData, EventsData, DocumentRequest, HealthSupportRequest, Incident
-from app.resource.r_partial_admin import UserVerification, UnverifiedUserData, PostManagement, EventManagement, DocumentRequestManagement, HealthSupportManagement
+from app.resource.r_partial_admin import UserVerification, UnverifiedUserData, PostManagement, EventManagement, DocumentRequestManagement, HealthSupportManagement, IncidentManagement
 
 from app.model.m_Admin import Admin
 from app.model.m_BrgyStreets import BrgyStreets
@@ -99,6 +99,7 @@ def create_app():
     api.add_resource(EventManagement, '/api/partial_admin/events')
     api.add_resource(DocumentRequestManagement, '/api/partial_admin/document_requests')
     api.add_resource(HealthSupportManagement, '/api/partial_admin/health_support_requests')
+    api.add_resource(IncidentManagement, '/api/partial_admin/incidents')
 
     with app.app_context():
         Users,

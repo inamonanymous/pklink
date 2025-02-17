@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import httpClient from "../../../httpClient";
 import no_profile from "../../../img/no_profile.png";
+import Swal from "sweetalert2";
 
 function ManageAccounts() {
     const [loading, setLoading] = useState(false);//for loading effects
@@ -82,36 +83,47 @@ function ManageAccounts() {
     //for handling remove button for removing a user in verified list
     const handleRemoveFromVerified = async (e) => {
         e.preventDefault();
-        const confirmDialogue = window.confirm("You want to remove this user from verified list?");
-        if (!confirmDialogue){
-            return;
-        }
+        // SweetAlert2 confirmation dialog
+        const id = e.currentTarget.getAttribute('data-value');
+        const confirmDialogue = await Swal.fire({
+            title: "Are you sure?",
+            text: "You want to remove this user from the verified list?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, remove it!",
+            cancelButtonText: "Cancel",
+        });
+
+        if (confirmDialogue.isDismissed) return; // User canceled
+
         setLoading(true);
         try {
-            const id = e.currentTarget.getAttribute('data-value');
+            console.log(id);
             const resp = await httpClient.delete('/api/partial_admin/verify', {
                     params: { req_user_id: id }
                 });
             if (resp.status !== 201){
-                return;
+                Swal.fire("Failed!", "User could not be removed from verified list.", resp.message);
             }
-            alert('user deleted');
+            Swal.fire("Success!", "User removed from verified list!", resp.message);
             setIsVerifiedChecked(false);
             return;
         } catch (error) {
             if (error.status === 401){
                 console.error(error);
-                alert('current user is not allowed');
+                Swal.fire("Failed!", "Current user is not allowed", "error");
                 return;
             }
             if (error.status === 404){
                 console.error(error);
-                alert('target user is not found');
+                Swal.fire("Failed!", "Target user is not found", "error");
                 return;
             }
             if (error.status === 409){
                 console.error(error);
-                alert('target user is listed as admin');
+                Swal.fire("Failed!", "Target user is listed as admin.", "error");
                 return;
             }
             console.error(error);
@@ -123,26 +135,35 @@ function ManageAccounts() {
     //for handing verify button for pending unverified users
     const handleVerifyButton = async (e) => {
         e.preventDefault();
-        const confirmDialogue = window.confirm("You want to verify this user?");
-        if (!confirmDialogue){
-            return;
-        }
+        const id = e.currentTarget.getAttribute('data-value');
+        const confirmDialogue = await Swal.fire({
+            title: "Are you sure?",
+            text: "You want to remove this user from the verified list?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, remove it!",
+            cancelButtonText: "Cancel",
+        });
+        console.log(confirmDialogue);
+        if (confirmDialogue.isDismissed) return; // User canceled
         setLoading(true);
         try {
             const resp = await httpClient.put('/api/partial_admin/verify', {
-                    "req_user_username": e.currentTarget.getAttribute('data-value')
+                    "req_user_id": id
                 });
             if (resp.status !== 201){
                 return;
             }
-            alert('user verified');
+            Swal.fire("Success", "User verified!", resp.message);
             setIsVerifiedChecked(true);
         } catch (error) {
             if (error.status !== 401){
                 console.error(error);
                 return;
             }
-            alert("Unauthorized access");
+            Swal.fire("Failed!", "Unauthorized access!", "error");
         } finally {
             setLoading(false);
         }
@@ -168,7 +189,7 @@ function ManageAccounts() {
 
    
     return (
-        <div id="manage-accounts" className="flex">
+        <div id="manage-accounts" className="flex manage-data">
             <div id="manage-accounts-search-list">
             
                 <label className="toggle-switch">

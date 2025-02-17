@@ -2,7 +2,7 @@ import { useState } from "react";
 import FetchData from "../FetchFunction";
 import { getReadableDate, getReadableTime } from "./functions";
 import httpClient from "../../../httpClient";
-
+import Swal from "sweetalert2";
 
 function ManageEvents() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,13 +19,22 @@ function ManageEvents() {
 
       const handleDeleteEvent = async (e) => {
             e.preventDefault();
-            const confirmDialogue = window.confirm("Do you want to continue deleting this event?");
-            if (!confirmDialogue) {
+            const id = e.currentTarget.getAttribute('data-value');
+            const confirmDialogue = await Swal.fire({
+                        title: 'Are you sure?',
+                        text: "Do you want to continue deleting this event?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel',
+                    });
+            if (!confirmDialogue.isConfirmed) {
+                console.log(true);
                 return;
             }
             try {
-                const id = e.currentTarget.getAttribute('data-value');
-                const  resp = await httpClient.delete('/api/partial_admin/events', {
+                document.body.style.cursor = 'wait';
+                await httpClient.delete('/api/partial_admin/events', {
                     params: { req_event_id: id }
                 });
                 console.log("Before state update");
@@ -34,24 +43,26 @@ function ManageEvents() {
                     return !prev;
                 });
                 setShowEventInfo(false);
-                alert('event deleted');
+                Swal.fire('Deleted!', 'The event has been deleted.', 'success');
                   
             } catch (error) {
                 if (error.status === 406){
                     console.error(error);
-                    alert('current user is not allowed');
+                    Swal.fire('Failed!', 'Current user not allowed to delete.', 'failed');
                     return;
                 }
                 if (error.status === 404){
                     console.error(error);
-                    alert('target event is not found');
+                    Swal.fire('Failed!', 'The target event not found.', 'failed');
                     return;
                 }
                 if (error.status === 400){
                     console.error(error);
-                    alert('invalid request');
+                    Swal.fire('Error!', 'Bad request', 'error');
                     return;
                 }
+            } finally {
+                document.body.style.cursor = 'default';
             }
         }
 
@@ -74,20 +85,20 @@ function ManageEvents() {
         const handleSubmit = async (e) => {
             e.preventDefault();
 
-            
             try {
+                document.body.style.cursor = 'wait';
                 const resp = await httpClient.post('/api/partial_admin/events', eventsData);
                 if (resp.status === 400) {
-                    alert('Bad Request');
+                    Swal.fire('Errpr!', 'Bad request.', 'error');
                     return;
                 }
                 
                 if (resp.status === 404) {
-                    alert('No User Found');
+                    Swal.fire('Failed!', 'The event is failed to add.', 'failed');
                     return;
                 }
             
-                alert('Event added');
+                Swal.fire('Added!', 'The event has been added.', 'success');
                 setEventsData({
                     req_event_title: '',
                     req_event_description: '',
@@ -105,7 +116,9 @@ function ManageEvents() {
             } catch (error) {
                 console.log(eventsData);
                 console.error(error);
-                alert('Error adding event');
+                Swal.fire('Error!', 'Error adding event', 'error');
+            } finally {
+                document.body.style.cursor = 'default';
             }
     
         }
@@ -135,73 +148,91 @@ function ManageEvents() {
     
 
     return (
-        <div id="manage-events" className="flex">
+        <div id="manage-events" className="flex manage-data">
             <div id="events-controls" >
                 <button
                     onClick={handleModalToggle}
+                    className="btn btn-success"
                     >
                     Create New Event
                     </button>
                 {isModalOpen && (
                     <form onSubmit={handleSubmit}>
-                        <div className="flex-col">
-                            <input 
-                                type="text" 
-                                name="req_event_title"
-                                value={eventsData.req_event_title}
-                                onChange={handleInputChange}
-                                placeholder="Title"
-                            />
-                            <input 
-                                type="text" 
-                                name="req_event_location"
-                                value={eventsData.req_event_location}
-                                onChange={handleInputChange}
-                                placeholder="Location"
-                            />
-                            <textarea 
-                                cols="30" 
-                                rows="10" 
-                                name="req_event_description"
-                                value={eventsData.req_event_description}
-                                onChange={handleInputChange}
-                                placeholder="Description"
-                            >
-                            </textarea>
-                            <input 
-                                type="date" 
-                                name="req_event_date"
-                                value={eventsData.req_event_date}
-                                onChange={handleInputChange}
-                                placeholder="Event date"
-                            />
-                            <input 
-                                type="time" 
-                                name="req_event_start_time"
-                                value={eventsData.req_event_start_time}
-                                onChange={handleInputChange}
-                                placeholder="Start time"
-                            />
-                            <input 
-                                type="time" 
-                                name="req_event_end_time"
-                                value={eventsData.req_event_end_time}
-                                onChange={handleInputChange}
-                                placeholder="Snd time"
+                        <div className="d-flex flex-column">
+                        <div className="mb-3">
+                            <input
+                            type="text"
+                            name="req_event_title"
+                            value={eventsData.req_event_title}
+                            onChange={handleInputChange}
+                            placeholder="Title"
+                            className="form-control"
                             />
                         </div>
-                        <button type="submit">Submit</button>
+                        <div className="mb-3">
+                            <input
+                            type="text"
+                            name="req_event_location"
+                            value={eventsData.req_event_location}
+                            onChange={handleInputChange}
+                            placeholder="Location"
+                            className="form-control"
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <textarea
+                            cols="30"
+                            rows="10"
+                            name="req_event_description"
+                            value={eventsData.req_event_description}
+                            onChange={handleInputChange}
+                            placeholder="Description"
+                            className="form-control"
+                            ></textarea>
+                        </div>
+                        <div className="mb-3">
+                            <input
+                            type="date"
+                            name="req_event_date"
+                            value={eventsData.req_event_date}
+                            onChange={handleInputChange}
+                            placeholder="Event date"
+                            className="form-control"
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <input
+                            type="time"
+                            name="req_event_start_time"
+                            value={eventsData.req_event_start_time}
+                            onChange={handleInputChange}
+                            placeholder="Start time"
+                            className="form-control"
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <input
+                            type="time"
+                            name="req_event_end_time"
+                            value={eventsData.req_event_end_time}
+                            onChange={handleInputChange}
+                            placeholder="End time"
+                            className="form-control"
+                            />
+                        </div>
+                        <button type="submit" className="btn btn-primary">Submit</button>
+                        </div>
                     </form>
                 )}
                 <div className="table-con">
-                    <table>
-                        <thead>
+                    <table className="table table-bordered table-hover table-stripped">
+                        <thead className="thead-dark">
                             <tr>
-                                <th>Event I.D.</th>
-                                <th>Event title</th>
-                                <th>Created by</th>
-                                <th>User type</th>
-                                <th>Date created</th>
+                                <th scope="col">Event I.D.</th>
+                                <th scope="col">Event title</th>
+                                <th scope="col">Created by</th>
+                                <th scope="col">User type</th>
+                                <th scope="col">Date created</th>
                             </tr>
                         </thead>
                         <tbody>
