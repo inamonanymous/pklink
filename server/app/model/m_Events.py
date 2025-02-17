@@ -10,5 +10,5 @@ class Events(db.Model):
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
     location = db.Column(db.String(255), nullable=False)
-    created_by = db.Column(db.String(32), db.ForeignKey('verifiedusers.user_id'), nullable=False)
+    created_by = db.Column(db.String(32), db.ForeignKey('users.id'), nullable=False)
     date_created = db.Column(db.DateTime, default=dt.datetime.now())

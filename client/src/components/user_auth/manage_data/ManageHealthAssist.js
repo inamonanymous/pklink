@@ -47,18 +47,18 @@ function ManageHealthAssist() {
     };
 
     return (
-        <div id="manage-health-support-requests" className="flex">
+        <div id="manage-health-support-requests" className="flex manage-data">
             <div className="health-controls">
                 <input type="text" placeholder="Search Health Support Requests" />
                 
                 <div className="table-con">
-                    <table>
-                        <thead>
+                    <table className="table table-bordered table-hover table-stripped">
+                        <thead className="thead-darkr">
                             <tr>
-                                <th>Request ID</th>
-                                <th>Support Type</th>
-                                <th>Status</th>
-                                <th>Date Created</th>
+                                <th scope="col">Request ID</th>
+                                <th scope="col">Support Type</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Date Created</th>
                             </tr>
                         </thead>
                         <tbody>

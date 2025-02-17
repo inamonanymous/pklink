@@ -1,4 +1,4 @@
-from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins, PS_ins, ES_ins, R_ins, session
+from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins, PS_ins, ES_ins, R_ins, I_ins, session
 from .r_functions import require_user_session, get_current_user_privilege
 from datetime import datetime, timezone
 
@@ -47,6 +47,7 @@ class UserVerification(Resource):
         put_parser = reqparse.RequestParser()
         put_parser.add_argument("req_user_id", type=str, required=True, help="user id is required")
         args = put_parser.parse_args()
+        print(f"hellow owrld: {args}")
         current_user_privelege = get_current_user_privilege()
         if current_user_privelege is None:
             abort(404, message="current user not found")    
@@ -296,4 +297,5 @@ class HealthSupportManagement(Resource):
 
 class IncidentManagement(Resource):
     def get(self):
-        pass
+        data = I_ins.get_all_incidents_dict()
+        return data, 200

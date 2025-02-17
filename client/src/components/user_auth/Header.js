@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import { ReactComponent as PkLogo } from '../../img/pk_logo.svg';
 import { ReactComponent as AnnouncementLogo } from '../../img/announcement_logo.svg';
 import { ReactComponent as CalendarLogo } from '../../img/calendar_logo.svg';
@@ -22,6 +23,7 @@ const privilegedItems = [
     { name: 'Manage Posts', view: 'manage_posts', privilege: 'manage_post' },
     { name: 'Manage Document Requests', view: 'manage_document_req', privilege: 'manage_request' },
     { name: 'Manage Health Assistance Requests', view: 'manage_health', privilege: 'manage_request' },
+    { name: 'Manage Report Incidents', view: 'manage_incidents', privilege: 'manage_request' },
 ];
 
 function Header({ onViewChange, priveleges, activeView }) {
@@ -31,7 +33,7 @@ function Header({ onViewChange, priveleges, activeView }) {
         { view: 'document', logo: <DocRequestLogo />, name: 'Documents' },
         { view: 'health', logo: <HealthLogo />, name: 'Health' },
         { view: 'report', logo: <ReportLogo />, name: 'Reports' },
-        { view: 'forms', logo: <FormsLogo />, name: 'Forms' },
+        /* { view: 'forms', logo: <FormsLogo />, name: 'Forms' }, */
       ];
       
     //route navigator
@@ -54,28 +56,33 @@ function Header({ onViewChange, priveleges, activeView }) {
         'user_details_data': Object(null),
     }); 
 
-    //user logout 
+    // user logout
     const logoutUser = useCallback(async () => {
         try {
             const resp = await httpClient.delete('/api/user/auth');
-            if (resp.status !== 410) {
-                alert('Error logging out');
-            }
+            Swal.fire('Success!', 'Logged out successfully', 'success');
         } catch (e) {
             console.error('Logout error: ', e);
         }
     }, []);
 
-
-    //user logout on click
+    // user logout on click
     const handleLogoutClick = () => {
-        const confirmed = window.confirm("Are you sure you want to log out?");
-        
-        if (confirmed) {
-            logoutUser(); // Log out the user
-            navigate('/'); // Redirect to the home page or any other page
-        }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to log out?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, log me out!',
+            cancelButtonText: 'No, cancel!',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                logoutUser(); // Log out the user
+                navigate('/'); // Redirect to the home page or any other page
+            }
+        });
     };
+
     
     //set user details from endpoint
     useEffect(() => {
@@ -84,7 +91,7 @@ function Header({ onViewChange, priveleges, activeView }) {
                 const resp = await httpClient.get('/api/user/auth');
                 
                 if (resp.status !== 200) {
-                    alert("error");
+                    Swal.fire('Error!', 'Error getting user information', 'error');
                 }
                 setUserInformation({
                 'user_data': resp.data.res_user_data, 
@@ -93,10 +100,10 @@ function Header({ onViewChange, priveleges, activeView }) {
                 console.log(userInformation)
             } catch (error) {
                 if (error.response.status===401){
-                    alert('session not found');
+                    Swal.fire('Failed!', 'Session not found', 'failed');
                     return;
                 }
-                alert('internal server error');
+                Swal.fire('Error!', 'Internal server errror', 'error');
                 return;
             }
         }

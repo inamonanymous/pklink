@@ -33,6 +33,7 @@ function ReportIncident() {
         formData.append('req_incident_photo', incidentData.photo);
 
         try {
+            document.body.style.cursor = 'wait';
             const response = await httpClient.post('/api/user/incidents', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
@@ -43,7 +44,7 @@ function ReportIncident() {
                     title: 'Incident Reported',
                     text: 'Your incident has been successfully reported.',
                 });
-
+                
                 // Reset form
                 setIncidentData({
                     description: '',
@@ -57,8 +58,10 @@ function ReportIncident() {
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
-                text: error.message || 'Failed to report the incident. Please try again.',
+                text: 'Failed to report the incident. Please try again.',
             });
+        } finally {
+            document.body.style.cursor = 'default';
         }
     };
 

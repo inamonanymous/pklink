@@ -48,18 +48,18 @@ function ManageDocumentReq() {
     };
 
     return (
-        <div id="manage-document-requests" className="flex">
+        <div id="manage-document-requests" className="flex manage-data">
             <div className="document-controls">
                 <input type="text" placeholder="Search Document Requests" />
                 
                 <div className="table-con">
-                    <table>
-                        <thead>
+                    <table className="table table-bordered table-hover table-stripped">
+                        <thead className="thead-dark">
                             <tr>
-                                <th>Request ID</th>
-                                <th>Document Type</th>
-                                <th>Status</th>
-                                <th>Date Created</th>
+                                <th scope="col">Request ID</th>
+                                <th scope="col">Document Type</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Date Created</th>
                             </tr>
                         </thead>
                         <tbody>

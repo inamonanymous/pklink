@@ -3,6 +3,7 @@ import FetchData from "../FetchFunction";
 import httpClient from "../../../httpClient";
 import Swal from "sweetalert2";
 
+
 function ManagePosts() {
     const [postInfoLoading, setPostInfoLoading] = useState(false);
     const [refreshPosts, setRefreshPosts] = useState(0);
@@ -10,6 +11,8 @@ function ManagePosts() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showPostInfo, setShowPostInfo] = useState(false);
     const [clickedPostInfo, setClickedPostInfo] = useState({});
+
+    const [show, setShow] = useState(false);
 
     const [postData, setPostData] = useState({
         req_post_title: '',
@@ -35,6 +38,7 @@ function ManagePosts() {
         }
     
         try {
+            document.body.style.cursor = 'wait';
             console.log(`Deleting post with ID: ${postId}`); // Debugging
             await httpClient.delete(`/api/partial_admin/posts`, {
                 params: { req_post_id: postId }
@@ -53,6 +57,8 @@ function ManagePosts() {
             if (error.response?.status === 400) errorMsg = 'Invalid request.';
     
             Swal.fire('Error', errorMsg, 'error');
+        } finally {
+            document.body.style.cursor = 'default';
         }
     };
     
@@ -106,6 +112,7 @@ function ManagePosts() {
         formData.append('req_post_photo', postData.req_post_photo);
 
         try {
+            document.body.style.cursor = 'wait';
             const resp = await httpClient.post('/api/partial_admin/posts', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -139,69 +146,83 @@ function ManagePosts() {
         } catch (error) {
             console.error(error);
             Swal.fire('Error', 'Error adding post', 'error');
+        } finally {
+            document.body.style.cursor = 'default';
         }
     };
 
     return (
-        <div id="manage-posts" className="flex">
+        <div id="manage-posts" className="flex manage-data">
             <div className="post-controls">
                 {/* Button to open the modal */}
-                <button onClick={handleModalToggle}>Create new post</button>
+                <button 
+                    onClick={handleModalToggle}
+                    className="btn btn-success"
+                >
+                    Create new post
+                </button>
                 {isModalOpen && (
                     <form onSubmit={handleSubmit} id="addPostForm">
-                    {/* Modal */}
-                        <div className="modal">
-                            <div className="modal-content flex-col">
-                                <h3>Create New Post</h3>
-
-                                {/* Title input */}
-                                <input
-                                    type="text"
-                                    id="req_post_title_input"
-                                    name="req_post_title"
-                                    placeholder="Enter Title"
-                                    value={postData.req_post_title}
-                                    onChange={handleInputChange}
-                                />
-
-                                {/* Content input */}
-                                <textarea
-                                    id="req_post_content_input"
-                                    name="req_post_content"
-                                    placeholder="Enter Content"
-                                    rows="5"
-                                    value={postData.req_post_content}
-                                    onChange={handleInputChange}
-                                ></textarea>
-
-                                {/* Photo upload */}
-                                <input
-                                    type="file"
-                                    name="req_post_photo"
-                                    onChange={handleFileChange}
-                                />
-
-                                {/* Action buttons */}
-                                <div className="modal-actions">
-                                    <button onClick={handleModalToggle}>Cancel</button>
-                                    <button>Submit</button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                    <div className="d-flex flex-column">
+                      <h3>Create New Post</h3>
+                      
+                      <div className="mb-3">
+                        <input
+                          type="text"
+                          id="req_post_title_input"
+                          name="req_post_title"
+                          placeholder="Enter Title"
+                          value={postData.req_post_title}
+                          onChange={handleInputChange}
+                          className="form-control"
+                        />
+                      </div>
+                      
+                      <div className="mb-3">
+                        <textarea
+                          id="req_post_content_input"
+                          name="req_post_content"
+                          placeholder="Enter Content"
+                          rows="5"
+                          value={postData.req_post_content}
+                          onChange={handleInputChange}
+                          className="form-control"
+                        ></textarea>
+                      </div>
+                      
+                      <div className="mb-3">
+                        <input
+                          type="file"
+                          name="req_post_photo"
+                          onChange={handleFileChange}
+                          className="form-control"
+                        />
+                      </div>
+                      
+                      <div className="d-flex justify-content-end gap-2">
+                        <button type="button" onClick={handleModalToggle} className="btn btn-secondary">
+                          Cancel
+                        </button>
+                        <button type="submit" className="btn btn-primary">
+                          Submit
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                  
                 )}
                 {/* Search bar */}
                 <input type="text" placeholder="Search Posts" />
                 
                 <div className="table-con">
-                    <table>
-                        <thead>
+                    <table className="table table-bordered table-hover table-stripped">
+                        <thead className="thead-dark">
                             <tr>
-                                <th>Post I.D.</th>
-                                <th>Post title</th>
-                                <th>Posted by</th>
-                                <th>User type</th>
-                                <th>Date created</th>
+                                <th scope="col">Post I.D.</th>
+                                <th scope="col">Post title</th>
+                                <th scope="col">Posted by</th>
+                                <th scope="col">User type</th>
+                                <th scope="col">Date created</th>
                             </tr>
                         </thead>
                         <tbody>

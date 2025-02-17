@@ -1,3 +1,4 @@
+import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import httpClient from "../../httpClient";
 import { useNavigate, Link } from "react-router-dom";
@@ -158,20 +159,20 @@ function Register({ onRegistrationSuccess }) {
       });
   
       if (resp.status === 409) {
-        alert('Username already exists');
+        Swal.fire('Failed!', 'Username already exists', 'failed');
         return;
       }
   
       if (resp.status !== 201) {
-        alert('Invalid');
+        Swal.fire('Failed!', 'Invalid', 'failed');
         return;
       }
   
-      alert('User registration sent to server');
+      Swal.fire('Success!', 'User Registration complete', 'success');
       onRegistrationSuccess();
     } catch (e) {
       console.error(e);
-      alert('Error during registration');
+      Swal.fire('Error!', 'error during registration', 'error');
     }
   };
   

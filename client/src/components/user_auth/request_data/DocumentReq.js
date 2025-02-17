@@ -50,6 +50,7 @@ function DocumentReq() {
         };
 
         try {
+            document.body.style.cursor = 'wait';
             const response = await httpClient.post('/api/user/document_requests', dataToSend); // Assuming your backend endpoint is '/api/document-request'
             if (response.status === 201) {
                 console.log('Document request successfully submitted:', response.data);
@@ -72,6 +73,8 @@ function DocumentReq() {
                 icon: 'error',
                 confirmButtonText: 'Try Again'
             });
+        } finally {
+            document.body.style.cursor = 'default';
         }
     };
 

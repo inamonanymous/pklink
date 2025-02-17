@@ -95,7 +95,6 @@ function HealthAssist() {
                         {loading ? 'Submitting...' : 'Submit'}
                     </button>
                 </form>
-                {message && <p className="message">{message}</p>}
             </div>
         </div>
     );

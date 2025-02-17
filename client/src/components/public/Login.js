@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate  } from 'react-router-dom';
 import httpClient from '../../httpClient';
+import Swal from 'sweetalert2';
 function Login() {
     const [data, setData]= useState({
         req_user_username: '',
@@ -25,23 +26,28 @@ function Login() {
 
       try {
         const resp = await httpClient.post('/api/user/auth', data);
-  
-        if (resp.status === 200) {
-          navigate('/user/dashboard');
-        } 
-        else {
-          alert("wrong response status");
+
+        if (resp.status !== 200) {
+          Swal.fire('Failed!', 'Login Failed.', 'failed');
+          return;
         }
+        navigate('/user/dashboard');
+        Swal.fire({
+          title: "Login Complete!",
+          html: "Redirecting to dashboard",
+          timer: 1000,
+          timerProgressBar: true
+        });
       } catch (error) {
         if (error.status===406){
-          alert("wrong credentials");
+          Swal.fire('Failed!', 'Wrong credentials', 'failed');
           return;
         }
         else if (error.status===410){
-          alert("wrong credentials");
+          Swal.fire('Failed!', 'Wrong credentials', 'failed');
           return;
         }
-        alert("Internal server error");
+        Swal.fire('Error!', 'Internal server error', 'error');
         return;
       }
     };
