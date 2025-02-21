@@ -13,58 +13,62 @@ function ManageEvents() {
     const handleModalToggle = () => {
         setIsModalOpen((prevState) => !prevState);
     };
+
+    const handleEditEvent = (event) => {
+        setClickedEventInfo(event); // Store the clicked event details
+        setIsEditModalOpen(true); // Open the modal
+    };
+
     const {data: allEventsData, error, loading} = FetchData("/api/user/events", refreshEvents);
 
-    
-
-      const handleDeleteEvent = async (e) => {
-            e.preventDefault();
-            const id = e.currentTarget.getAttribute('data-value');
-            const confirmDialogue = await Swal.fire({
-                        title: 'Are you sure?',
-                        text: "Do you want to continue deleting this event?",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Yes, delete it!',
-                        cancelButtonText: 'Cancel',
-                    });
-            if (!confirmDialogue.isConfirmed) {
-                console.log(true);
+    const handleDeleteEvent = async (e) => {
+        e.preventDefault();
+        const id = e.currentTarget.getAttribute('data-value');
+        const confirmDialogue = await Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you want to continue deleting this event?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel',
+                });
+        if (!confirmDialogue.isConfirmed) {
+            console.log(true);
+            return;
+        }
+        try {
+            document.body.style.cursor = 'wait';
+            await httpClient.delete('/api/partial_admin/events', {
+                params: { req_event_id: id }
+            });
+            console.log("Before state update");
+            setRefreshEvents((prev) => {
+                console.log("Inside state update, prev:", prev); // Check if this runs
+                return !prev;
+            });
+            setShowEventInfo(false);
+            Swal.fire('Deleted!', 'The event has been deleted.', 'success');
+                
+        } catch (error) {
+            if (error.status === 406){
+                console.error(error);
+                Swal.fire('Failed!', 'Current user not allowed to delete.', 'failed');
                 return;
             }
-            try {
-                document.body.style.cursor = 'wait';
-                await httpClient.delete('/api/partial_admin/events', {
-                    params: { req_event_id: id }
-                });
-                console.log("Before state update");
-                setRefreshEvents((prev) => {
-                    console.log("Inside state update, prev:", prev); // Check if this runs
-                    return !prev;
-                });
-                setShowEventInfo(false);
-                Swal.fire('Deleted!', 'The event has been deleted.', 'success');
-                  
-            } catch (error) {
-                if (error.status === 406){
-                    console.error(error);
-                    Swal.fire('Failed!', 'Current user not allowed to delete.', 'failed');
-                    return;
-                }
-                if (error.status === 404){
-                    console.error(error);
-                    Swal.fire('Failed!', 'The target event not found.', 'failed');
-                    return;
-                }
-                if (error.status === 400){
-                    console.error(error);
-                    Swal.fire('Error!', 'Bad request', 'error');
-                    return;
-                }
-            } finally {
-                document.body.style.cursor = 'default';
+            if (error.status === 404){
+                console.error(error);
+                Swal.fire('Failed!', 'The target event not found.', 'failed');
+                return;
             }
+            if (error.status === 400){
+                console.error(error);
+                Swal.fire('Error!', 'Bad request', 'error');
+                return;
+            }
+        } finally {
+            document.body.style.cursor = 'default';
         }
+    }
 
     const [eventsData, setEventsData] = useState({
         'req_event_title': '',
@@ -284,7 +288,7 @@ function ManageEvents() {
                         >
                             Delete Event
                         </button>
-                        <button>Edit Event</button>
+                        <button onClick={() => handleEditEvent(event)}>Edit Event</button>
                     </>
                 )}
                 
@@ -294,3 +298,46 @@ function ManageEvents() {
 }
 
 export default ManageEvents;
+
+function ManageEventModal({ clickedEventInfo, isEditModalOpen, handleEditModalToggle, setRefreshEvents }) {
+    const [updatedEventData, setUpdatedEventData] = useState(clickedEventInfo);
+
+    useEffect(() => {
+        setUpdatedEventData(clickedEventInfo);
+    }, [clickedEventInfo]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setUpdatedEventData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleUpdateEvent = async (e) => {
+        e.preventDefault();
+        try {
+            document.body.style.cursor = 'wait';
+            await httpClient.put(`/api/partial_admin/events/${clickedEventInfo.event_id}`, updatedEventData);
+            Swal.fire('Updated!', 'The event has been updated.', 'success');
+            setRefreshEvents((prev) => !prev);
+            handleEditModalToggle();
+        } catch (error) {
+            Swal.fire('Error!', 'Failed to update event.', 'error');
+        } finally {
+            document.body.style.cursor = 'default';
+        }
+    };
+
+    return isEditModalOpen ? (
+        <div className="modal">
+            <form onSubmit={handleUpdateEvent}>
+                <input type="text" name="event_title" value={updatedEventData.event_title || ''} onChange={handleInputChange} placeholder="Title" />
+                <textarea name="event_description" value={updatedEventData.event_description || ''} onChange={handleInputChange} placeholder="Description" />
+                <input type="date" name="event_date" value={updatedEventData.event_date || ''} onChange={handleInputChange} />
+                <input type="time" name="event_start_time" value={updatedEventData.event_start_time || ''} onChange={handleInputChange} />
+                <input type="time" name="event_end_time" value={updatedEventData.event_end_time || ''} onChange={handleInputChange} />
+                <input type="text" name="event_location" value={updatedEventData.event_location || ''} onChange={handleInputChange} placeholder="Location" />
+                <button type="submit">Update</button>
+                <button type="button" onClick={handleEditModalToggle}>Cancel</button>
+            </form>
+        </div>
+    ) : null;
+}

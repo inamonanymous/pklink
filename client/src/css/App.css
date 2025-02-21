@@ -214,6 +214,7 @@ HEADER-USER AUTH ==============================
     border-radius: 6px;
     color: white;
     gap: 10px;
+    align-items: start;
 }
 
 /* 

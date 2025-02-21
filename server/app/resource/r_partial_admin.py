@@ -136,6 +136,38 @@ class PostManagement(Resource):
 
 class EventManagement(Resource):
     @require_user_session
+    def put(self):
+        put_parser = reqparse.RequestParser()
+        put_parser.add_argument("req_event_id", type=str, required=True, help="Event ID is required")
+        put_parser.add_argument("req_event_title", type=str, required=False)
+        put_parser.add_argument("req_event_description", type=str, required=False)
+        put_parser.add_argument("req_event_date", type=str, required=False)
+        put_parser.add_argument("req_start_time", type=str, required=False)
+        put_parser.add_argument("req_end_time", type=str, required=False)
+        put_parser.add_argument("req_location", type=str, required=False)
+        
+        args = put_parser.parse_args()
+
+        # Call edit_event method from EventService
+        updated_event = ES_ins.edit_event(
+            args["req_event_id"],
+            title=args.get("req_event_title"),
+            description=args.get("req_event_description"),
+            event_date=args.get("req_event_date"),
+            start_time=args.get("req_start_time"),
+            end_time=args.get("req_end_time"),
+            location=args.get("req_location")
+        )
+        print(args.get('req_event_title'))
+        print(updated_event.title)
+        if not updated_event:
+            return {"message": "Event not found"}, 404
+        
+        return {"message": "Event updated successfully"}, 200
+
+
+
+    @require_user_session
     def post(self):
         post_parser = reqparse.RequestParser()
         post_parser.add_argument('req_event_title', type=str, required=True, help="Title is required")
