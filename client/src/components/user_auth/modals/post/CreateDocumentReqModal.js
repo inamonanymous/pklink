@@ -75,7 +75,7 @@ const CreateDocumentReqModal = ({setRefreshRequests}) => {
         } catch (error) {
             console.error("Error submitting document request:", error);
             console.log(documentData);
-            Swal.fire("Error!", "Something went wrong. Please try again.", "error");
+            Swal.fire("Error!", `${error.response.data.message}`, "error");
         } finally {
             document.body.style.cursor = "default";
         }

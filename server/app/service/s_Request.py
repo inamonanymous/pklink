@@ -1,10 +1,20 @@
 from app.model.m_Requests import Requests
+from app.model.m_Users import Users
+from app.model.m_ResidentType import ResidentType
 from app.model.m_DocumentRequest import DocumentRequests
 from app.model.m_HealthSupportRequests import HealthSupportRequests
 from app.ext import db
+from datetime import datetime
 
 class RequestsService:
-    def edit_request_status(seld, request_id, status):
+    def get_request_by_request_id(self, request_id):
+        return Requests.query.filter_by(id=request_id).first()
+
+    def check_current_user_and_request_match(self, request_id, user_id):
+        request = Requests.query.filter_by(id=request_id, user_id=user_id).first()
+        return request is not None
+
+    def edit_request_status(self, request_id, status):
         try:
             target_request = Requests.query.filter_by(id=request_id).first()
             if not target_request:
@@ -32,7 +42,7 @@ class RequestsService:
                 request.status = new_request_data['status']
             if 'description_text' in new_request_data:
                 request.description_text = new_request_data['description_text']
-            request.last_modified = db.func.current_datetime()
+            request.last_modified = datetime.now()
             # Update document request details in DocumentRequests table
             document_request = DocumentRequests.query.filter_by(request_id=request_id).first()
             if document_request:
@@ -166,11 +176,15 @@ class RequestsService:
 
     def get_all_health_support_requests_list(self):
         try:
-            # Query to join HealthSupportRequests with Requests using request_id
+            # Query to join HealthSupportRequests with Requests, Users, and ResidentTypes
             requests_list = db.session.query(
                 HealthSupportRequests.id.label("health_request_id"),
                 HealthSupportRequests.request_id,
                 Requests.user_id,
+                Users.firstname,
+                Users.middlename,
+                Users.lastname,
+                ResidentType.resident_type_name,
                 Requests.status,
                 Requests.description_text,
                 HealthSupportRequests.support_type,
@@ -179,6 +193,8 @@ class RequestsService:
                 Requests.date_created,
                 Requests.last_modified
             ).join(Requests, HealthSupportRequests.request_id == Requests.id)\
+            .join(Users, Requests.user_id == Users.id)\
+            .outerjoin(ResidentType, Users.resident_id == ResidentType.id)\
             .order_by(HealthSupportRequests.resolved_at.asc())\
             .all()
 
@@ -187,6 +203,8 @@ class RequestsService:
                 "health_request_id": row.health_request_id,
                 "request_id": row.request_id,
                 "user_id": row.user_id,
+                "full_name": f"{row.lastname} {row.middlename + ' ' if row.middlename else ''}{row.firstname}",
+                "resident_type": row.resident_type_name if row.resident_type_name else "Community Member",
                 "request_type": "Health Support Request",
                 "status": row.status,
                 "description_text": row.description_text,
@@ -250,11 +268,15 @@ class RequestsService:
 
     def get_all_document_requests_list(self):
         try:
-            # Query to join DocumentRequests with Requests using request_id
+            # Query to join DocumentRequests with Requests, Users, and ResidentTypes
             requests_list = db.session.query(
                 DocumentRequests.id.label("document_request_id"),
                 DocumentRequests.request_id,
                 Requests.user_id,
+                Users.firstname,
+                Users.middlename,
+                Users.lastname,
+                ResidentType.resident_type_name,
                 Requests.status,
                 Requests.description_text,
                 DocumentRequests.document_type,
@@ -265,6 +287,8 @@ class RequestsService:
                 Requests.date_created,
                 Requests.last_modified
             ).join(Requests, DocumentRequests.request_id == Requests.id)\
+            .join(Users, Requests.user_id == Users.id)\
+            .outerjoin(ResidentType, Users.resident_id == ResidentType.id)\
             .order_by(DocumentRequests.date_created.asc())\
             .all()
 
@@ -273,6 +297,8 @@ class RequestsService:
                 "document_request_id": row.document_request_id,
                 "request_id": row.request_id,
                 "user_id": row.user_id,
+                "full_name": f"{row.lastname} {row.middlename + ' ' if row.middlename else ''}{row.firstname}",
+                "resident_type": row.resident_type_name if row.resident_type_name else "Community Member",
                 "request_type": "Document Request",
                 "status": row.status,
                 "description_text": row.description_text,
@@ -289,7 +315,7 @@ class RequestsService:
         except Exception as e:
             print(f"Error getting document requests: {e}")
             return None
-        
+      
     def insert_request(self, user_id, request_type, description_text):
         try:
             new_request = Requests(

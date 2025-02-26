@@ -39,7 +39,6 @@ def set_public_access_prevention_inherited(bucket_name):
     """Sets the public access prevention status to inherited, so that the bucket inherits its setting from its parent project."""
     # The ID of your GCS bucket
     # bucket_name = "my-bucket"
-
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
 

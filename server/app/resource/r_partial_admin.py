@@ -430,6 +430,21 @@ class HealthSupportManagement(Resource):
             print(f"Error processing request update: {e}")
             return {"message": "Failed to process update"}, 500
 
+    @require_user_session
+    def patch(self):
+        patch_parser = reqparse.RequestParser()
+        patch_parser.add_argument('req_request_id', type=str, required=True, help="Request ID is required")
+        patch_parser.add_argument('req_request_status', type=str, required=True, help="Request Status is required")
+        args = patch_parser.parse_args()
+        print(args)
+        result = R_ins.edit_request_status(
+            args['req_request_id'],
+            args['req_request_status']
+        )
+        if not result:
+            return {"message": "failed to edit request status"}, 400
+        return {"message": "edit request status succcesful"}, 200
+
 class IncidentManagement(Resource):
     def get(self):
         current_user_privelege = get_current_user_privilege()

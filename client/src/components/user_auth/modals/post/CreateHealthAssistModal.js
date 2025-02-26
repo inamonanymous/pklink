@@ -47,7 +47,7 @@ const CreateHealthAssistModal = () => {
                 setMessage('Error submitting health support request.');
                 Swal.fire({
                                 title: 'Oops!',
-                                text: 'Something went wrong. Please try again.',
+                                text: `${error.response.data.message}`,
                                 icon: 'error',
                                 confirmButtonText: 'Try Again'
                             });

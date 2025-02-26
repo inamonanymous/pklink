@@ -137,30 +137,33 @@ function Header({ onViewChange, priveleges, activeView }) {
                 </nav>
                 <nav className='user-nav'>
                     <ul className='flex logos'>
-                        <li>
-                            <div className='img-con'>
-                                <a href="#" onClick={menuDropdownToggle}>
-                                    <MenuLogo />
-                                </a>
-                            </div>
-                            {isMenuDropdownOpen && (
-                                <div className='menu-dropdown flex-col'>
-                                        {privilegedItems.map((item) => (
-                                            priveleges?.[item.privilege] && (
-                                                <div key={item.view} className="menu-item" onClick={() => {
-                                                    menuDropdownToggle();
-                                                    onViewChange(item.view);
-                                                }}>
-                                                    <div className="icon">
-                                                        <i className={`bi ${item.icon}`} style={{ fontSize: '1.2rem', marginRight: '10px' }}></i>
+                        {priveleges.partial_admin && (
+                            <li>
+                                    <div className='img-con'>
+                                        <a href="#" onClick={menuDropdownToggle}>
+                                            <MenuLogo />
+                                        </a>
+                                    </div>
+                                
+                                {isMenuDropdownOpen && (
+                                    <div className='menu-dropdown flex-col'>
+                                            {privilegedItems.map((item) => (
+                                                priveleges?.[item.privilege] && (
+                                                    <div key={item.view} className="menu-item" onClick={() => {
+                                                        menuDropdownToggle();
+                                                        onViewChange(item.view);
+                                                    }}>
+                                                        <div className="icon">
+                                                            <i className={`bi ${item.icon}`} style={{ fontSize: '1.2rem', marginRight: '10px' }}></i>
+                                                        </div>
+                                                        <span>{item.name}</span>
                                                     </div>
-                                                    <span>{item.name}</span>
-                                                </div>
-                                            )
-                                        ))}
-                                </div>
-                            )}
-                        </li>
+                                                )
+                                            ))}
+                                    </div>
+                                )}
+                            </li>
+                        )}
                         <li>
                             <div className='img-con'>
                                 <a href="#">

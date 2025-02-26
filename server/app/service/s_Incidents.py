@@ -4,6 +4,29 @@ from app.model.m_Users import Users
 from app.service.s_functions import generate_gcs_incident_image_path, upload_image_to_gcs, check_image_validity, delete_incident_folder_from_gcs, update_incident_image_in_gcs
 
 class IncidentsService:
+    def check_current_user_and_incident_match(self, incident_id, user_id):
+        request = Incidents.query.filter_by(id=incident_id, user_id=user_id).first()
+        return request is not None
+
+    def get_all_incidents_by_user_id(self, user_id):
+        try:
+            incidents = Incidents.query.filter_by(user_id=user_id).all()
+            return [
+                {
+                    "incident_id": incident.id,
+                    "user_id": incident.user_id,
+                    "description": incident.description,
+                    "status": incident.status,
+                    "location": incident.location,
+                    "photo_path": incident.photo_path,
+                    "date_created": incident.date_created.isoformat()
+                }
+                for incident in incidents
+            ]
+        except Exception as e:
+            print(f"Error fetching incidents: {e}")
+            return []
+
     def edit_incident(self, incident_id, user_id=None, description=None, location=None, new_image=None, status=None):
         target_incident = Incidents.query.filter_by(id=incident_id).first()
         if target_incident is None:

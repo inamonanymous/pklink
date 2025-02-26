@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import FetchData from "../FetchFunction";
 import httpClient from "../../../httpClient";
+import Swal from "sweetalert2";
 
 function ManageReportIncident() {
     const timestamp = Date.now()
@@ -11,22 +12,32 @@ function ManageReportIncident() {
     const [clickedIncidentInfo, setClickedIncidentInfo] = useState({});
 
     const handleDeleteIncident = async (e) => {
+        const id = e.currentTarget.getAttribute('data-value');
         e.preventDefault();
-        const confirmDialogue = window.confirm("Do you want to continue deleting this incident report?");
-        if (!confirmDialogue) {
+        const confirmDialogue = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to continue deleting this incident?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+        if (!confirmDialogue.isConfirmed) {
             return;
         }
         try {
-            const id = e.currentTarget.getAttribute('data-value');
+            document.body.style.cursor = 'wait';
             await httpClient.delete('/api/partial_admin/incidents', {
                 params: { req_incident_id: id }
             });
             setRefreshIncidents((prev) => !prev);
             setShowIncidentInfo(false);
-            alert('Incident report deleted');
+            Swal.fire('Deleted!', 'The Incident report has been deleted.', 'success')
         } catch (error) {
-            console.error(error);
-            alert('Error deleting incident report');
+            console.log(error);
+            Swal.fire('Error!', `${error.response.data.message}`, 'error')
+        } finally {
+            document.body.style.cursor = 'default';
         }
     };
 

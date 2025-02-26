@@ -76,7 +76,6 @@ function ManageEvents() {
         setEventInfoLoading(true);
     
         const clickedEvent = allEventsData.find((event) => event.event_id === event_id);
-        console.log(event_id);
         if (!clickedEvent) {
             console.error("event not found");
             setEventInfoLoading(false);
@@ -95,6 +94,7 @@ function ManageEvents() {
 
     return (
         <div id="manage-events" className="flex manage-data">
+            
             <div className="flex-col">
                 {/* Tab Controls */}
                 <div className="btn-group">
@@ -178,17 +178,17 @@ function ManageEvents() {
                             <button onClick={handleDeleteEvent} data-value={clickedEventInfo.event_id}>
                                 Delete Event
                             </button>
-                            <button onClick={() => setIsEditModalOpen(true)}>Edit Event</button>
+                            <button onClick={() => EditEventModal(clickedEventInfo, setRefreshEvents, setClickedEventInfo)}>
+                                Edit Event
+                            </button>
         
-                            {isEditModalOpen && (
+                            {/* {isEditModalOpen && (
                                 <EditEventModal 
-                                    isOpen={setIsEditModalOpen} 
                                     eventData={clickedEventInfo}
-                                    setIsEditModalOpen={setIsEditModalOpen}
                                     setRefreshEvents={setRefreshEvents}
-                                    onClose={setIsEventModalOpen}
+                                    setClickedEventInfo={setClickedEventInfo}
                                 />
-                            )}
+                            )} */}
                         </>
                     )}
                 </div>

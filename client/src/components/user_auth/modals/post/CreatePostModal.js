@@ -65,10 +65,10 @@ const CreatePostModal = ({ isPostModalOpen, setRefreshPosts }) => {
       });
       setRefreshPosts((prev) => !prev);
     } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "Error adding post", "error");
+        console.error(error);
+        Swal.fire("Error", `${error.response.data.message}`, "error");
     } finally {
-      document.body.style.cursor = "default";
+        document.body.style.cursor = "default";
     }
   };
 

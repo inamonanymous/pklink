@@ -51,7 +51,7 @@ const CreateEventModal = ({ isOpen, setRefreshEvents }) => {
             setRefreshEvents(prev => !prev);
         } catch (error) {
             console.error(error);
-            Swal.fire('Error!', 'Error adding event', 'error');
+            Swal.fire('Error!', `${error.response.data.message}`, 'error');
         } finally {
             document.body.style.cursor = 'default';
         }

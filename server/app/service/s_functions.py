@@ -322,8 +322,8 @@ def verify_face(id_photo, face_scan):
 
         # Try to open the images using Pillow and convert them to RGB
         try:
-            id_image = Image.open(id_photo_stream)
-            face_image = Image.open(face_scan_stream)
+            id_image = Image.open(id_photo_stream).convert("RGB")  # Ensure RGB format
+            face_image = Image.open(face_scan_stream).convert("RGB")  # Ensure RGB format
             print("Images loaded and converted successfully.")
         except Exception as e:
             print(f"Error loading or converting images: {e}")

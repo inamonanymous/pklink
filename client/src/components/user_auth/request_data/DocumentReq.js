@@ -1,12 +1,51 @@
 import { useEffect, useState } from "react";
 import CreateDocumentReqModal from "../modals/post/CreateDocumentReqModal";
 import FetchData from "../FetchFunction";
+import Swal from "sweetalert2";
+import httpClient from "../../../httpClient";
+import EditCurrentUserDocumentReqModal from "../modals/put/EditCurrentUserDocumentReqModal";
 
 function DocumentReq() {
     const [refreshRequests, setRefreshRequests] = useState(0);
     const { data: allUserDocumentRequestsData, error, loading } = FetchData("/api/user/document_requests", refreshRequests);
 
     const [activeView, setActiveView] = useState("create"); // 'create' or 'manage'
+
+    const handleDeleteDocument = async (e) => {
+            e.preventDefault();
+            const id = e.currentTarget.getAttribute('data-value');
+            const confirmDialogue = await Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to continue deleting this request?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+            });
+        
+            if (!confirmDialogue.isConfirmed) {
+                return;
+            }
+            try {
+                document.body.style.cursor = 'wait';
+                const resp = await httpClient.delete('/api/user/document_requests', {
+                    params: { req_request_id: id }
+                });
+                setRefreshRequests((prev) => !prev);
+                Swal.fire('Deleted!', 'The request has been deleted.', 'success')
+            } catch (error) {
+                console.error(error);
+                let errorMsg = 'An error occurred while deleting the rewu.';
+                if (error.response?.status === 403) errorMsg = 'Current user is not allowed.';
+                if (error.response?.status === 404) errorMsg = 'Target post not found.';
+                if (error.response?.status === 400) errorMsg = 'Invalid Request';
+                if (error.response?.status === 500) errorMsg = `Internal server error (it's on our fault :>)`;
+        
+                Swal.fire('Error', errorMsg, 'error');
+            } finally {
+                document.body.style.cursor = 'default';
+            }
+    };
 
     return (
         <div id="document-req-con">
@@ -19,7 +58,10 @@ function DocumentReq() {
                         Create Request
                     </button>
                     <button
-                        onClick={() => setActiveView("manage")}
+                        onClick={() => {
+                            setActiveView("manage")
+                            setRefreshRequests((prev) => !prev);
+                        }}
                         className={`btn ${activeView === "manage" ? "btn-primary" : "btn-secondary"}`}
                     >
                         Manage My Requests
@@ -49,6 +91,7 @@ function DocumentReq() {
                                             <th>ID</th>
                                             <th>Document Type</th>
                                             <th>Status</th>
+                                            <th>Reason</th>
                                             <th>Request Date</th>
                                             <th>Actions</th>
                                         </tr>
@@ -63,11 +106,33 @@ function DocumentReq() {
                                                         {request.status}
                                                     </span>
                                                 </td>
+                                                <td>{request.reason}</td>
                                                 <td>{new Date(request.date_created).toLocaleDateString()}</td>
                                                 <td>
-                                                    <button className="btn btn-danger btn-sm">
-                                                        Cancel
-                                                    </button>
+                                                    {request.status ==="pending" && (
+                                                        <div className="btn-group">
+                                                            <button 
+                                                                className="btn btn-danger btn-sm"
+                                                                onClick={handleDeleteDocument}
+                                                                data-value={request.request_id}
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                            <button 
+                                                                className="btn btn-warning btn-sm"
+                                                                onClick={(e) => 
+                                                                    EditCurrentUserDocumentReqModal(
+                                                                        allUserDocumentRequestsData,
+                                                                        request.request_id,
+                                                                        setRefreshRequests
+                                                                    )
+                                                                }
+                                                                data-value={request.request_id}
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}

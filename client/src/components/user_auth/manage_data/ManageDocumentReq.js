@@ -11,14 +11,18 @@ function ManageDocumentReq() {
 
     const handleStatusChange = async (request_id, newStatus) => {
         try {
+            document.body.style.cursor = 'wait';
             await httpClient.patch(`/api/partial_admin/document_requests`, {
                 req_request_id: request_id,
                 req_request_status: newStatus,
             });
             Swal.fire("Success", `Status updated to ${newStatus}`, "success");
             setRefreshRequests((prev) => !prev); // Refresh list
+            setShowDocumentInfo(false);
         } catch (error) {
             Swal.fire("Error", "Failed to update status", "error");
+        } finally {
+            document.body.style.cursor = 'default';
         }
     };
     
@@ -39,6 +43,7 @@ function ManageDocumentReq() {
             return;
         }
         try {
+            document.body.style.cursor = 'wait';
             const resp = await httpClient.delete('/api/partial_admin/document_requests', {
                 params: { req_request_id: id }
             });
@@ -53,6 +58,8 @@ function ManageDocumentReq() {
             if (error.response?.status === 400) errorMsg = 'Invalid request.';
     
             Swal.fire('Error', errorMsg, 'error');
+        } finally {
+            document.body.style.cursor = 'default';
         }
     };
 
@@ -83,6 +90,8 @@ function ManageDocumentReq() {
                         <thead className="thead-dark">
                             <tr>
                                 <th scope="col">Request ID</th>
+                                <th scope="col">Full name</th>
+                                <th scope="col">Resident Type</th>
                                 <th scope="col">Document Type</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Date Created</th>
@@ -98,6 +107,8 @@ function ManageDocumentReq() {
                                         onClick={(e) => handleDocumentInRowClick(e, document.document_request_id)}
                                     >
                                         <td>{document.request_id}</td>
+                                        <td>{document.full_name}</td>
+                                        <td>{document.resident_type}</td>
                                         <td>{document.document_type}</td>
                                         <td>{document.status}</td>
                                         <td>{document.date_created}</td>
