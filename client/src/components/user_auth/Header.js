@@ -18,12 +18,13 @@ import { Link, useNavigate  } from 'react-router-dom';
 import httpClient from '../../httpClient';
 
 const privilegedItems = [
-    { name: 'Manage Accounts', view: 'manage_accounts', privilege: 'view_accounts' },
-    { name: 'Manage Events', view: 'manage_events', privilege: 'manage_event' },
-    { name: 'Manage Posts', view: 'manage_posts', privilege: 'manage_post' },
-    { name: 'Manage Document Requests', view: 'manage_document_req', privilege: 'manage_request' },
-    { name: 'Manage Health Assistance Requests', view: 'manage_health', privilege: 'manage_request' },
-    { name: 'Manage Report Incidents', view: 'manage_incidents', privilege: 'manage_request' },
+    { name: 'Manage Accounts', view: 'manage_accounts', privilege: 'view_accounts', icon: 'bi-person-lines-fill' },
+    { name: 'Manage Events', view: 'manage_events', privilege: 'manage_event', icon: 'bi-calendar-event' },
+    { name: 'Manage Posts', view: 'manage_posts', privilege: 'manage_post', icon: 'bi-pencil-square' },
+    { name: 'Manage Document Requests', view: 'manage_document_req', privilege: 'manage_request', icon: 'bi-file-earmark-text' },
+    { name: 'Manage Health Assistance Requests', view: 'manage_health', privilege: 'manage_request', icon: 'bi-heart-pulse' },
+    { name: 'Manage Report Incidents', view: 'manage_incidents', privilege: 'manage_request', icon: 'bi-exclamation-triangle' },
+    { name: 'Manage Streets and Villages', view: 'manage_streets_villages', privilege: 'partial_admin', icon: 'bi bi-geo-alt' },
 ];
 
 function Header({ onViewChange, priveleges, activeView }) {
@@ -136,35 +137,33 @@ function Header({ onViewChange, priveleges, activeView }) {
                 </nav>
                 <nav className='user-nav'>
                     <ul className='flex logos'>
-                        <li>
-                            <div className='img-con'>
-                                <a href="#" onClick={menuDropdownToggle}>
-                                    <MenuLogo />
-                                </a>
-                            </div>
-                            {isMenuDropdownOpen && (
-                                <div className='menu-dropdown flex-col'>
-                                        {privilegedItems.map((item) => (
-                                            priveleges?.[item.privilege] && (
-                                                <div key={item.view} className="text-con flex">
-                                                    <div className="img-con">
-                                                        <img src="" alt="" />
+                        {priveleges.partial_admin && (
+                            <li>
+                                    <div className='img-con'>
+                                        <a href="#" onClick={menuDropdownToggle}>
+                                            <MenuLogo />
+                                        </a>
+                                    </div>
+                                
+                                {isMenuDropdownOpen && (
+                                    <div className='menu-dropdown flex-col'>
+                                            {privilegedItems.map((item) => (
+                                                priveleges?.[item.privilege] && (
+                                                    <div key={item.view} className="menu-item" onClick={() => {
+                                                        menuDropdownToggle();
+                                                        onViewChange(item.view);
+                                                    }}>
+                                                        <div className="icon">
+                                                            <i className={`bi ${item.icon}`} style={{ fontSize: '1.2rem', marginRight: '10px' }}></i>
+                                                        </div>
+                                                        <span>{item.name}</span>
                                                     </div>
-                                                    <a
-                                                        href="#"
-                                                        onClick={() => {
-                                                            menuDropdownToggle(); // Call the function properly
-                                                            onViewChange(item.view); // Pass item.view to onViewChange
-                                                        }}
-                                                    >
-                                                        {item.name}
-                                                    </a>
-                                                </div>
-                                            )
-                                        ))}
-                                </div>
-                            )}
-                        </li>
+                                                )
+                                            ))}
+                                    </div>
+                                )}
+                            </li>
+                        )}
                         <li>
                             <div className='img-con'>
                                 <a href="#">

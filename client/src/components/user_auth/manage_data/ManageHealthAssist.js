@@ -1,3 +1,4 @@
+import Swal from "sweetalert2";
 import React, { useState } from "react";
 import FetchData from "../FetchFunction";
 import httpClient from "../../../httpClient";
@@ -9,23 +10,56 @@ function ManageHealthAssist() {
     const [showHealthInfo, setShowHealthInfo] = useState(false);
     const [clickedHealthInfo, setClickedHealthInfo] = useState({});
 
+    const handleStatusChange = async (request_id, newStatus) => {
+            try {
+                document.body.style.cursor = 'wait';
+                await httpClient.patch(`/api/partial_admin/health_support_requests`, {
+                    req_request_id: request_id,
+                    req_request_status: newStatus,
+                });
+                Swal.fire("Success", `Status updated to ${newStatus}`, "success");
+                setRefreshRequests((prev) => !prev); // Refresh list
+                setShowHealthInfo(false);
+            } catch (error) {
+                Swal.fire("Error", "Failed to update status", "error");
+            } finally {
+                document.body.style.cursor = 'default';
+            }
+    };
+
     const handleDeleteHealth = async (e) => {
         e.preventDefault();
-        const confirmDialogue = window.confirm("Do you want to continue deleting this health support request?");
-        if (!confirmDialogue) {
+        const id = e.currentTarget.getAttribute('data-value');
+        const confirmDialogue = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to continue deleting this request?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+    
+        if (!confirmDialogue.isConfirmed) {
             return;
         }
         try {
-            const id = e.currentTarget.getAttribute('data-value');
+            document.body.style.cursor = 'wait';
             const resp = await httpClient.delete('/api/partial_admin/health_support_requests', {
                 params: { req_request_id: id }
             });
             setRefreshRequests((prev) => !prev);
             setShowHealthInfo(false);
-            alert('Health support request deleted');
+            Swal.fire('Deleted!', 'The request has been deleted.', 'success')
         } catch (error) {
             console.error(error);
-            alert('Error deleting health support request');
+            let errorMsg = 'An error occurred while deleting the request.';
+            if (error.response?.status === 403) errorMsg = 'Current user is not allowed.';
+            if (error.response?.status === 404) errorMsg = 'Target request not found.';
+            if (error.response?.status === 400) errorMsg = 'Invalid request.';
+    
+            Swal.fire('Error', errorMsg, 'error');
+        } finally {
+            document.body.style.cursor = 'default';
         }
     };
 
@@ -56,6 +90,8 @@ function ManageHealthAssist() {
                         <thead className="thead-darkr">
                             <tr>
                                 <th scope="col">Request ID</th>
+                                <th scope="col">Full name</th>
+                                <th scope="col">Resident Type</th>
                                 <th scope="col">Support Type</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Date Created</th>
@@ -71,6 +107,8 @@ function ManageHealthAssist() {
                                         onClick={(e) => handleHealthInRowClick(e, health.health_request_id)}
                                     >
                                         <td>{health.request_id}</td>
+                                        <td>{health.full_name}</td>
+                                        <td>{health.resident_type}</td>
                                         <td>{health.support_type}</td>
                                         <td>{health.status}</td>
                                         <td>{health.date_created}</td>
@@ -99,6 +137,30 @@ function ManageHealthAssist() {
                         >
                             Delete Request
                         </button>
+
+                        {/* Status-based buttons */}
+                        {clickedHealthInfo.status === "pending" && (
+                            <>
+                                <button onClick={() => handleStatusChange(clickedHealthInfo.request_id, "in_progress")}>
+                                    Start Processing
+                                </button>
+                            </>
+                        )}
+
+                        {clickedHealthInfo.status === "in_progress" && (
+                            <>
+                                <button onClick={() => handleStatusChange(clickedHealthInfo.request_id, "completed")}>
+                                    Mark as Completed
+                                </button>
+                            </>
+                        )}
+
+                        {clickedHealthInfo.status === "completed" && (
+                            <button onClick={() => handleStatusChange(clickedHealthInfo.request_id, "pending")}>
+                                Reopen Request
+                            </button>
+                        )}
+
                         <button>Edit Request</button>
                     </>
                 )}

@@ -293,6 +293,10 @@ function ManageAccounts() {
                                             onClick={handleVerifyButton}
                                             data-value={individualUserInformation.user_id}
                                         >Verify</button>
+                                        <button  
+                                            /* onClick=/* {handleVerifyButton} */
+                                            data-value={individualUserInformation.user_id}
+                                        >Delete</button>
                                     </>
                                     )}
                             </div>

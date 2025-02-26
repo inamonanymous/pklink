@@ -140,81 +140,174 @@ HEADER-USER AUTH ==============================
 #header-ua .user-dropdown {
     position: absolute;
     background-color: var(--dark-gray);
-    top: 40px;
-    left: -175px;
+    top: 50px;
+    left: -365px;
     padding: 20px;
     width: 360px;
     border-radius: 12px;
     color: white;
     text-align: center;
     align-items: center;
-    transform: 0.3s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-in-out;
 }
 
-#header-ua .user-dropdown .img-con.user-profile-photo img {
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    object-position: center;
-}
-
+/* Profile Image Container */
 #header-ua .user-dropdown .img-con.user-profile-photo {
     width: 120px;
     height: 120px;
     border-radius: 100%;
-    overflow: clip;
-    border: 10px solid #987F4E;
+    overflow: hidden;
+    border: 8px solid #987F4E;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 10px;
 }
 
+/* Profile Image */
+#header-ua .user-dropdown .img-con.user-profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* User Full Name */
 #header-ua .user-dropdown h4.user-fullname {
     font-weight: 700;
     text-decoration: underline;
-    margin: 10px 0 10px;
+    margin: 10px 0 8px;
     text-transform: capitalize;
+    font-size: 18px;
 }
 
+/* User Privilege Type */
 #header-ua .user-dropdown p.user-privilege-type {
-    margin: 5px 0 35px;
+    margin: 5px 0 25px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-color);
 }
 
+/* Location Type */
+#header-ua .user-dropdown h6.user-location-type {
+    font-size: 14px;
+    color: var(--light-gray);
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+/* Control Buttons Container */
 #header-ua .user-dropdown .control-buttons-con.flex-col {
-    gap: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
 }
 
+/* General Button Styles */
 #header-ua .user-dropdown .control-buttons-con a.button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     background: #EDE1C2;
     border: none;
-    border-radius: 4px;
-    padding: 10px 12px 10px 35px;
+    border-radius: 8px;
+    padding: 12px 14px 12px 40px;
     color: black;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 600;
     position: relative;
     text-align: left;
+    transition: background 0.3s ease-in-out, transform 0.2s ease;
 }
 
- 
-#header-ua .user-dropdown .control-buttons-con a.logout-button {
-    background: #4B0000;
-    color: white;
+/* Hover Effects for Buttons */
+#header-ua .user-dropdown .control-buttons-con a.button:hover {
+    background: #d6c2a2;
+    transform: translateY(-2px);
 }
 
+/* Button Icons */
 #header-ua .user-dropdown .control-buttons-con a.button svg {
     position: absolute;
     left: 12px;
+    width: 18px;
+    height: 18px;
 }
+
+/* Logout Button */
+#header-ua .user-dropdown .control-buttons-con a.logout-button {
+    background: #4B0000;
+    color: white;
+    transition: background 0.3s ease-in-out, transform 0.2s ease;
+}
+
+/* Logout Hover */
+#header-ua .user-dropdown .control-buttons-con a.logout-button:hover {
+    background: darkred;
+    transform: translateY(-2px);
+}
+
 
 
 #header-ua .menu-dropdown {
     position: absolute;
     background-color: var(--dark-gray);
-    top: 40px;
-    left: -205px;
-    padding: 40px;
-    width: 150px;
-    border-radius: 6px;
+    top: 50px;
+    left: -245px;
+    padding: 10px;
+    width: 250px;
+    border-radius: 8px;
     color: white;
-    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.2s ease-in-out;
 }
+
+#header-ua .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+#header-ua .menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#header-ua .menu-item .icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#header-ua .menu-item svg {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 /* 
 ==============================
@@ -458,13 +551,14 @@ CONTENT-PANEL-USER AUTH ==============================
     background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(20px);
+    /* backdrop-filter: blur(20px); */
 }
 
 #content-panel-ua > div {
     padding: 20px 20px 65px;
     color: white;
     position: relative;
+    border-radius: inherit;
 }
 
 /* 
@@ -626,6 +720,8 @@ EVENTS-USER AUTH ==============================
     gap: 0 30px;
     align-items: start;
     padding: 20px;
+    background: var(--white-black-gradient);
+    border-radius: inherit;
 }
 
 #events-con .react-calendar {
@@ -681,6 +777,31 @@ DOCUMENT-REQUEST-USER AUTH ==============================
     padding: 35px 80px 20px;
     background: var(--white-black-gradient);
     border-radius: 24px;
+    position: relative;
+    width: 760px;
+    height: 80vh;
+}
+
+#document-req-con > div {
+    position: absolute;
+    top: 25px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: scroll;
+    padding: 30px 30px 200px;
+    box-sizing: border-box;
+}
+
+#document-req-con > div::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+    background-color: white;
+    border-radius: 10px; /* Rounded edges */
+}
+
+#document-req-con > div::-webkit-scrollbar-thumb {
+    background-color: #282828; /* Scrollbar color */
+    border-radius: 10px; /* Rounded edges */
 }
 
 #document-req-con .text-con.head {
@@ -710,6 +831,24 @@ DOCUMENT-REQUEST-USER AUTH ==============================
     width: 650px;
     margin: 0 auto;
 }
+
+#document-req-con button.slick-arrow {
+    transform: scale(1.5);
+}
+
+#document-req-con button.slick-arrow.slick-next {
+    right: -50px;
+}
+
+#document-req-con button.slick-arrow.slick-prev {
+    left: -50px;
+}
+
+#document-req-con .slick-dots li button:before {
+    transform: scale(1.5);
+    color: white;
+}
+
 
 #document-req-con .slick-slide {
     opacity: 0.5; /* Dim non-centered slides */
@@ -829,7 +968,31 @@ HEALTH-ASSIST-USER AUTH ==============================
     padding: 35px 80px 20px;
     background: var(--white-black-gradient);
     border-radius: 24px;
-    width: 1000px;
+    position: relative;
+    width: 760px;
+    height: 80vh;
+}
+
+#health-assist-con > div {
+    position: absolute;
+    top: 25px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: scroll;
+    padding: 30px 30px 200px;
+    box-sizing: border-box;
+}
+
+#health-assist-con > div::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+    background-color: white;
+    border-radius: 10px; /* Rounded edges */
+}
+
+#health-assist-con > div::-webkit-scrollbar-thumb {
+    background-color: #282828; /* Scrollbar color */
+    border-radius: 10px; /* Rounded edges */
 }
 
 #health-assist-con .form-con {
@@ -873,6 +1036,10 @@ MANAGE-POSTS-USER AUTH ==============================
 
 }
 
+#manage-posts .posts-create {
+    width: 550px;
+    padding: 20px;
+}
 /* 
 ==============================
 ==============================
@@ -884,8 +1051,14 @@ MANAGE-EVENTS-USER AUTH ==============================
 */
 
 #manage-events {
- 
+    width: auto;
 }
+
+#manage-events .events-create {
+    width: 550px;
+    padding: 20px;
+}
+
 
 /* 
 ==============================

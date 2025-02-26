@@ -10,35 +10,6 @@ from google.cloud import storage
 
 GCS_BUCKET_NAME = 'pklink'
 
-def delete_post_folder_from_gcs(user_id, post_id):
-    """Deletes all files inside a post_<post_id> folder from GCS."""
-    try:
-        bucket_name = "pklink"  # Replace with your actual GCS bucket
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
-
-        # Construct the folder path
-        folder_prefix = f"uploads/users/user_{user_id}/posts/post_{post_id}/".replace("\\", "/")  # Ensure correct format
-
-        # List all objects in the folder
-        blobs = list(bucket.list_blobs(prefix=folder_prefix))
-
-        if not blobs:
-            print(f"No files found in {folder_prefix}. Folder might already be empty or deleted.")
-            return False
-
-        # Delete all files in the folder
-        for blob in blobs:
-            blob_name = blob.name.replace("\\", "/")  # Ensure correct format
-            bucket.blob(blob_name).delete()
-            print(f"Deleted {blob_name} from GCS")
-
-        print(f"Deleted folder {folder_prefix} from GCS")
-        return True
-    except Exception as e:
-        print(f"Error deleting folder from GCS: {e}")
-        return False
-
 
 def upload_image_to_gcs(image_file, destination_path):
     """
@@ -69,6 +40,96 @@ def upload_image_to_gcs(image_file, destination_path):
         print(f"Error uploading to GCS: {e}")
         return ""  # Return empty string in case of failure
 
+def delete_old_image_from_gcs(photo_path):
+    """
+    Deletes an old image from Google Cloud Storage.
+    """
+    try:
+        if not photo_path:
+            return False  # No old image to delete
+
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(GCS_BUCKET_NAME)
+        blob_name = photo_path.replace(f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/", "")
+        blob = bucket.blob(blob_name)
+
+        if blob.exists():
+            blob.delete()
+            print(f"Deleted old image: {blob_name}")
+        return True
+    except Exception as e:
+        print(f"Error deleting image from GCS: {e}")
+        return False
+
+def update_post_image_in_gcs(user_id, post_id, new_image):
+    """
+    Updates the post image in GCS by deleting the old one and uploading a new one.
+
+    Args:
+        user_id (int): ID of the user who owns the post.
+        post_id (int): ID of the post being edited.
+        new_image (FileStorage): The new image file uploaded by the user.
+
+    Returns:
+        str: GCS path of the new uploaded image, or an empty string if failed.
+    """
+    try:
+        # Get the GCS path of the existing post image
+        image_ext = check_image_validity(new_image)  # Ensure it's a valid image
+        if not image_ext:
+            print("Invalid image file")
+            return ""
+
+        gcs_path = generate_gcs_post_image_path(user_id, post_id, image_ext)
+
+        # Delete the old image before uploading the new one
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(GCS_BUCKET_NAME)
+        blob = bucket.blob(gcs_path)
+
+        if blob.exists():
+            blob.delete()
+            print(f"Old image deleted: {gcs_path}")
+
+        # Upload the new image
+        upload_image_to_gcs(new_image, gcs_path)
+        return gcs_path
+
+    except Exception as e:
+        print(f"Error updating post image: {e}")
+        return ""
+
+def delete_post_folder_from_gcs(user_id, post_id):
+    """Deletes all files inside a post_<post_id> folder from GCS."""
+    try:
+        bucket_name = "pklink"  # Replace with your actual GCS bucket
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+
+        # Construct the folder path
+        folder_prefix = f"uploads/users/user_{user_id}/posts/post_{post_id}/".replace("\\", "/")  # Ensure correct format
+
+        # List all objects in the folder
+        blobs = list(bucket.list_blobs(prefix=folder_prefix))
+
+        if not blobs:
+            print(f"No files found in {folder_prefix}. Folder might already be empty or deleted.")
+            return False
+
+        # Delete all files in the folder
+        for blob in blobs:
+            blob_name = blob.name.replace("\\", "/")  # Ensure correct format
+            bucket.blob(blob_name).delete()
+            print(f"Deleted {blob_name} from GCS")
+
+        print(f"Deleted folder {folder_prefix} from GCS")
+        return True
+    except Exception as e:
+        print(f"Error deleting folder from GCS: {e}")
+        return False
+
+
+
 def generate_gcs_post_image_path(user_id, post_id, image_ext):
     """
     Generates a GCS storage path for a given image.
@@ -82,6 +143,74 @@ def generate_gcs_post_image_path(user_id, post_id, image_ext):
         str: The GCS path for storing the image.
     """
     return f"uploads/users/user_{user_id}/posts/post_{post_id}/post_image.{image_ext}"
+
+
+def update_incident_image_in_gcs(user_id, incident_id, new_image):
+    """
+    Updates the incident image in GCS by deleting the old one and uploading a new one.
+
+    Args:
+        user_id (int): ID of the user who owns the post.
+        incident_id (int): ID of the incident being edited.
+        new_image (FileStorage): The new image file uploaded by the user.
+
+    Returns:
+        str: GCS path of the new uploaded image, or an empty string if failed.
+    """
+    try:
+        image_ext = check_image_validity(new_image)
+        if not image_ext:
+            print("Invalid image file")
+            return ""
+        
+        gcs_path = generate_gcs_incident_image_path(user_id, incident_id, image_ext)
+
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(GCS_BUCKET_NAME)
+        blob = bucket.blob(gcs_path)
+
+        if blob.exists():
+            blob.delete()
+            print(f"Old image deleted: {gcs_path}")
+
+        # Upload the new image
+        upload_image_to_gcs(new_image, gcs_path)
+        return gcs_path
+    
+    except Exception as e:
+        print(f"Error updating incident image: {e}")
+        return ""
+
+
+def delete_incident_folder_from_gcs(user_id, incident_id):
+    """Deletes all files inside a incident_<incident_id> folder from GCS."""
+    try:
+        bucket_name = "pklink"  # Replace with your actual GCS bucket
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+
+        # Construct the folder path
+        folder_prefix = f"uploads/users/user_{user_id}/incidents/incident_{incident_id}/".replace("\\", "/")  # Ensure correct format
+
+        # List all objects in the folder
+        blobs = list(bucket.list_blobs(prefix=folder_prefix))
+
+        if not blobs:
+            print(f"No files found in {folder_prefix}. Folder might already be empty or deleted.")
+            return False
+
+        # Delete all files in the folder
+        for blob in blobs:
+            blob_name = blob.name.replace("\\", "/")  # Ensure correct format
+            bucket.blob(blob_name).delete()
+            print(f"Deleted {blob_name} from GCS")
+
+        print(f"Deleted folder {folder_prefix} from GCS")
+        return True
+    except Exception as e:
+        print(f"Error deleting folder from GCS: {e}")
+        return False
+
 
 def generate_gcs_incident_image_path(user_id, incident_id, image_ext):
     """
@@ -193,8 +322,8 @@ def verify_face(id_photo, face_scan):
 
         # Try to open the images using Pillow and convert them to RGB
         try:
-            id_image = Image.open(id_photo_stream)
-            face_image = Image.open(face_scan_stream)
+            id_image = Image.open(id_photo_stream).convert("RGB")  # Ensure RGB format
+            face_image = Image.open(face_scan_stream).convert("RGB")  # Ensure RGB format
             print("Images loaded and converted successfully.")
         except Exception as e:
             print(f"Error loading or converting images: {e}")

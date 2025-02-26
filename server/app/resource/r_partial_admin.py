@@ -1,5 +1,5 @@
 from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins, PS_ins, ES_ins, R_ins, I_ins, session
-from .r_functions import require_user_session, get_current_user_privilege
+from .r_functions import require_user_session, get_current_user_privilege, get_current_user_username
 from datetime import datetime, timezone
 
 
@@ -94,6 +94,40 @@ class UserVerification(Resource):
         
 class PostManagement(Resource):
     @require_user_session
+    def put(self):
+        current_user_privilege = get_current_user_privilege()
+        if current_user_privilege is None:
+            abort(406, message="Current user not found")    
+        if not current_user_privilege['manage_post']:
+            abort(401, message="Current user not allowed")    
+
+        args = request.form
+
+        post_photo = request.files.get('req_post_photo')
+        if args is None:
+            return {"message": "Invalid request"}, 400
+
+        user = US_ins.get_user_dict_by_username(get_current_user_username())
+
+        post_id = args.get('req_post_id')
+        if not post_id:
+            return {"message": "Post ID is required"}, 400
+
+        updated_post = PS_ins.edit_post(
+            post_id=post_id,
+            title=args.get('req_post_title'),
+            content=args.get('req_post_content'),
+            new_image=post_photo,
+            user_id=user['user_id']
+        )
+
+        if not updated_post:
+            return {"message": "Post not found"}, 404
+
+        return {"message": "Post updated successfully"}, 200
+
+
+    @require_user_session
     def delete(self):
         current_user_privelege = get_current_user_privilege()
         if current_user_privelege is None:
@@ -136,7 +170,51 @@ class PostManagement(Resource):
 
 class EventManagement(Resource):
     @require_user_session
+    def put(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_event']:
+            abort(401, message="current user not allowed")    
+
+        put_parser = reqparse.RequestParser()
+        put_parser.add_argument("req_event_id", type=str, required=True, help="Event ID is required")
+        put_parser.add_argument("req_event_title", type=str, required=False)
+        put_parser.add_argument("req_event_description", type=str, required=False)
+        put_parser.add_argument("req_event_date", type=str, required=False)
+        put_parser.add_argument("req_start_time", type=str, required=False)
+        put_parser.add_argument("req_end_time", type=str, required=False)
+        put_parser.add_argument("req_location", type=str, required=False)
+        
+        args = put_parser.parse_args()
+
+        # Call edit_event method from EventService
+        updated_event = ES_ins.edit_event(
+            args["req_event_id"],
+            title=args.get("req_event_title"),
+            description=args.get("req_event_description"),
+            event_date=args.get("req_event_date"),
+            start_time=args.get("req_start_time"),
+            end_time=args.get("req_end_time"),
+            location=args.get("req_location")
+        )
+        print(args.get('req_event_title'))
+        print(updated_event.title)
+        if not updated_event:
+            return {"message": "Event not found"}, 404
+        
+        return {"message": "Event updated successfully"}, 200
+
+
+
+    @require_user_session
     def post(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_event']:
+            abort(401, message="current user not allowed")    
+
         post_parser = reqparse.RequestParser()
         post_parser.add_argument('req_event_title', type=str, required=True, help="Title is required")
         post_parser.add_argument('req_event_description', type=str, required=True, help="Description is required")
@@ -190,6 +268,12 @@ class EventManagement(Resource):
 
     @require_user_session
     def delete(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_event']:
+            abort(401, message="current user not allowed")    
+
         event_id = request.args.get('req_event_id')
         if event_id is None:
             return {'message': 'event not found'}, 404
@@ -202,11 +286,23 @@ class EventManagement(Resource):
 class DocumentRequestManagement(Resource):
     @require_user_session
     def get(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_request']:
+            abort(401, message="current user not allowed")    
+
         data = R_ins.get_all_document_requests_list()
         return data, 200
 
     @require_user_session
     def delete(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_request']:
+            abort(401, message="current user not allowed")            
+
         request_id = request.args.get('req_request_id')
         if request_id is None:
             return {'message': 'request not found'}, 404
@@ -216,6 +312,12 @@ class DocumentRequestManagement(Resource):
 
     @require_user_session
     def put(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_request']:
+            abort(401, message="current user not allowed")    
+
         put_parser = reqparse.RequestParser()
         put_parser.add_argument('req_request_id', type=str, required=True, help="Request ID is required")
         put_parser.add_argument('req_status', type=str, choices=('pending', 'in_progress', 'completed'), help="Invalid status")
@@ -247,15 +349,42 @@ class DocumentRequestManagement(Resource):
         except Exception as e:
             print(f"Error processing request update: {e}")
             return {"message": "Failed to process update"}, 500
+    
+    @require_user_session
+    def patch(self):
+        patch_parser = reqparse.RequestParser()
+        patch_parser.add_argument('req_request_id', type=str, required=True, help="Request ID is required")
+        patch_parser.add_argument('req_request_status', type=str, required=True, help="Request Status is required")
+        args = patch_parser.parse_args()
+        print(args)
+        result = R_ins.edit_request_status(
+            args['req_request_id'],
+            args['req_request_status']
+        )
+        if not result:
+            return {"message": "failed to edit request status"}, 400
+        return {"message": "edit request status succcesful"}, 200
 
 class HealthSupportManagement(Resource):
     @require_user_session
     def get(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_request']:
+            abort(401, message="current user not allowed")    
+
         data = R_ins.get_all_health_support_requests_list()
         return data, 200
     
     @require_user_session
     def delete(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_request']:
+            abort(401, message="current user not allowed")    
+
         request_id = request.args.get('req_request_id')
         if request_id is None:
             return {'message': 'request not found'}, 404
@@ -265,6 +394,12 @@ class HealthSupportManagement(Resource):
 
     @require_user_session
     def put(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_request']:
+            abort(401, message="current user not allowed")    
+
         put_health_support_parser = reqparse.RequestParser()
         put_health_support_parser.add_argument('req_request_id', type=str, required=True, help="Request ID is required")
         put_health_support_parser.add_argument('req_status', type=str, choices=('pending', 'in_progress', 'completed'), help="Invalid status")
@@ -295,7 +430,78 @@ class HealthSupportManagement(Resource):
             print(f"Error processing request update: {e}")
             return {"message": "Failed to process update"}, 500
 
+    @require_user_session
+    def patch(self):
+        patch_parser = reqparse.RequestParser()
+        patch_parser.add_argument('req_request_id', type=str, required=True, help="Request ID is required")
+        patch_parser.add_argument('req_request_status', type=str, required=True, help="Request Status is required")
+        args = patch_parser.parse_args()
+        print(args)
+        result = R_ins.edit_request_status(
+            args['req_request_id'],
+            args['req_request_status']
+        )
+        if not result:
+            return {"message": "failed to edit request status"}, 400
+        return {"message": "edit request status succcesful"}, 200
+
 class IncidentManagement(Resource):
     def get(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_request']:
+            abort(401, message="current user not allowed")    
+
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_request']:
+            abort(401, message="current user not allowed")    
+
         data = I_ins.get_all_incidents_dict()
         return data, 200
+    
+    @require_user_session
+    def delete(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['manage_request']:
+            abort(401, message="current user not allowed")    
+
+        incident_id = request.args.get('req_incident_id')
+        if incident_id is None:
+            return {'message': 'request not found'}, 404
+        if not I_ins.delete_incident(incident_id):
+            return {'message': 'deletion unuccessful'}, 405
+        return {'message': 'deletion successful'}, 200
+    
+    @require_user_session
+    def put(self):
+        current_user_privilege = get_current_user_privilege()
+        if current_user_privilege is None:
+            abort(406, message="Current user not found")    
+        if not current_user_privilege['manage_request']:
+            abort(401, message="Current user not allowed")    
+        
+        args = request.form
+
+        incident_photo = request.files.get('req_incident_photo')
+        if args is None:
+            return {"message": "invalid request"}, 400
+                
+        user = US_ins.get_user_dict_by_username(get_current_user_username())
+
+        updated_incident = I_ins.edit_incident(
+            incident_id=args['req_incident_id'],
+            user_id=user['user_id'],
+            description=args['req_description'],
+            location=args['req_location'],
+            new_image=incident_photo
+        )
+
+        if not updated_incident:
+            return {"message": "incident not found"}, 404
+        
+        return {"message": "Incident updated successfully"}, 200

@@ -3,133 +3,79 @@ import FetchData from "../FetchFunction";
 import { getReadableDate, getReadableTime } from "./functions";
 import httpClient from "../../../httpClient";
 import Swal from "sweetalert2";
+import CreateEventModal from "../modals/post/CreateEventModal";
+import EditEventModal from "../modals/put/EditEventModals";
 
 function ManageEvents() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
     const [clickedEventInfo, setClickedEventInfo] = useState({});
     const [eventInfoLoading, setEventInfoLoading] = useState(false);
     const [showEventInfo, setShowEventInfo] = useState(false);
     const [refreshEvents, setRefreshEvents] = useState(0);
-    const handleModalToggle = () => {
-        setIsModalOpen((prevState) => !prevState);
+
+    const [activeView, setActiveView] = useState("create");
+
+    const handleViewToggle = (view) => {
+        setActiveView(view);
+        setIsEventModalOpen((prevState) => !prevState);
     };
+
     const {data: allEventsData, error, loading} = FetchData("/api/user/events", refreshEvents);
 
-    
-
-      const handleDeleteEvent = async (e) => {
-            e.preventDefault();
-            const id = e.currentTarget.getAttribute('data-value');
-            const confirmDialogue = await Swal.fire({
-                        title: 'Are you sure?',
-                        text: "Do you want to continue deleting this event?",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Yes, delete it!',
-                        cancelButtonText: 'Cancel',
-                    });
-            if (!confirmDialogue.isConfirmed) {
-                console.log(true);
+    const handleDeleteEvent = async (e) => {
+        e.preventDefault();
+        const id = e.currentTarget.getAttribute('data-value');
+        const confirmDialogue = await Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you want to continue deleting this event?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel',
+                });
+        if (!confirmDialogue.isConfirmed) {
+            console.log(true);
+            return;
+        }
+        try {
+            document.body.style.cursor = 'wait';
+            await httpClient.delete('/api/partial_admin/events', {
+                params: { req_event_id: id }
+            });
+            setRefreshEvents((prev) => {
+                return !prev;
+            });
+            setShowEventInfo(false);
+            Swal.fire('Deleted!', 'The event has been deleted.', 'success');
+                
+        } catch (error) {
+            if (error.status === 406){
+                console.error(error);
+                Swal.fire('Failed!', 'Current user not allowed to delete.', 'failed');
                 return;
             }
-            try {
-                document.body.style.cursor = 'wait';
-                await httpClient.delete('/api/partial_admin/events', {
-                    params: { req_event_id: id }
-                });
-                console.log("Before state update");
-                setRefreshEvents((prev) => {
-                    console.log("Inside state update, prev:", prev); // Check if this runs
-                    return !prev;
-                });
-                setShowEventInfo(false);
-                Swal.fire('Deleted!', 'The event has been deleted.', 'success');
-                  
-            } catch (error) {
-                if (error.status === 406){
-                    console.error(error);
-                    Swal.fire('Failed!', 'Current user not allowed to delete.', 'failed');
-                    return;
-                }
-                if (error.status === 404){
-                    console.error(error);
-                    Swal.fire('Failed!', 'The target event not found.', 'failed');
-                    return;
-                }
-                if (error.status === 400){
-                    console.error(error);
-                    Swal.fire('Error!', 'Bad request', 'error');
-                    return;
-                }
-            } finally {
-                document.body.style.cursor = 'default';
-            }
-        }
-
-    const [eventsData, setEventsData] = useState({
-        'req_event_title': '',
-        'req_event_description': '',
-        'req_event_date': '',
-        'req_event_start_time': '',
-        'req_event_end_time': '',
-        'req_event_location': ''
-    });
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setEventsData((prevInfo) => ({
-            ...prevInfo,
-            [name]: value,
-        }));
-    };
-    
-        const handleSubmit = async (e) => {
-            e.preventDefault();
-
-            try {
-                document.body.style.cursor = 'wait';
-                const resp = await httpClient.post('/api/partial_admin/events', eventsData);
-                if (resp.status === 400) {
-                    Swal.fire('Errpr!', 'Bad request.', 'error');
-                    return;
-                }
-                
-                if (resp.status === 404) {
-                    Swal.fire('Failed!', 'The event is failed to add.', 'failed');
-                    return;
-                }
-            
-                Swal.fire('Added!', 'The event has been added.', 'success');
-                setEventsData({
-                    req_event_title: '',
-                    req_event_description: '',
-                    req_event_date: '',
-                    req_event_start_time: '',
-                    req_event_end_time: '',
-                    req_event_location: '',
-                });
-                setIsModalOpen(false);
-                setRefreshEvents((prev) => {
-                    console.log("Previous state:", prev);
-                    return !prev; // Toggle state
-                  });
-                
-            } catch (error) {
-                console.log(eventsData);
+            if (error.status === 404){
                 console.error(error);
-                Swal.fire('Error!', 'Error adding event', 'error');
-            } finally {
-                document.body.style.cursor = 'default';
+                Swal.fire('Failed!', 'The target event not found.', 'failed');
+                return;
             }
-    
+            if (error.status === 400){
+                console.error(error);
+                Swal.fire('Error!', 'Bad request', 'error');
+                return;
+            }
+        } finally {
+            document.body.style.cursor = 'default';
         }
-    
+    }    
 
     const handleEventInRowClick = async (e, event_id) => {
         e.preventDefault();
         setEventInfoLoading(true);
     
         const clickedEvent = allEventsData.find((event) => event.event_id === event_id);
-        console.log(event_id);
         if (!clickedEvent) {
             console.error("event not found");
             setEventInfoLoading(false);
@@ -141,7 +87,6 @@ function ManageEvents() {
         setEventInfoLoading(false);
         setShowEventInfo(true);
         setRefreshEvents((prev) => {
-            console.log("Previous state:", prev);
             return !prev; // Toggle state
         });
     };
@@ -149,148 +94,109 @@ function ManageEvents() {
 
     return (
         <div id="manage-events" className="flex manage-data">
-            <div id="events-controls" >
-                <button
-                    onClick={handleModalToggle}
-                    className="btn btn-success"
+            
+            <div className="flex-col">
+                {/* Tab Controls */}
+                <div className="btn-group">
+                    <button
+                        onClick={() => handleViewToggle("create")}
+                        className={`btn ${activeView === "create" ? "btn-primary" : "btn-secondary"}`}
                     >
-                    Create New Event
+                        Create Event
                     </button>
-                {isModalOpen && (
-                    <form onSubmit={handleSubmit}>
-                        <div className="d-flex flex-column">
-                        <div className="mb-3">
-                            <input
-                            type="text"
-                            name="req_event_title"
-                            value={eventsData.req_event_title}
-                            onChange={handleInputChange}
-                            placeholder="Title"
-                            className="form-control"
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <input
-                            type="text"
-                            name="req_event_location"
-                            value={eventsData.req_event_location}
-                            onChange={handleInputChange}
-                            placeholder="Location"
-                            className="form-control"
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <textarea
-                            cols="30"
-                            rows="10"
-                            name="req_event_description"
-                            value={eventsData.req_event_description}
-                            onChange={handleInputChange}
-                            placeholder="Description"
-                            className="form-control"
-                            ></textarea>
-                        </div>
-                        <div className="mb-3">
-                            <input
-                            type="date"
-                            name="req_event_date"
-                            value={eventsData.req_event_date}
-                            onChange={handleInputChange}
-                            placeholder="Event date"
-                            className="form-control"
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <input
-                            type="time"
-                            name="req_event_start_time"
-                            value={eventsData.req_event_start_time}
-                            onChange={handleInputChange}
-                            placeholder="Start time"
-                            className="form-control"
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <input
-                            type="time"
-                            name="req_event_end_time"
-                            value={eventsData.req_event_end_time}
-                            onChange={handleInputChange}
-                            placeholder="End time"
-                            className="form-control"
-                            />
-                        </div>
-                        <button type="submit" className="btn btn-primary">Submit</button>
-                        </div>
-                    </form>
-                )}
-                <div className="table-con">
-                    <table className="table table-bordered table-hover table-stripped">
-                        <thead className="thead-dark">
-                            <tr>
-                                <th scope="col">Event I.D.</th>
-                                <th scope="col">Event title</th>
-                                <th scope="col">Created by</th>
-                                <th scope="col">User type</th>
-                                <th scope="col">Date created</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {allEventsData === null || allEventsData.length === 0 ? (
-                                <>No events</>
-                            ) : (
-                                allEventsData.map((event) => (
-                                    <tr 
-                                        key={event.event_id}
-                                        onClick={(e) => handleEventInRowClick(e, event.event_id)}
-                                    >
-                                        <td>{event.event_id}</td>
-                                        <td>{event.event_title}</td>
-                                        <td>
-                                            {event.user_lastname}, {event.user_firstname}{" "}
-                                            {event.user_middlename}
-                                        </td>
-                                        <td>{event.user_resident_type}</td>
-                                        <td>{event.event_date_created}</td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                    <button
+                        onClick={() => handleViewToggle("manage")}
+                        className={`btn ${activeView === "manage" ? "btn-primary" : "btn-secondary"}`}
+                    >
+                        Manage Events
+                    </button>
+
                 </div>
-            </div>
-
-            <div className="event-info">
-                {!showEventInfo ? (
-                    <>
-                     <h3>Select Event</h3>
-                    </>
-
-                ) : eventInfoLoading ? (
-                    <>
-                        <h3>Loading...</h3>
-                    </>
-                ) : (
-                    <>
-                        <h3>{clickedEventInfo.event_title}</h3>
-                        <h4>{clickedEventInfo.event_description}</h4>
-                        <h4>{getReadableDate(clickedEventInfo.event_date)}</h4>
-                        <h4>{getReadableTime(clickedEventInfo.event_start_time)}</h4>
-                        <h4>{getReadableTime(clickedEventInfo.event_end_time)}</h4>
-                        <h5>{clickedEventInfo.user_lastname}, {clickedEventInfo.user_firstname} {clickedEventInfo.user_middlename}</h5>
-                        <button
-                            onClick={handleDeleteEvent} 
-                            data-value={clickedEventInfo.event_id}
-                        >
-                            Delete Event
-                        </button>
-                        <button>Edit Event</button>
-                    </>
+    
+                {/* Conditional Views */}
+                {activeView === "create" && (
+                    <div className="events-create">
+                            <CreateEventModal
+                                isOpen={true}
+                                setRefreshEvents={setRefreshEvents}
+                            />
+                    </div>
                 )}
-                
+    
+                {activeView === "manage" && (
+                    <div className="events-manage">
+                        <div className="table-con">
+                            <table className="table table-bordered table-hover table-striped">
+                                <thead className="thead-dark">
+                                    <tr>
+                                        <th scope="col">Event I.D.</th>
+                                        <th scope="col">Event Title</th>
+                                        <th scope="col">Created By</th>
+                                        <th scope="col">User Type</th>
+                                        <th scope="col">Date Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {allEventsData === null || allEventsData.length === 0 ? (
+                                        <>No events</>
+                                    ) : (
+                                        allEventsData.map((event) => (
+                                            <tr 
+                                                key={event.event_id}
+                                                onClick={(e) => handleEventInRowClick(e, event.event_id)}
+                                            >
+                                                <td>{event.event_id}</td>
+                                                <td>{event.event_title}</td>
+                                                <td>{event.user_lastname}, {event.user_firstname} {event.user_middlename}</td>
+                                                <td>{event.user_resident_type}</td>
+                                                <td>{event.event_date_created}</td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
             </div>
+            
+            {isEventModalOpen && (
+                /* Event Info Section */
+                <div className="event-info">
+                    {!showEventInfo ? (
+                        <h3>Select Event</h3>
+                    ) : eventInfoLoading ? (
+                        <h3>Loading...</h3>
+                    ) : (
+                        <>
+                            <h3>{clickedEventInfo.event_title}</h3>
+                            <h4>{clickedEventInfo.event_description}</h4>
+                            <h4>{getReadableDate(clickedEventInfo.event_date)}</h4>
+                            <h4>{getReadableTime(clickedEventInfo.event_start_time)}</h4>
+                            <h4>{getReadableTime(clickedEventInfo.event_end_time)}</h4>
+                            <h5>{clickedEventInfo.user_lastname}, {clickedEventInfo.user_firstname} {clickedEventInfo.user_middlename}</h5>
+                            <button onClick={handleDeleteEvent} data-value={clickedEventInfo.event_id}>
+                                Delete Event
+                            </button>
+                            <button onClick={() => EditEventModal(clickedEventInfo, setRefreshEvents, setClickedEventInfo)}>
+                                Edit Event
+                            </button>
+        
+                            {/* {isEditModalOpen && (
+                                <EditEventModal 
+                                    eventData={clickedEventInfo}
+                                    setRefreshEvents={setRefreshEvents}
+                                    setClickedEventInfo={setClickedEventInfo}
+                                />
+                            )} */}
+                        </>
+                    )}
+                </div>
+            )}
+            
         </div>
     );
+    
 }
 
 export default ManageEvents;

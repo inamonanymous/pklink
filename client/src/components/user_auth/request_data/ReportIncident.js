@@ -1,118 +1,135 @@
 import React, { useState } from "react";
+import FetchData from "../FetchFunction";
+import CreateIncidentModal from "../modals/post/CreateIncidentModal";
+import httpClient from "../../../httpClient";
 import Swal from "sweetalert2";
-import httpClient from "../../../httpClient"; // Adjust according to your API setup
 
 function ReportIncident() {
-    const [incidentData, setIncidentData] = useState({
-        description: '',
-        location: '',
-        photo: null,
-    });
+    const [refreshIncidents, setRefreshIncidents] = useState(0);
+    const [activeView, setActiveView] = useState("create");    
+    const { data: allUserIncidents, error, loading } = FetchData("/api/user/incidents", refreshIncidents);
+    let timestamp = Date.now()
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setIncidentData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const handleFileChange = (e) => {
-        setIncidentData((prev) => ({
-            ...prev,
-            photo: e.target.files[0],
-        }));
-    };
-
-    const handleSubmit = async (e) => {
+    
+    const handleDeleteIncident = async (e) => {
         e.preventDefault();
-        
-        const formData = new FormData();
-        formData.append('req_description', incidentData.description);
-        formData.append('req_location', incidentData.location);
-        formData.append('req_incident_photo', incidentData.photo);
-
+        const id = e.currentTarget.getAttribute('data-value');
+        const confirmDialogue = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to continue deleting this incident?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+        if (!confirmDialogue.isConfirmed) {
+            return;
+        }
         try {
             document.body.style.cursor = 'wait';
-            const response = await httpClient.post('/api/user/incidents', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+            await httpClient.delete('/api/user/incidents', {
+                params: { req_incident_id: id }
             });
-
-            if (response.status === 200) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Incident Reported',
-                    text: 'Your incident has been successfully reported.',
-                });
-                
-                // Reset form
-                setIncidentData({
-                    description: '',
-                    location: '',
-                    photo: null,
-                });
-            } else {
-                throw new Error('Something went wrong!');
-            }
+            setRefreshIncidents((prev) => !prev);
+            Swal.fire('Deleted!', 'The Incident Report has been deleted.', 'success')
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Failed to report the incident. Please try again.',
-            });
+            console.error(error);
+            Swal.fire('Error!', `${error.response.data.message}`, 'error')
         } finally {
             document.body.style.cursor = 'default';
         }
     };
-
     return (
-        <>
-            <div id="report-incident-con" className="flex-col">
-                <div className="text-con head">
-                    <h4>Report Incident</h4>
+        <div id="report-incident-con">
+            <div className="flex-col">
+                <div className="btn-group">
+                    <button
+                        onClick={() => setActiveView("create")}
+                        className={`btn ${activeView === "create" ? "btn-primary" : "btn-secondary"}`}
+                    >
+                        Create Incident
+                    </button>
+                    <button
+                        onClick={() => {
+                            setActiveView("manage")
+                            setRefreshIncidents((prev) => !prev);
+                        }}
+                        className={`btn ${activeView === "manage" ? "btn-primary" : "btn-secondary"}`}
+                    >
+                        Manage My Incidents
+                    </button>
                 </div>
-                <div className="form-con">
-                    <form className="user-side-forms flex-col" onSubmit={handleSubmit}>
-                        <div className="input-con flex-col">
-                            <label>
-                                Briefly Describe the Incident.
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Enter your answer here"
-                                name="description"
-                                value={incidentData.description}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                        <div className="input-con flex-col">
-                            <label>
-                                Where did the incident Occur?
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Enter your answer here"
-                                name="location"
-                                value={incidentData.location}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                        <div className="input-con flex-col">
-                            <label>
-                                Provide a Photo Related to the Incident.
-                            </label>
-                            <input
-                                type="file"
-                                name="req_incident_photo"
-                                required
-                                onChange={handleFileChange}
-                            />
-                        </div>
-                        <button type="submit">Submit</button>
-                    </form>
-                </div>
+
+                {activeView === "create" ? (
+                    <CreateIncidentModal />
+                ) : (
+                    <div className="manage-incidents">
+                        <h3>Manage My Incidents</h3>
+                        
+                        {loading ? (
+                            <p>Loading...</p>
+                        ) : error ? (
+                            <p>Error fetching data.</p>
+                        ) : (
+                            <table className="table">
+                                <thead>
+                                    <tr>
+                                        <th>Incident ID</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>Location</th>
+                                        <th>Photo</th>
+                                        <th>Date Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {allUserIncidents.length > 0 ? (
+                                        allUserIncidents.map((incident) => (
+                                            <tr key={incident.incident_id}>
+                                                <td>{incident.incident_id}</td>
+                                                <td>{incident.description}</td>
+                                                <td>{incident.status}</td>
+                                                <td>{incident.location}</td>
+                                                <td>
+                                                    {incident.photo_path ? (
+                                                        <a href={`https://storage.googleapis.com/pklink/${incident.photo_path.replace(/\\/g, "/")}?v=${timestamp}`} target="_blank" rel="noopener noreferrer">
+                                                            <img
+                                                                src={`https://storage.googleapis.com/pklink/${incident.photo_path.replace(/\\/g, "/")}?v=${timestamp}`}
+                                                                alt="Incident"
+                                                                style={{ width: "100%", maxWidth: "300px", borderRadius: "10px" }}
+                                                            />
+                                                        </a>
+                                                    ) : (
+                                                        <p>No Image</p>
+                                                    )}
+                                                </td>
+                                                <td>{new Date(incident.date_created).toLocaleString()}</td>
+                                                <td>
+                                                    {incident.status === "pending" && (
+                                                        <button 
+                                                            className="btn btn-danger btn-sm"
+                                                            onClick={handleDeleteIncident}
+                                                            data-value={incident.incident_id}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                           No incidents found
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                )}
             </div>
-        </>
+        </div>
     );
 }
 

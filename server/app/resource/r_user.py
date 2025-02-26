@@ -97,6 +97,17 @@ class UserRegistration(Resource):
 class Incident(Resource):
     @require_user_session
     def post(self):
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        verified_user = VUS_ins.get_verified_user_obj_by_user_id(current_user['user_id'])
+        if not verified_user:
+            return {"message": "user not verified"}, 400
+
+        data = I_ins.get_all_incidents_by_user_id(current_user['user_id'])
+        non_closed_incidents = [incident for incident in data if incident['status'] != 'closed']
+        print(non_closed_incidents)
+        if len(non_closed_incidents) >= 1:
+            return {"message": "You have reached the limit of incident report."}, 400  # Early return
+
         args = request.form
         incident_photo = request.files.get('req_incident_photo')
         current_user = US_ins.get_user_dict_by_username(get_current_user_username())
@@ -114,10 +125,88 @@ class Incident(Resource):
             return {"message": "error inserting incident"}, 401
         return {"message": "incident inserted successfully"}, 200
 
+    @require_user_session
+    def get(self):
+        username = get_current_user_username()
+        current_user = US_ins.get_user_dict_by_username(username)
+
+        data = I_ins.get_all_incidents_by_user_id(current_user['user_id'])
+        return data, 200
+    
+    @require_user_session
+    def delete(self):
+        username = get_current_user_username()
+        current_user = US_ins.get_user_dict_by_username(username)
+        incident_id = request.args.get('req_incident_id')
+        if not I_ins.check_current_user_and_incident_match(incident_id, current_user['user_id']):
+            return {"message": "incident doesn't belong to user"}, 404
+
+        if incident_id is None:
+            return {'message': 'request not found'}, 404
+        if not I_ins.delete_incident(incident_id):
+            return {'message': 'deletion unuccessful'}, 405
+        return {'message': 'deletion successful'}, 200
+    
+
 
 class DocumentRequest(Resource):
     @require_user_session
+    def put(self):
+        put_parser = reqparse.RequestParser()
+        put_parser.add_argument('req_request_id', type=str, required=True, help="Request ID is required")
+        put_parser.add_argument('req_description_text', type=str, help="Description is required")
+        put_parser.add_argument('req_document_type', type=str, choices=('cedula', 'brgy_certificate', 'brgy_clearance'), help="Invalid document type")
+        put_parser.add_argument('req_reason', type=str, help="Reason is required")
+        put_parser.add_argument('req_additional_info', type=str, help="Additional info")
+
+        try:
+            args = put_parser.parse_args()
+
+            username = get_current_user_username()
+            current_user = US_ins.get_user_dict_by_username(username)
+
+            if not R_ins.check_current_user_and_request_match(args['req_request_id'], current_user['user_id']):
+                print("Request belongs to the user")
+                return {"message": "request doesn't belong to the user"}, 403
+
+            target_request = R_ins.get_request_by_request_id(args['req_request_id'])
+            if target_request.status != "pending":
+                print("Cannot Edit non pending request")
+                return {"message": "Cannot edit non pending request"}, 400
+
+
+            request_data = {
+                "request_id": args['req_request_id'],
+                "description_text": args['req_description_text'],
+            }
+
+            document_data = {
+                "document_type": args['req_document_type'],
+                "reason": args['req_reason'],
+                "additional_info": args['req_additional_info'],
+            }
+
+            result = R_ins.edit_document_request(request_data['request_id'], request_data, document_data)
+            return result
+            
+        except Exception as e:
+            print(f"Error processing request update: {e}")
+            return {"message": "Failed to process update"}, 500
+
+
+    @require_user_session
     def post(self):
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        verified_user = VUS_ins.get_verified_user_obj_by_user_id(current_user['user_id'])
+        if not verified_user:
+            return {"message": "user not verified"}, 400
+
+
+        check_data = R_ins.get_all_document_requests_by_user(current_user['user_id'])
+        non_completed_documents = [request for request in check_data if request['status'] != 'completed']
+        if len(non_completed_documents) >= 5:
+            return {"message": "You have reached the limit of 5 document requests."}, 400  # Early return
+
         post_req = reqparse.RequestParser()
         post_req.add_argument("req_document_type" , type=str, required=True, help='Document Type is required')
         post_req.add_argument("req_additional_info" , type=str, required=False)
@@ -133,9 +222,13 @@ class DocumentRequest(Resource):
         ]):
             return {"message": "All fields are required and cannot be empty"}, 400
         current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        verified_user = VUS_ins.get_verified_user_obj_by_user_id(current_user['user_id'])
+        if not verified_user:
+            return {"message": "user not verified"}, 400
+
 
         if not R_ins.insert_document_request(
-            current_user['user_id'],
+            verified_user.user_id,
             args['req_document_type'],
             args['req_additional_info'],
             args['req_reason'],
@@ -144,25 +237,61 @@ class DocumentRequest(Resource):
             return {"message": "document request unsuccessful"}, 406
         return {"message": "added document request"}, 201
 
+    @require_user_session
+    def get(self):
+        username = get_current_user_username()
+        current_user = US_ins.get_user_dict_by_username(username)
+
+        data = R_ins.get_all_document_requests_by_user(current_user['user_id'])
+        return data, 200
+    
+    @require_user_session
+    def delete(self):
+        username = get_current_user_username()
+        current_user = US_ins.get_user_dict_by_username(username)
+        request_id = request.args.get('req_request_id')
+        if not R_ins.check_current_user_and_request_match(request_id, current_user['user_id']):
+            print("Request belongs to the user")
+            return {"message": "request doesn't belong to the user"}, 400
+
+        if request_id is None:
+            return {'message': 'request not found'}, 404
+        if not R_ins.delete_document_request_by_request_id(request_id):
+            return {'message': 'deletion unuccessful'}, 405
+        return {'message': 'deletion successful'}, 200
+
 class HealthSupportRequest(Resource):
     @require_user_session
     def post(self):
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        verified_user = VUS_ins.get_verified_user_obj_by_user_id(current_user['user_id'])
+        if not verified_user:
+            return {"message": "user not verified"}, 400
+        
+        check_data = R_ins.get_all_health_support_requests_by_user(current_user['user_id'])
+        non_completed_incidents = [request for request in check_data if request['status'] != 'completed']
+        if len(non_completed_incidents) >= 1:
+            return {"message": "You have reached the limit of incident report."}, 400  # Early return
+
         post_req = reqparse.RequestParser()
         post_req.add_argument("req_support_type" , type=str, required=True, help='Support Type is required')
         post_req.add_argument("req_additional_info" , type=str, required=False)
         post_req.add_argument("req_description" , type=str, required=False) 
+
+
+        args = post_req.parse_args()
 
         if not all([
             args.get('req_support_type') and args['req_support_type'].strip(),
             args.get('req_additional_info') and args['req_additional_info'].strip(),
             args.get('req_description') and args['req_description'].strip()
         ]):
+            print("All fields are required and cannot be empty")
             return {"message": "All fields are required and cannot be empty"}, 400
 
-        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
-        args = post_req.parse_args()
+        
         if not R_ins.insert_health_support_request(
-            current_user['user_id'],
+            verified_user.user_id,
             args['req_support_type'],
             args['req_additional_info'],
             args['req_description']
@@ -170,6 +299,27 @@ class HealthSupportRequest(Resource):
             return {"message": "health support request unsuccessful"}, 406
         return {"message": "added health support request"}, 201
 
+    @require_user_session
+    def get(self):
+        username = get_current_user_username()
+        current_user = US_ins.get_user_dict_by_username(username)
+
+        data = R_ins.get_all_health_support_requests_by_user(current_user['user_id'])
+        return data, 200
+
+    @require_user_session
+    def delete(self):
+        username = get_current_user_username()
+        current_user = US_ins.get_user_dict_by_username(username)
+        request_id = request.args.get('req_request_id')
+        if not R_ins.check_current_user_and_request_match(request_id, current_user['user_id']):
+            return {"message": "request doesn't belong to the user"}, 400
+
+        if request_id is None:
+            return {'message': 'request not found'}, 404
+        if not R_ins.delete_health_support_request_by_request_id(request_id):
+            return {'message': 'deletion unuccessful'}, 405
+        return {'message': 'deletion successful'}, 200
 
 class EventsData(Resource):
     def get(self):

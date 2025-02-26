@@ -25,6 +25,7 @@ function Login() {
     const logInUser = async() => {
 
       try {
+        document.body.style.cursor = 'wait';
         const resp = await httpClient.post('/api/user/auth', data);
 
         if (resp.status !== 200) {
@@ -49,6 +50,8 @@ function Login() {
         }
         Swal.fire('Error!', 'Internal server error', 'error');
         return;
+      } finally {
+        document.body.style.cursor = 'default';
       }
     };
     return (

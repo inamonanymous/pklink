@@ -5,6 +5,30 @@ from app.service import db
 
 
 class EventService:
+    def edit_event(self, event_id, title=None, description=None, event_date=None, start_time=None, end_time=None, location=None):
+        target_event = Events.query.filter_by(id=event_id).first()
+        if target_event is None:
+            return None
+        
+        update_data = {
+            "title": title,
+            "description": description,
+            "event_date": event_date,
+            "start_time": start_time,
+            "end_time": end_time,
+            "location": location
+        }
+
+        # Loop through dictionary and update only non-None fields
+        for key, value in update_data.items():
+            if value is not None:
+                setattr(target_event, key, value)
+        print(target_event)
+        db.session.commit()
+        return target_event  # Return updated event
+
+
+
     def delete_event(self, event_id):
         target_event = Events.query.filter_by(id=event_id).first()
         if target_event is None:

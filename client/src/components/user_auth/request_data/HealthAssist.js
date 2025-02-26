@@ -1,100 +1,125 @@
-import React, { useState } from "react";
-import httpClient from "../../../httpClient"; // Assuming you already have an httpClient set up
+import { useEffect, useState } from "react";
+import CreateHealthAssistModal from "../modals/post/CreateHealthAssistModal";
+import FetchData from "../FetchFunction";
 import Swal from "sweetalert2";
+import httpClient from "../../../httpClient";
 
 function HealthAssist() {
-    const [healthSupportData, setHealthSupportData] = useState({
-        req_support_type: '',
-        req_additional_info: '',
-        req_description: '',
-    });
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
+    const [refreshRequests, setRefreshRequests] = useState(0);
+    const { data: allUserHealthRequests, error, loading } = FetchData("/api/user/health_support_requests", refreshRequests);
+    const [activeView, setActiveView] = useState("create");
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setHealthSupportData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setMessage('');
-
-        try {
-            const resp = await httpClient.post('/api/user/health_support_requests', healthSupportData);
-            if (resp.status === 201) {
-                setMessage('Health support request successfully submitted.');
-                setHealthSupportData({
-                    req_support_type: '',
-                    req_additional_info: '',
-                    req_description: '',
-                });
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Your health assistance request has been successfully submitted.',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                });
+    const handleDeleteHealth = async (e) => {
+            e.preventDefault();
+            const id = e.currentTarget.getAttribute('data-value');
+            const confirmDialogue = await Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to continue deleting this request?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+            });
+        
+            if (!confirmDialogue.isConfirmed) {
+                return;
             }
-        } catch (error) {
-            console.error(error);
-            setMessage('Error submitting health support request.');
-            Swal.fire({
-                            title: 'Oops!',
-                            text: 'Something went wrong. Please try again.',
-                            icon: 'error',
-                            confirmButtonText: 'Try Again'
-                        });
-        } finally {
-            setLoading(false);
-        }
-    };
+            try {
+                document.body.style.cursor = 'wait';
+                const resp = await httpClient.delete('/api/user/health_support_requests', {
+                    params: { req_request_id: id }
+                });
+                setRefreshRequests((prev) => !prev);
+                Swal.fire('Deleted!', 'The request has been deleted.', 'success')
+            } catch (error) {
+                console.error(error);
+                let errorMsg = 'An error occurred while deleting the request.';
+                if (error.response?.status === 403) errorMsg = 'Current user is not allowed.';
+                if (error.response?.status === 404) errorMsg = 'Target request not found.';
+                if (error.response?.status === 400) errorMsg = 'Invalid request.';
+        
+                Swal.fire('Error', errorMsg, 'error');
+            } finally {
+                document.body.style.cursor = 'default';
+            }
+        };
 
-    return (
-        <div id="health-assist-con" className="flex-col">
-            <div className="text-con head">
-                <h4>Request Health Assistance</h4>
-            </div>
-            <div className="form-con">
-                <form onSubmit={handleSubmit} className="user-side-forms flex-col">
-                    <div className="input-con flex-col">
-                        <label>Support Type</label>
-                        <input
-                            type="text"
-                            name="req_support_type"
-                            placeholder="Enter the support type"
-                            value={healthSupportData.req_support_type}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="input-con flex-col">
-                        <label>Additional Info</label>
-                        <textarea
-                            name="req_additional_info"
-                            placeholder="Enter any additional information"
-                            value={healthSupportData.req_additional_info}
-                            onChange={handleInputChange}
-                            rows="4"
-                        />
-                    </div>
-                    <div className="input-con flex-col">
-                        <label>Description</label>
-                        <textarea
-                            name="req_description"
-                            placeholder="Enter a description of your health support request"
-                            value={healthSupportData.req_description}
-                            onChange={handleInputChange}
-                            rows="4"
-                        />
-                    </div>
-                    <button type="submit" disabled={loading}>
-                        {loading ? 'Submitting...' : 'Submit'}
+    return (    
+        <div id="health-assist-con">
+            <div className="flex-col">
+                <div className="btn-group">
+                    <button
+                        onClick={() => setActiveView("create")}
+                        className={`btn ${activeView === "create" ? "btn-primary" : "btn-secondary"}`}
+                    >
+                        Create Request
                     </button>
-                </form>
+                    <button
+                        onClick={() => {
+                            setActiveView("manage")
+                            setRefreshRequests((prev) => !prev);
+                        }}
+                        className={`btn ${activeView === "manage" ? "btn-primary" : "btn-secondary"}`}
+                    >
+                        Manage My Requests
+                    </button>
+                </div>
+
+                {activeView === "create" ? (
+                    <CreateHealthAssistModal setRefreshRequests={setRefreshRequests} />
+                ) : (
+                    <div className="manage-requests">
+                        <h3>Manage My Requests</h3>
+                        <p>Here, you can view, track, or cancel your health support requests.</p>
+                        
+                        {loading ? (
+                            <p>Loading...</p>
+                        ) : error ? (
+                            <p>Error fetching data.</p>
+                        ) : (
+                            <table className="table">
+                                <thead>
+                                    <tr>
+                                        <th>Request ID</th>
+                                        <th>Support Type</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>Date Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {allUserHealthRequests.length > 0 ? (
+                                        allUserHealthRequests.map((request) => (
+                                            <tr key={request.health_request_id}>
+                                                <td>{request.request_id}</td>
+                                                <td>{request.support_type}</td>
+                                                <td>{request.description_text}</td>
+                                                <td>{request.status}</td>
+                                                <td>{new Date(request.date_created).toLocaleString()}</td>
+                                                <td>
+                                                    {request.status === "pending" && (
+                                                        <button 
+                                                            className="btn btn-danger btn-sm"
+                                                            onClick={handleDeleteHealth}
+                                                            data-value={request.request_id}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="5">No requests found.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

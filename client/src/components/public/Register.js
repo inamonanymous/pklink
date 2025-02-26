@@ -152,6 +152,7 @@ function Register({ onRegistrationSuccess }) {
     }
   
     try {
+      document.body.style.cursor = 'wait';
       const resp = await httpClient.post('/api/user/registration', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -173,6 +174,8 @@ function Register({ onRegistrationSuccess }) {
     } catch (e) {
       console.error(e);
       Swal.fire('Error!', 'error during registration', 'error');
+    } finally {
+      document.body.style.cursor = 'default';
     }
   };
   

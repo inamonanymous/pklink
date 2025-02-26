@@ -91,6 +91,7 @@ def get_current_user_privilege() -> dict:
             'add_post': False,
             'manage_post': False,
             'manage_request': False,
+            'partial_admin': False,
         }
     return user_privileges
 
