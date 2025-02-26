@@ -4,6 +4,22 @@ from app.model.m_HealthSupportRequests import HealthSupportRequests
 from app.ext import db
 
 class RequestsService:
+    def edit_request_status(seld, request_id, status):
+        try:
+            target_request = Requests.query.filter_by(id=request_id).first()
+            if not target_request:
+                return None
+            if status is None or status == "":
+                return None
+            target_request.status=status
+            db.session.commit()
+            return target_request
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error updating request staus: {e}")
+            return None
+        
+
     def edit_document_request(self, request_id, new_request_data, new_document_data):
         try:
             # Fetch the main request from the Requests table
@@ -109,6 +125,45 @@ class RequestsService:
             print(f"Error getting request: {e}")  # Log the error
             return None
 
+    def get_all_health_support_requests_by_user(self, user_id):
+        try:
+            # Query to get health support requests for a specific user
+            requests_list = db.session.query(
+                HealthSupportRequests.id.label("health_request_id"),
+                HealthSupportRequests.request_id,
+                Requests.user_id,
+                Requests.status,
+                Requests.description_text,
+                HealthSupportRequests.support_type,
+                HealthSupportRequests.additional_info,
+                HealthSupportRequests.resolved_at,
+                Requests.date_created,
+                Requests.last_modified
+            ).join(Requests, HealthSupportRequests.request_id == Requests.id)\
+            .filter(Requests.user_id == user_id)\
+            .order_by(HealthSupportRequests.resolved_at.asc())\
+            .all()
+
+            # Convert the result into a list of dictionaries
+            return [{
+                "health_request_id": row.health_request_id,
+                "request_id": row.request_id,
+                "user_id": row.user_id,
+                "request_type": "Health Support Request",
+                "status": row.status,
+                "description_text": row.description_text,
+                "support_type": row.support_type,
+                "additional_info": row.additional_info,
+                "resolved_at": row.resolved_at.isoformat() if row.resolved_at else None,
+                "date_created": row.date_created.isoformat(),
+                "last_modified": row.last_modified.isoformat(),
+            } for row in requests_list]
+
+        except Exception as e:
+            print(f"Error retrieving health support requests for user {user_id}: {e}")
+            return []
+
+
     def get_all_health_support_requests_list(self):
         try:
             # Query to join HealthSupportRequests with Requests using request_id
@@ -148,6 +203,51 @@ class RequestsService:
             return None
 
         
+    def get_all_document_requests_by_user(self, user_id):
+        try:
+            # Query to filter document requests for a specific user
+            requests_list = db.session.query(
+                DocumentRequests.id.label("document_request_id"),
+                DocumentRequests.request_id,
+                Requests.user_id,
+                Requests.status,
+                Requests.description_text,
+                DocumentRequests.document_type,
+                DocumentRequests.reason,
+                DocumentRequests.additional_info,
+                DocumentRequests.resolved_at,
+                DocumentRequests.date_created.label("document_date_created"),
+                Requests.date_created,
+                Requests.last_modified
+            ).join(Requests, DocumentRequests.request_id == Requests.id)\
+            .filter(Requests.user_id == user_id)\
+            .order_by(DocumentRequests.date_created.asc())\
+            .all()
+
+            # Convert the result into a list of dictionaries
+            requests_list_dict = [{
+                "document_request_id": row.document_request_id,
+                "request_id": row.request_id,
+                "user_id": row.user_id,
+                "request_type": "Document Request",
+                "status": row.status,
+                "description_text": row.description_text,
+                "document_type": row.document_type,
+                "reason": row.reason,
+                "additional_info": row.additional_info,
+                "resolved_at": row.resolved_at.isoformat() if row.resolved_at else None,
+                "document_date_created": row.document_date_created.isoformat(),
+                "date_created": row.date_created.isoformat(),
+                "last_modified": row.last_modified.isoformat(),
+            } for row in requests_list]
+
+            return requests_list_dict
+
+        except Exception as e:
+            print(f"Error fetching document requests for user {user_id}: {e}")
+            return []
+
+
     def get_all_document_requests_list(self):
         try:
             # Query to join DocumentRequests with Requests using request_id
@@ -189,8 +289,6 @@ class RequestsService:
         except Exception as e:
             print(f"Error getting document requests: {e}")
             return None
-
-
         
     def insert_request(self, user_id, request_type, description_text):
         try:

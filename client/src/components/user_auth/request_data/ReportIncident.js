@@ -55,6 +55,7 @@ function ReportIncident() {
                 throw new Error('Something went wrong!');
             }
         } catch (error) {
+            console.log(error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',

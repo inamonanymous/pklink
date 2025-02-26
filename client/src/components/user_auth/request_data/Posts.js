@@ -7,6 +7,8 @@ import FetchData from "../FetchFunction";
 
 const Posts = () => {
     // Use the hook with a single endpoint
+    const timestamp = Date.now()
+
     const { data: allPostsData, error, loading } = FetchData("/api/user/posts");
   
     // Loading and error handling
@@ -53,19 +55,21 @@ const Posts = () => {
                   </div>
                 </div>
                 <div className="text-con post-data flex-col">
+                  <h6>
+                    {post.post_title}
+                  </h6>
                   <h5 className="post-content">{post.post_content}</h5>
                   <div className="img-con">
-                  <img
-        src={
-          (post.post_photo_path === null || post.post_photo_path === '')
-            ? SAMPLE // Use sample if no post image
-            : `https://storage.googleapis.com/pklink/${post.post_photo_path.replace(/\\/g, "/")}`
+                    <img
+                      src={
+                        (post.post_photo_path === null || post.post_photo_path === '')
+                          ? SAMPLE // Use sample if no post image
+                          : `https://storage.googleapis.com/pklink/${post.post_photo_path.replace(/\\/g, "/")}?v=${timestamp}`
 
-        }
-        alt={`Post image for ${post.post_title}`} 
-        />
-                        
-                    </div>
+                      }
+                      alt={`Post image for ${post.post_title}`} 
+                      />                         
+                  </div>
                     <div className="post-metadata flex">
                       <p>100</p>
                       <p>100 Comments</p>

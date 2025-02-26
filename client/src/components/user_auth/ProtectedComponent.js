@@ -37,15 +37,23 @@ useEffect(() => {
                     });
                 }
             } catch (error) {
-                if (error.response.status === 406) {
-                    setIsLoggedIn(false);
-                    alert('Session not found');
-                    navigate('/authentication');
+                if (error.response) {
+                    // Server responded but with an error status
+                    if (error.response.status === 406) {
+                        setIsLoggedIn(false);
+                        alert('Session not found');
+                        navigate('/authentication');
+                    } else {
+                        console.error('Unexpected error checking session:', error.response);
+                        navigate('/authentication');
+                    }
                 } else {
-                    console.error('Unexpected error checking session:', error);
+                    // No response received (network error, server down, etc.)
+                    console.error('Network error or server unreachable:', error);
                     navigate('/authentication');
                 }
-            } finally {
+            }
+             finally {
                 setIsLoading(false);
             }
         };

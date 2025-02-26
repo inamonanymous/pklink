@@ -207,15 +207,59 @@ HEADER-USER AUTH ==============================
 #header-ua .menu-dropdown {
     position: absolute;
     background-color: var(--dark-gray);
-    top: 40px;
-    left: -205px;
-    padding: 40px;
-    width: 150px;
-    border-radius: 6px;
+    top: 50px;
+    left: -180px;
+    padding: 10px;
+    width: 250px;
+    border-radius: 8px;
     color: white;
-    gap: 10px;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.2s ease-in-out;
 }
+
+#header-ua .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+#header-ua .menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#header-ua .menu-item .icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#header-ua .menu-item svg {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 /* 
 ==============================
@@ -459,13 +503,14 @@ CONTENT-PANEL-USER AUTH ==============================
     background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(20px);
+    /* backdrop-filter: blur(20px); */
 }
 
 #content-panel-ua > div {
     padding: 20px 20px 65px;
     color: white;
     position: relative;
+    border-radius: inherit;
 }
 
 /* 
@@ -627,6 +672,8 @@ EVENTS-USER AUTH ==============================
     gap: 0 30px;
     align-items: start;
     padding: 20px;
+    background: var(--white-black-gradient);
+    border-radius: inherit;
 }
 
 #events-con .react-calendar {
@@ -830,7 +877,6 @@ HEALTH-ASSIST-USER AUTH ==============================
     padding: 35px 80px 20px;
     background: var(--white-black-gradient);
     border-radius: 24px;
-    width: 1000px;
 }
 
 #health-assist-con .form-con {
@@ -874,6 +920,10 @@ MANAGE-POSTS-USER AUTH ==============================
 
 }
 
+#manage-posts .posts-create {
+    width: 550px;
+    padding: 20px;
+}
 /* 
 ==============================
 ==============================
@@ -885,8 +935,14 @@ MANAGE-EVENTS-USER AUTH ==============================
 */
 
 #manage-events {
- 
+    width: auto;
 }
+
+#manage-events .events-create {
+    width: 550px;
+    padding: 20px;
+}
+
 
 /* 
 ==============================

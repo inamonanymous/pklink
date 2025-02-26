@@ -1,3 +1,4 @@
+import Swal from "sweetalert2";
 import React, { useState } from "react";
 import FetchData from "../FetchFunction";
 import httpClient from "../../../httpClient";
@@ -11,21 +12,34 @@ function ManageHealthAssist() {
 
     const handleDeleteHealth = async (e) => {
         e.preventDefault();
-        const confirmDialogue = window.confirm("Do you want to continue deleting this health support request?");
-        if (!confirmDialogue) {
+        const id = e.currentTarget.getAttribute('data-value');
+        const confirmDialogue = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to continue deleting this request?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+    
+        if (!confirmDialogue.isConfirmed) {
             return;
         }
         try {
-            const id = e.currentTarget.getAttribute('data-value');
             const resp = await httpClient.delete('/api/partial_admin/health_support_requests', {
                 params: { req_request_id: id }
             });
             setRefreshRequests((prev) => !prev);
             setShowHealthInfo(false);
-            alert('Health support request deleted');
+            Swal.fire('Deleted!', 'The request has been deleted.', 'success')
         } catch (error) {
             console.error(error);
-            alert('Error deleting health support request');
+            let errorMsg = 'An error occurred while deleting the request.';
+            if (error.response?.status === 403) errorMsg = 'Current user is not allowed.';
+            if (error.response?.status === 404) errorMsg = 'Target request not found.';
+            if (error.response?.status === 400) errorMsg = 'Invalid request.';
+    
+            Swal.fire('Error', errorMsg, 'error');
         }
     };
 

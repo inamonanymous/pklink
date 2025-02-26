@@ -133,9 +133,13 @@ class DocumentRequest(Resource):
         ]):
             return {"message": "All fields are required and cannot be empty"}, 400
         current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        verified_user = VUS_ins.get_verified_user_obj_by_user_id(current_user['user_id'])
+        if not verified_user:
+            return {"message": "user not verified"}, 400
+
 
         if not R_ins.insert_document_request(
-            current_user['user_id'],
+            verified_user.user_id,
             args['req_document_type'],
             args['req_additional_info'],
             args['req_reason'],
@@ -143,6 +147,14 @@ class DocumentRequest(Resource):
         ):
             return {"message": "document request unsuccessful"}, 406
         return {"message": "added document request"}, 201
+
+    @require_user_session
+    def get(self):
+        username = get_current_user_username()
+        current_user = US_ins.get_user_dict_by_username(username)
+
+        data = R_ins.get_all_document_requests_by_user(current_user['user_id'])
+        return data, 200
 
 class HealthSupportRequest(Resource):
     @require_user_session
@@ -152,17 +164,24 @@ class HealthSupportRequest(Resource):
         post_req.add_argument("req_additional_info" , type=str, required=False)
         post_req.add_argument("req_description" , type=str, required=False) 
 
+
+        args = post_req.parse_args()
+
         if not all([
             args.get('req_support_type') and args['req_support_type'].strip(),
             args.get('req_additional_info') and args['req_additional_info'].strip(),
             args.get('req_description') and args['req_description'].strip()
         ]):
+            print("All fields are required and cannot be empty")
             return {"message": "All fields are required and cannot be empty"}, 400
 
         current_user = US_ins.get_user_dict_by_username(get_current_user_username())
-        args = post_req.parse_args()
+        verified_user = VUS_ins.get_verified_user_obj_by_user_id(current_user['user_id'])
+        if not verified_user:
+            return {"message": "user not verified"}, 400
+        
         if not R_ins.insert_health_support_request(
-            current_user['user_id'],
+            verified_user.user_id,
             args['req_support_type'],
             args['req_additional_info'],
             args['req_description']
@@ -170,6 +189,13 @@ class HealthSupportRequest(Resource):
             return {"message": "health support request unsuccessful"}, 406
         return {"message": "added health support request"}, 201
 
+    @require_user_session
+    def get(self):
+        username = get_current_user_username()
+        current_user = US_ins.get_user_dict_by_username(username)
+
+        data = R_ins.get_all_health_support_requests_by_user(current_user['user_id'])
+        return data, 200
 
 class EventsData(Resource):
     def get(self):

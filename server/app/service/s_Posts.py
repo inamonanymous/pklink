@@ -2,11 +2,37 @@ from app.model.m_Posts import Posts
 from app.model.m_Users import Users
 from app.model.m_ResidentType import ResidentType
 from app.ext import db
-from app.service.s_functions import generate_gcs_post_image_path, upload_image_to_gcs, check_image_validity, delete_post_folder_from_gcs
+from app.service.s_functions import generate_gcs_post_image_path, upload_image_to_gcs, check_image_validity, delete_post_folder_from_gcs, update_post_image_in_gcs
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 
 class PostsService:
+    def edit_post(self, post_id, title=None, content=None, new_image=None, user_id=None):
+        target_post = Posts.query.filter_by(id=post_id).first()
+        if target_post is None:
+            return None
+
+        # Handle image update
+        if new_image and user_id:
+            new_photo_url = update_post_image_in_gcs(user_id, post_id, new_image)
+            if new_photo_url:
+                target_post.photo_path = new_photo_url  # Update only if upload succeeds
+
+        # Prepare update data
+        update_data = {
+            "title": title,
+            "content": content,
+        }
+
+        # Update only non-None fields
+        for key, value in update_data.items():
+            if value is not None:
+                setattr(target_post, key, value)
+
+        db.session.commit()
+        return target_post  # Return updated post
+
+
     def delete_post(self, post_id):
         post = Posts.query.filter_by(id=post_id).first()
         if post is None:

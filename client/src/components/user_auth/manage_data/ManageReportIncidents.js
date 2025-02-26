@@ -3,6 +3,7 @@ import FetchData from "../FetchFunction";
 import httpClient from "../../../httpClient";
 
 function ManageReportIncident() {
+    const timestamp = Date.now()
     const [incidentInfoLoading, setIncidentInfoLoading] = useState(false);
     const [refreshIncidents, setRefreshIncidents] = useState(0);
     const { data: allIncidentReports, error, loading } = FetchData("/api/partial_admin/incidents", refreshIncidents);
@@ -18,7 +19,7 @@ function ManageReportIncident() {
         try {
             const id = e.currentTarget.getAttribute('data-value');
             await httpClient.delete('/api/partial_admin/incidents', {
-                params: { incident_id: id }
+                params: { req_incident_id: id }
             });
             setRefreshIncidents((prev) => !prev);
             setShowIncidentInfo(false);
@@ -97,8 +98,9 @@ function ManageReportIncident() {
                         <h5>Date Created: {new Date(clickedIncidentInfo.incident_date_created).toLocaleString()}</h5>
                         {clickedIncidentInfo.incident_photo_path && (
                             <img
-                                src={`/${clickedIncidentInfo.incident_photo_path}`}
+                                src={`${`https://storage.googleapis.com/pklink/${clickedIncidentInfo.incident_photo_path.replace(/\\/g, "/")}?v=${timestamp}`}`}
                                 alt="Incident"
+                                
                                 style={{ width: "100%", maxWidth: "400px", borderRadius: "10px", marginTop: "10px" }}
                             />
                         )}

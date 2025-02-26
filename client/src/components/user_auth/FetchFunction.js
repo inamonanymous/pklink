@@ -7,7 +7,7 @@ const FetchData = (endpoint, refreshTrigger) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchAllRows = async () => {
       try {
         const resp = await httpClient.get(endpoint); // Use the passed endpoint
         if (resp.status === 200) {
@@ -21,7 +21,7 @@ const FetchData = (endpoint, refreshTrigger) => {
     };
 
 
-    fetchPosts();
+    fetchAllRows();
     
   }, [refreshTrigger]); // Now depends on both `endpoint` and `refreshTrigger`
 
