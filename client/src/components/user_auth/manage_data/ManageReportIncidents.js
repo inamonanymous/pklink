@@ -11,6 +11,37 @@ function ManageReportIncident() {
     const [showIncidentInfo, setShowIncidentInfo] = useState(false);
     const [clickedIncidentInfo, setClickedIncidentInfo] = useState({});
 
+    const handleStatusChange = async (incident_id, newStatus) => {
+            try {
+                document.body.style.cursor = 'wait';
+                await httpClient.patch(`/api/partial_admin/incidents`, {
+                    req_incident_id: incident_id,
+                    req_incident_status: newStatus,
+                });
+                if (newStatus==="closed"){
+                    const confirmDialogue = await Swal.fire({
+                        title: 'Are you sure?',
+                        text: "Do you want to continue making this incident pending?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, do it!',
+                        cancelButtonText: 'Cancel',
+                    });
+                    if (!confirmDialogue.isConfirmed) {
+                        return;
+                    }
+                }
+
+                Swal.fire("Success", `Status updated to ${newStatus}`, "success");
+                setRefreshIncidents((prev) => !prev); // Refresh list
+                setShowIncidentInfo(false);
+            } catch (error) {
+                Swal.fire("Error", "Failed to update status", "error");
+            } finally {
+                document.body.style.cursor = 'default';
+            }
+    };
+
     const handleDeleteIncident = async (e) => {
         const id = e.currentTarget.getAttribute('data-value');
         e.preventDefault();
@@ -115,13 +146,39 @@ function ManageReportIncident() {
                                 style={{ width: "100%", maxWidth: "400px", borderRadius: "10px", marginTop: "10px" }}
                             />
                         )}
-                        <button
-                            onClick={handleDeleteIncident}
-                            data-value={clickedIncidentInfo.incident_id}
-                        >
-                            Delete Incident
-                        </button>
-                        <button>Edit Incident</button>
+                        <div className="btn-group">
+
+                            <button
+                                onClick={handleDeleteIncident}
+                                data-value={clickedIncidentInfo.incident_id}
+                            >
+                                Delete Incident
+                            </button>
+                            <button>Edit Incident</button>
+
+
+                            {clickedIncidentInfo.incident_status === "pending" && (
+                                <>
+                                    <button onClick={() => handleStatusChange(clickedIncidentInfo.incident_id, "open")}>
+                                        Open Incident
+                                    </button>
+                                </>
+                            )}
+                            {clickedIncidentInfo.incident_status === "open" && (
+                                <>
+                                    <button onClick={() => handleStatusChange(clickedIncidentInfo.incident_id, "closed")}>
+                                        Close Incident
+                                    </button>
+                                </>
+                            )}
+                            {clickedIncidentInfo.incident_status === "closed" && (
+                                <>
+                                    <button onClick={() => handleStatusChange(clickedIncidentInfo.incident_id, "pending")}>
+                                        Make Incident pending
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </>
                 )}
             </div>

@@ -23,7 +23,7 @@ const privilegedItems = [
     { name: 'Manage Posts', view: 'manage_posts', privilege: 'manage_post', icon: 'bi-pencil-square' },
     { name: 'Manage Document Requests', view: 'manage_document_req', privilege: 'manage_request', icon: 'bi-file-earmark-text' },
     { name: 'Manage Health Assistance Requests', view: 'manage_health', privilege: 'manage_request', icon: 'bi-heart-pulse' },
-    { name: 'Manage Report Incidents', view: 'manage_incidents', privilege: 'manage_request', icon: 'bi-exclamation-triangle' },
+    { name: 'Manage Report Incidents', view: 'manage_incidents', privilege: 'partial_admin', icon: 'bi-exclamation-triangle' },
     { name: 'Manage Streets and Villages', view: 'manage_streets_villages', privilege: 'partial_admin', icon: 'bi bi-geo-alt' },
 ];
 
@@ -223,7 +223,11 @@ function Header({ onViewChange, priveleges, activeView }) {
                                         </p>
                                     </div>
                                     <div className='control-buttons-con flex-col'>
-                                        <a href="#" className='button'>
+                                        <a 
+                                            href="#"
+                                            className='button'
+                                            onClick={() => onViewChange('manage_my_account', userInformation)}
+                                        >
                                             <InformationLogo />
                                             View Profile
                                         </a>

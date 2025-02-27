@@ -89,12 +89,51 @@ class UserRegistration(Resource):
             'email_address': args['req_user_email_address'],
             'phone_number': args['req_user_phone_number'],
             'phone_number2': args['req_user_phone_number2'],
+            'birthday': args['req_user_birthday'],
+            'civil_status': args['req_user_civil_status'],
         }
         if not US_ins.insert_user_and_details(user_data, details_data, user_photo, selfie, gov_id):
             return {"message": "registration unsuccessful"}, 406
         return {"message": "registration success"}, 201
 
 class Incident(Resource):
+    @require_user_session
+    def put(self):
+        args = request.form
+        
+        username = get_current_user_username()
+        current_user = US_ins.get_user_dict_by_username(username)
+
+        if not I_ins.check_current_user_and_incident_match(args['req_incident_id'], current_user['user_id']):
+            print("Request belongs to the user")
+            return {"message": "request doesn't belong to the user"}, 403
+        
+
+        
+        incident_photo = request.files.get('req_incident_photo')
+        
+        if args is None:
+            return {"message": "invalid request"}, 408
+        
+        target_incident = I_ins.get_incident_by_incident_id(args['req_incident_id'])
+        if target_incident.status != 'pending':
+            return {"message": "No incident"}, 400
+
+
+        updated_incident = I_ins.edit_incident(
+            incident_id=args['req_incident_id'],
+            user_id=current_user['user_id'],
+            description=args['req_description'],
+            location=args['req_location'],
+            new_image=incident_photo
+        )
+
+        if not updated_incident:
+            return {"message": "incident not found"}, 404
+        
+        return {"message": "Incident updated successfully"}, 200
+    
+    
     @require_user_session
     def post(self):
         current_user = US_ins.get_user_dict_by_username(get_current_user_username())
@@ -262,6 +301,47 @@ class DocumentRequest(Resource):
 
 class HealthSupportRequest(Resource):
     @require_user_session
+    def put(self):
+        put_parser = reqparse.RequestParser()
+        put_parser.add_argument('req_request_id', type=str, required=True, help="Request ID is required")
+        put_parser.add_argument('req_support_type', type=str, help="Reason is required")
+        put_parser.add_argument('req_description_text', type=str, help="Description is required")
+        put_parser.add_argument('req_additional_info', type=str, help="Additional info")
+
+        try:
+            args = put_parser.parse_args()
+
+            username = get_current_user_username()
+            current_user = US_ins.get_user_dict_by_username(username)
+
+            if not R_ins.check_current_user_and_request_match(args['req_request_id'], current_user['user_id']):
+                print("Request belongs to the user")
+                return {"message": "request doesn't belong to the user"}, 403
+
+            target_request = R_ins.get_request_by_request_id(args['req_request_id'])
+            if target_request.status != "pending":
+                print("Cannot Edit non pending request")
+                return {"message": "Cannot edit non pending request"}, 400
+
+
+            request_data = {
+                "request_id": args['req_request_id'],
+                "description_text": args['req_description_text'],
+            }
+
+            health_support_data = {
+                "support_type": args['req_support_type'],
+                "additional_info": args['req_additional_info'],
+            }
+
+            result = R_ins.edit_health_support_request(request_data['request_id'], request_data, health_support_data)
+            return result
+            
+        except Exception as e:
+            print(f"Error processing request update: {e}")
+            return {"message": "Failed to process update"}, 500
+
+    @require_user_session
     def post(self):
         current_user = US_ins.get_user_dict_by_username(get_current_user_username())
         verified_user = VUS_ins.get_verified_user_obj_by_user_id(current_user['user_id'])
@@ -271,7 +351,7 @@ class HealthSupportRequest(Resource):
         check_data = R_ins.get_all_health_support_requests_by_user(current_user['user_id'])
         non_completed_incidents = [request for request in check_data if request['status'] != 'completed']
         if len(non_completed_incidents) >= 1:
-            return {"message": "You have reached the limit of incident report."}, 400  # Early return
+            return {"message": "You have reached the limit of health assistance request."}, 400  # Early return
 
         post_req = reqparse.RequestParser()
         post_req.add_argument("req_support_type" , type=str, required=True, help='Support Type is required')

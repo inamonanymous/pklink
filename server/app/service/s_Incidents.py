@@ -4,6 +4,24 @@ from app.model.m_Users import Users
 from app.service.s_functions import generate_gcs_incident_image_path, upload_image_to_gcs, check_image_validity, delete_incident_folder_from_gcs, update_incident_image_in_gcs
 
 class IncidentsService:
+    def get_incident_by_incident_id(self, incident_id):
+        return Incidents.query.filter_by(id=incident_id).first()
+
+    def edit_incident_status(self, incident_id, status):
+        try:
+            target_incident = Incidents.query.filter_by(id=incident_id).first()
+            if not target_incident:
+                return None
+            if status is None or status == "":
+                return None
+            target_incident.status = status
+            db.session.commit()
+            return target_incident
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error updating incident status {e}")
+            return None
+
     def check_current_user_and_incident_match(self, incident_id, user_id):
         request = Incidents.query.filter_by(id=incident_id, user_id=user_id).first()
         return request is not None
