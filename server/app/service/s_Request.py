@@ -75,7 +75,7 @@ class RequestsService:
                 request.status = new_request_data['status']
             if 'description_text' in new_request_data:
                 request.description_text = new_request_data['description_text']
-            request.last_modified = db.func.current_datetime()
+            request.last_modified = datetime.now()
             # Update health support request details in HealthSupportRequests table
             health_support_request = HealthSupportRequests.query.filter_by(request_id=request_id).first()
             if health_support_request:

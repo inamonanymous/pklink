@@ -450,14 +450,8 @@ class IncidentManagement(Resource):
         current_user_privelege = get_current_user_privilege()
         if current_user_privelege is None:
             abort(406, message="current user not found")    
-        if not current_user_privelege['manage_request']:
-            abort(401, message="current user not allowed")    
-
-        current_user_privelege = get_current_user_privilege()
-        if current_user_privelege is None:
-            abort(406, message="current user not found")    
-        if not current_user_privelege['manage_request']:
-            abort(401, message="current user not allowed")    
+        if not current_user_privelege['partial_admin']:
+            abort(401, message="current user not allowed")      
 
         data = I_ins.get_all_incidents_dict()
         return data, 200
@@ -467,8 +461,8 @@ class IncidentManagement(Resource):
         current_user_privelege = get_current_user_privilege()
         if current_user_privelege is None:
             abort(406, message="current user not found")    
-        if not current_user_privelege['manage_request']:
-            abort(401, message="current user not allowed")    
+        if not current_user_privelege['partial_admin']:
+            abort(401, message="current user not allowed")     
 
         incident_id = request.args.get('req_incident_id')
         if incident_id is None:
@@ -482,7 +476,7 @@ class IncidentManagement(Resource):
         current_user_privilege = get_current_user_privilege()
         if current_user_privilege is None:
             abort(406, message="Current user not found")    
-        if not current_user_privilege['manage_request']:
+        if not current_user_privilege['partial_admin']:
             abort(401, message="Current user not allowed")    
         
         args = request.form
@@ -505,3 +499,22 @@ class IncidentManagement(Resource):
             return {"message": "incident not found"}, 404
         
         return {"message": "Incident updated successfully"}, 200
+    
+    @require_user_session
+    def patch(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['partial_admin']:
+            abort(401, message="current user not allowed")  
+        patch_parser = reqparse.RequestParser()
+        patch_parser.add_argument('req_incident_id', type=str, required=True, help="Incident id is required")
+        patch_parser.add_argument('req_incident_status', type=str, required=True, help="Incident Status is required")
+        args = patch_parser.parse_args()
+        result = I_ins.edit_incident_status(
+            args['req_incident_id'],
+            args['req_incident_status']
+        )
+        if not result:
+            return {"message": "failed to edit incident status"}, 400
+        return {"message": "edit request status successful"}, 200

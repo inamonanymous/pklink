@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import Authentication from './pages/Authentication';
 import NotFound from './NotFound';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+
 function App() {
   return (
       <>

@@ -51,6 +51,8 @@ class UserService:
                     email_address = details_data['email_address'],
                     phone_number = details_data['phone_number'],
                     phone_number2 = details_data['phone_number2'],
+                    birthday = details_data['birthday'],
+                    civil_status = details_data['civil_status'],
                     modified_by = user_entry.id,
                     date_created=datetime.now()
                 )

@@ -3,6 +3,7 @@ import FetchData from "../FetchFunction";
 import CreateIncidentModal from "../modals/post/CreateIncidentModal";
 import httpClient from "../../../httpClient";
 import Swal from "sweetalert2";
+import EditCurrentUserIncident from "../modals/put/EditCurrentUserIncidents";
 
 function ReportIncident() {
     const [refreshIncidents, setRefreshIncidents] = useState(0);
@@ -11,6 +12,7 @@ function ReportIncident() {
     let timestamp = Date.now()
 
     
+
     const handleDeleteIncident = async (e) => {
         e.preventDefault();
         const id = e.currentTarget.getAttribute('data-value');
@@ -107,13 +109,26 @@ function ReportIncident() {
                                                 <td>{new Date(incident.date_created).toLocaleString()}</td>
                                                 <td>
                                                     {incident.status === "pending" && (
-                                                        <button 
-                                                            className="btn btn-danger btn-sm"
-                                                            onClick={handleDeleteIncident}
-                                                            data-value={incident.incident_id}
-                                                        >
-                                                            Cancel
-                                                        </button>
+                                                        <div className="btn-group">
+                                                            <button 
+                                                                className="btn btn-danger btn-sm"
+                                                                onClick={handleDeleteIncident}
+                                                                data-value={incident.incident_id}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                            <button
+                                                                className="btn btn-warning btn-sm"
+                                                                onClick={() => EditCurrentUserIncident(
+                                                                    allUserIncidents,
+                                                                    incident.incident_id,
+                                                                    setRefreshIncidents
+                                                                )}
+                                                                data-value={incident.incident_id}
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                        </div>
                                                     )}
                                                 </td>
                                             </tr>

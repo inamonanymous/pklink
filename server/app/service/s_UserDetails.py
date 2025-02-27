@@ -32,6 +32,8 @@ class UserDetailsService:
             'brgy_street_obj': brgy_street_info,
             'house_number': ud_query.house_number,
             'lot_number': ud_query.lot_number,
+            'civil_status': ud_query.civil_status,
+            'birthday': ud_query.birthday.isoformat(),
             'block_number': ud_query.block_number,
             'village_street': ud_query.village_street,
             'email_address': ud_query.email_address,

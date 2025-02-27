@@ -407,6 +407,87 @@ SIDEBAR-USER AUTH ==============================
 ==============================
 ==============================
 ==============================
+MANAGE-CURRENT-USER-ACCOUNT-USER AUTH ==============================
+==============================
+==============================
+==============================
+*/
+
+#manage-current-user-account > div {
+    gap: 180px;
+}
+
+#manage-current-user-account .left-container {
+    text-align: center;
+}
+
+#manage-current-user-account .left-container .img-con {
+    width: 275px;
+    height: 275px; /* Set a fixed height to match the width */
+    overflow: hidden; /* Ensures no overflow outside the border-radius */
+    margin-bottom: 40px;
+}
+
+#manage-current-user-account .left-container .img-con img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image fills without distortion */
+    border-radius: 100%;
+}
+
+#manage-current-user-account .left-container .text-con h4 {
+    text-transform: uppercase;
+    font-weight: 400;
+}
+
+#manage-current-user-account .left-container .text-con h6 {
+    font-weight: 200;
+}
+
+#manage-current-user-account .right-container {
+    width: 705px;
+    position: relative;
+}
+
+#manage-current-user-account .right-container::before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 1px;
+    background: white;
+    left: -85px;
+}
+
+#manage-current-user-account .right-container .data-container .text-con.head {
+    margin-bottom: 45px;
+}
+
+#manage-current-user-account .right-container .data-container .text-con .label {
+    color: white;
+    font-weight: 500;
+    margin-bottom: unset;
+}
+
+#manage-current-user-account .right-container .data-container .text-con .value {
+    color: white;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: capitalize;
+}
+
+#manage-current-user-account .right-container .data-container .text-con.head h5{
+    font-weight: 600;
+}
+
+#manage-current-user-account .right-container .data-container .text-con {
+    justify-content: space-between;
+}
+
+
+/* 
+==============================
+==============================
+==============================
 MANAGE-ACCOUTNS-USER AUTH ==============================
 ==============================
 ==============================
@@ -414,7 +495,7 @@ MANAGE-ACCOUTNS-USER AUTH ==============================
 */
 
 #manage-accounts {
-    gap: 0 25px;
+    gap: 0 75px;
     align-items: start;
 }
 
@@ -430,7 +511,6 @@ MANAGE-ACCOUTNS-USER AUTH ==============================
     width: 50px;
     height: 24px;
     cursor: pointer;
-    margin-bottom: 20px;
 }
 
 #manage-accounts-search-list .toggle-switch input {
@@ -485,50 +565,129 @@ MANAGE-ACCOUTNS-USER AUTH ==============================
     margin: 25px 0;
 }
 
+#manage-accounts-search-list input.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.8);
+}
+
 #manage-accounts-search-list ul {
     gap: 10px 0;
+    text-transform: ca;
 }
 
-#manage-accounts .manage-individual-account .user-information {
-    align-items: start;
-    gap: 0 15px;
+#manage-accounts .manage-individual-account .head {
+    gap: 75px;
 }
 
-#manage-accounts-list ul li {
-    margin-bottom: 30px;
+#manage-accounts .manage-individual-account .head .img-con {
+    width: 225px;
+    height: 225px;
 }
 
-#manage-accounts-list ul {
-    gap: 10px;
-}
-
-#manage-accounts .manage-individual-account .img-con {
-    width: 385px;
-    height: 300px;
-}
-
-#manage-accounts .manage-individual-account .img-con img {
+#manage-accounts .manage-individual-account .head .img-con img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 40px;
+    border-radius: 100%;
 }
+
+#manage-accounts .manage-individual-account .head .text-con {
+    align-items: center;
+}
+
+#manage-accounts .manage-individual-account .head .text-con h4 {
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+
+#manage-accounts .manage-individual-account .user-information {
+    align-items: start;
+    text-align: center;
+    gap: 0 15px;
+    width: 100%;
+}
+
+#manage-accounts .manage-individual-account .user-information .text-con{
+    text-transform: capitalize;
+    position: relative;
+}
+
+#manage-accounts .manage-individual-account .user-information .basic-info {
+    gap: 20px;
+}
+
+#manage-accounts .manage-individual-account .user-information .basic-info .text-con {
+    justify-content: space-between;
+}
+
+#manage-accounts .manage-individual-account .user-information .basic-info .text-con:first-of-type:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    background-color: white;
+    top: -20px;
+}
+
+
+#manage-accounts .manage-individual-account .user-information .basic-info .text-con .label{
+    font-weight: 500;
+    font-size: 20px;
+}
+
+#manage-accounts .manage-individual-account .user-information .basic-info .text-con .value{
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+#manage-accounts .manage-accounts-list {
+    max-height: 700px; /* Adjust as needed */
+    overflow-y: auto;
+    text-transform: capitalize;
+}
+
+#manage-accounts .manage-accounts-list::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+    background-color: white;
+    border-radius: 10px; /* Rounded edges */
+}
+
+#manage-accounts .manage-accounts-list::-webkit-scrollbar-thumb {
+    background-color: #282828; /* Scrollbar color */
+    border-radius: 10px; /* Rounded edges */
+}
+
+#manage-accounts .manage-accounts-list ul li > div {
+    background: transparent;
+    transition: 0.3s;
+    border-radius: 12px;
+    padding-left: 25px;
+}
+
+#manage-accounts .manage-accounts-list ul li > div.focus{
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+}
+
+#manage-accounts .manage-accounts-list ul li > div:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#manage-accounts .manage-accounts-list ul {
+    gap: 10px;
+}
+
+
 
 #manage-accounts .manage-individual-account {
     align-items: center;
     gap: 50px;
+    width: 725px;
+    padding-right: 75px;
 }
 
 #manage-accounts .manage-individual-account .user-information div h4 {
     margin-bottom: 10px;
-}
-
-#manage-accounts .manage-individual-account .user-information div h6 {
-    
-}
-
-#manage-accounts .manage-individual-account .user-information div h6:not(:last-of-type) {
-    margin-bottom: 5px;
 }
 
 #manage-accounts .manage-individual-account .user-information button {
@@ -1160,4 +1319,5 @@ FORMS-USER AUTH ==============================
         margin-right: 20px;
     }
 }
+
 

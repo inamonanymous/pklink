@@ -10,8 +10,9 @@ import ManageEvents from "./manage_data/ManageEvents";
 import ManageDocumentReq from "./manage_data/ManageDocumentReq";
 import ManageHealthAssist from "./manage_data/ManageHealthAssist";
 import ManageReportIncident from "./manage_data/ManageReportIncidents";
+import ManageCurrentUserAccount from "./manage_data/ManageCurrentUserAccount";
 
-function ContentPanel({ currentView }) {
+function ContentPanel({ currentView, userInformation }) {
     const renderContent = () => {
         switch (currentView) {
           case 'posts':
@@ -41,7 +42,7 @@ function ContentPanel({ currentView }) {
           /* case 'manage_forms':
             return <div>Create Form</div>; */
           case 'manage_my_account':
-            return <div>Manage my account</div>;
+            return <ManageCurrentUserAccount userInformation={userInformation} />;
           default:
             return <Posts />;
         }

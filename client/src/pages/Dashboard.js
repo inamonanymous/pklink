@@ -7,9 +7,11 @@ import { useState } from "react";
 
 function Dashboard() {
   const [activeView, setCurrentView] = useState('posts');
+  const [userInformation, setUserInformation] = useState('posts');
   
-  const handleViewChange = (view) => {
+  const handleViewChange = (view, userInformation) => {
     setCurrentView(view);
+    setUserInformation(userInformation)
   };
 
   return (
@@ -20,7 +22,7 @@ function Dashboard() {
           <main id="main-ua" className="user-auth">
             <div className="flex">
               <Sidebar activeView={activeView} onViewChange={handleViewChange} priveleges={userPriveleges} />
-              <ContentPanel currentView={activeView} />
+              <ContentPanel currentView={activeView} userInformation={userInformation} />
             </div>
           </main>
         </>

@@ -3,6 +3,7 @@ import CreateHealthAssistModal from "../modals/post/CreateHealthAssistModal";
 import FetchData from "../FetchFunction";
 import Swal from "sweetalert2";
 import httpClient from "../../../httpClient";
+import EditCurrentUserHealthAssistModal from "../modals/put/EditCurrentUserHealthAssistModal";
 
 function HealthAssist() {
     const [refreshRequests, setRefreshRequests] = useState(0);
@@ -99,13 +100,28 @@ function HealthAssist() {
                                                 <td>{new Date(request.date_created).toLocaleString()}</td>
                                                 <td>
                                                     {request.status === "pending" && (
-                                                        <button 
-                                                            className="btn btn-danger btn-sm"
-                                                            onClick={handleDeleteHealth}
-                                                            data-value={request.request_id}
-                                                        >
-                                                            Cancel
-                                                        </button>
+                                                        <div className="btn-group">
+                                                            <button 
+                                                                className="btn btn-danger btn-sm"
+                                                                onClick={handleDeleteHealth}
+                                                                data-value={request.request_id}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                            <button 
+                                                                className="btn btn-warning btn-sm"
+                                                                onClick={(e) => 
+                                                                    EditCurrentUserHealthAssistModal(
+                                                                        allUserHealthRequests,
+                                                                        request.request_id,
+                                                                        setRefreshRequests
+                                                                    )
+                                                                }
+                                                                data-value={request.request_id}
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                        </div>
                                                     )}
                                                 </td>
                                             </tr>

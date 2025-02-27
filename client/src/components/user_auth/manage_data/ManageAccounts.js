@@ -172,6 +172,11 @@ function ManageAccounts() {
     //for handling every click in users list names
     const handleUserInListClick = async (e) => {
         e.preventDefault();
+        // Remove focus class from all elements
+        document.querySelectorAll('.focus').forEach(el => el.classList.remove('focus'));
+
+        // Add focus class to the clicked element
+        e.currentTarget.classList.add('focus');
         setLoading(true);
         try {
             const data = {
@@ -218,11 +223,11 @@ function ManageAccounts() {
                             filteredUsers.map(user => (
                             <li key={user.user_id}>
                                 <div
-                                style={{ cursor: loading ? 'wait' : 'pointer' }}
-                                onClick={handleUserInListClick}
-                                data-value={user.user_username}
+                                    style={{ cursor: loading ? 'wait' : 'pointer' }}
+                                    onClick={handleUserInListClick}
+                                    data-value={user.user_username}
                                 >
-                                    <h5>{`${user.user_lastname}, ${user.user_firstname} ${user.user_middlename}`}</h5>
+                                    <h5>{`${user.user_lastname}, ${user.user_firstname} ${user.user_middlename?.[0] ?? ''}.`}</h5>
                                 </div>
                             </li>
                             ))
@@ -231,9 +236,9 @@ function ManageAccounts() {
                             allUsers.map(user => (
                             <li key={user.user_id}>
                                 <div
-                                style={{ cursor: loading ? 'wait' : 'pointer' }}
-                                onClick={handleUserInListClick}
-                                data-value={user.user_username}
+                                    style={{ cursor: loading ? 'wait' : 'pointer' }}
+                                    onClick={handleUserInListClick}
+                                    data-value={user.user_username}
                                 >
                                     <h6>{`${user.user_lastname}, ${user.user_firstname} ${user.user_middlename}`}</h6>
                                 </div>
@@ -258,37 +263,70 @@ function ManageAccounts() {
                     </>
                 ) : (
                     <>
+                    <div className="head flex">
                         <div className="img-con">
                             {!individualUserInformation.user_photo_path ? (
                                 <img src={no_profile} />
                             ) : (
                                 <img 
                                     src={`https://storage.googleapis.com/pklink/${individualUserInformation.user_photo_path.replace(/\\/g, "/")}`} 
-                                    alt={`${individualUserInformation.user_firstname} ${individualUserInformation.user_lastname}'s profile`} 
+                                    alt={`${individualUserInformation.user_firstname} 
+                                    ${individualUserInformation.user_lastname}'s profile`} 
                                 />
                             )}
                             
                         </div>
-                        <div className="user-information flex">
-                            <div className="basic-info">
-                                <h4>Basic info</h4>
-                                <h6> {/* users' name */}
-                                    {individualUserInformation.user_lastname}, &nbsp;
-                                    {individualUserInformation.user_firstname} &nbsp;
-                                    {individualUserInformation.user_middlename} &nbsp;
-                                    {individualUserInformation.user_suffix
-                                }</h6>
-                                <h6>{individualUserInformation.user_gender}</h6>
-                                <h6>{individualUserInformation.user_date_created}</h6>
+                        <div className="text-con flex-col">
+                            <h4>{`${individualUserInformation.user_firstname} ${individualUserInformation.user_middlename?.[0] ?? ''}${individualUserInformation.user_middlename ? '.' : ''} ${individualUserInformation.user_lastname}`}</h4>
 
-                                {/* /* if fetch method is unverified users */}
-                                {isVerifiedChecked ? (
+                            <h6>{individualUserInformation.user_details_obj.email_address}</h6>
+                        </div>
+                    </div>
+                        <div className="user-information">
+                            <div className="basic-info flex-col">
+                                <h4>Basic Information</h4>
+                                <div className="flex text-con">
+                                    <h6 className="label">Address</h6>
+                                    <h6 className="value">
+                                        {`${individualUserInformation.user_details_obj.brgy_street_obj.street_name}, 
+                                        Purok ${individualUserInformation.user_details_obj.brgy_street_obj.purok}
+                                        Puting Kahoy, Silang, Cavite
+                                        `}
+                                    </h6>
+                                </div>
+
+                                <div className="flex text-con">
+                                    <h6 className="label">Civil status</h6>
+                                    <h6 className="value">{individualUserInformation.user_details_obj.civil_status}</h6>
+                                </div>
+
+                                <div className="flex text-con">
+                                    <h6 className="label">Contact number</h6>
+                                    <h6 className="value">{individualUserInformation.user_details_obj.phone_number}</h6>
+                                </div>
+
+                                <div className="flex text-con">
+                                    <h6 className="label">Date of birth</h6>
+                                    <h6 className="value">
+                                        {new Date(individualUserInformation.user_details_obj.birthday).toLocaleDateString("en-US", {
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                        })}
+                                    </h6>
+                                </div>
+
+                                <div className="flex text-con">
+                                    <h6 className="label">Gender</h6>
+                                    <h6 className="value">{individualUserInformation.user_gender}</h6>
+                                </div>
+                                
+                            </div>
+
+                            
+                            <div className="button-con">
+                                {!isVerifiedChecked && (
                                     <>
-                                        <h6>Verified</h6>
-                                    </>
-                                ) : (
-                                    <>
-                                        <h6>Unverified</h6>
                                         <button  
                                             onClick={handleVerifyButton}
                                             data-value={individualUserInformation.user_id}
@@ -298,41 +336,11 @@ function ManageAccounts() {
                                             data-value={individualUserInformation.user_id}
                                         >Delete</button>
                                     </>
-                                    )}
+                                )}
                             </div>
 
-                            <div className="contact-info">
-                                <h4>Contact Info</h4>
-                                <h6>{individualUserInformation.user_details_obj.email_address}</h6>
-                                <h6>{individualUserInformation.user_details_obj.phone_number}</h6>
-                                <h6>{individualUserInformation.user_details_obj.phone_number2}</h6>                            
-                            </div>
-                            <div className="contact-info">
-                                <h4>Address info</h4>
-                                <h6>Location Type: {individualUserInformation.user_details_obj.location_type}</h6>
-                                <h6>House Number: {individualUserInformation.user_details_obj.house_number}</h6>
-                                {/* if location is village type */}
-                                {individualUserInformation.user_details_obj.village_obj ? (
-                                    <>
-                                        <h6>Block: {individualUserInformation.user_details_obj.block_number}</h6>
-                                        <h6>Lot: {individualUserInformation.user_details_obj.lot_number}</h6>
-                                        <h6>Village street: {individualUserInformation.user_details_obj.village_street}</h6>
-                                    
-                                    </>
-                                ) : (
-                                    <>
-                                        {/* if location is local type */}
-                                        <h6>Purok: {individualUserInformation.user_details_obj.brgy_street_obj.purok}</h6>
-                                        <h6>Street: {individualUserInformation.user_details_obj.brgy_street_obj.street_name}</h6>
-                                    </>
-                                )}
-                                
                             <div className="button-con">
-                                {!isVerifiedChecked ? (
-                                    <>
-                                        Pending status
-                                    </>
-                                ) : (
+                                {isVerifiedChecked && (
                                     <button  
                                         onClick={handleRemoveFromVerified}
                                         data-value={individualUserInformation.user_id}
@@ -342,7 +350,7 @@ function ManageAccounts() {
                                 
                                 
                             </div>
-                        </div>
+                        
                     </>
                 )}
             </div>  
