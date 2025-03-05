@@ -382,6 +382,12 @@ SIDEBAR-USER AUTH ==============================
     z-index: 1;
 }
 
+#sidebar-ua .btn-con {
+    display: flex
+;
+    gap: 20px;
+}
+
 #sidebar-ua a{
     font-family: var(--sf-pro-font);
     font-size: 20px;
@@ -483,6 +489,20 @@ MANAGE-CURRENT-USER-ACCOUNT-USER AUTH ==============================
     justify-content: space-between;
 }
 
+
+/* 
+==============================
+==============================
+==============================
+MANAGE-RESIDENT-TYPE-USER AUTH ==============================
+==============================
+==============================
+==============================
+*/
+
+#manage-resident-type .resident-type-create {
+    max-width: 550px;
+}
 
 /* 
 ==============================

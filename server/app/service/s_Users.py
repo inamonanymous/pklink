@@ -79,12 +79,14 @@ class UserService:
                 
                 selfie_ext = check_image_validity(selfie)
                 gov_id_ext = check_image_validity(gov_id)
-                user_photo_ext = check_image_validity(user_photo)
+                user_photo_ext = ""
+                if user_photo:
+                    user_photo_ext = check_image_validity(user_photo)
                 
                 selfie_path = generate_gcs_registration_image_path(user_entry.id, 'selfie', selfie_ext)
                 gov_id_path = generate_gcs_registration_image_path(user_entry.id, 'gov_id', gov_id_ext)
-                user_photo_path = generate_gcs_registration_image_path(user_entry.id, 'user_photo', user_photo_ext)
 
+                user_photo_path = generate_gcs_registration_image_path(user_entry.id, 'user_photo', user_photo_ext)
 
                 if user_photo is not None:
                     user_entry.photo_path = user_photo_path

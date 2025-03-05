@@ -6,6 +6,19 @@
       "health_assistance": "Health Assistance",
       "report_issue": "Report an Issue",
       "fill_forms": "Fill out Forms"
+    },
+    "content_panel": {
+      "delete": "Delete",
+      "edit": "Edit",
+      "document_requests": {
+        "create_request": "Create Request",
+        "manage_my_requests": "Manage My Requests",
+        "choose_document_type": "Choose Document Type",
+        "description": "Description",
+        "additional_info": "Additional Info",
+        "reason": "Reason",
+        "proceed": "Proceed"
+      }
     }
   }
   

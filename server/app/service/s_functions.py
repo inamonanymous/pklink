@@ -256,6 +256,8 @@ def check_image_validity(img):
     valid_photo_ext = ('.png', '.jpg', '.jpeg')
     
     # Check if the file has a valid filename and extension
+    if not img:
+        return False
     if img.filename == '':
         return False
     

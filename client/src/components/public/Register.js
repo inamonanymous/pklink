@@ -73,6 +73,8 @@ function Register({ onRegistrationSuccess }) {
     req_user_email_address2: '',
     req_user_phone_number: '',
     req_user_phone_number2: '',
+    req_user_birthday: '',
+    req_user_civil_status: '',
     req_user_selfie_photo_path: null,
     req_user_gov_id_photo_path: null,
   });
@@ -99,7 +101,15 @@ function Register({ onRegistrationSuccess }) {
     console.log("Updated village ID:", value);
   };
 
-  const handleFileChange = (e) => {
+  const handleBasicFileChange = (e) => {
+    const { name, files } = e.target;
+    setUserBasicInfo(prevInfo => ({
+      ...prevInfo,
+      [name]: files[0],
+    }));
+  };
+
+  const handlePrivateFileChange = (e) => {
     const { name, files } = e.target;
     setUserPrivateInfo(prevInfo => ({
       ...prevInfo,
@@ -107,12 +117,16 @@ function Register({ onRegistrationSuccess }) {
     }));
   };
 
-  const handleInputChange = (e) => {
+  const handleBasicInputChange = (e) => {
     const { name, value } = e.target;
     setUserBasicInfo(prevInfo => ({
       ...prevInfo,
       [name]: value,
     }));
+  };
+
+  const handlePrivateInputChange = (e) => {
+    const { name, value } = e.target;
     setUserPrivateInfo(prevInfo => ({
       ...prevInfo,
       [name]: value,
@@ -121,24 +135,40 @@ function Register({ onRegistrationSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Create a FormData object to handle the file upload
+  
     const formData = new FormData();
   
-    // Append basic and private info fields (without files)
-    for (const key in userBasicInfo) {
-      formData.append(key, userBasicInfo[key]);
-    }
+    // Define all expected fields (ensuring missing values are set as an empty string)
+    const allFields = {
+      req_user_username: userBasicInfo.req_user_username ?? "",
+      req_user_password: userBasicInfo.req_user_password ?? "",
+      req_user_firstname: userBasicInfo.req_user_firstname ?? "",
+      req_user_middlename: userBasicInfo.req_user_middlename ?? "",
+      req_user_lastname: userBasicInfo.req_user_lastname ?? "",
+      req_user_suffix: userBasicInfo.req_user_suffix ?? "", 
+      req_user_gender: userBasicInfo.req_user_gender ?? "",
+      req_user_house_number: userPrivateInfo.req_user_house_number ?? "",
+      req_user_brgy_street_id: userPrivateInfo.req_user_brgy_street_id ?? "",
+      req_user_village_id: userPrivateInfo.req_user_village_id ?? "",
+      req_user_village_street: userPrivateInfo.req_user_village_street ?? "",
+      req_user_lot_number: userPrivateInfo.req_user_lot_number ?? "",
+      req_user_block_number: userPrivateInfo.req_user_block_number ?? "",
+      req_user_email_address: userPrivateInfo.req_user_email_address ?? "",
+      req_user_phone_number: userPrivateInfo.req_user_phone_number ?? "",
+      req_user_phone_number2: userPrivateInfo.req_user_phone_number2 ?? "",
+      req_user_birthday: userPrivateInfo.req_user_birthday ?? "",
+      req_user_civil_status: userPrivateInfo.req_user_civil_status ?? "",
+    };
   
-    formData.append('req_user_photo_path', userBasicInfo.req_user_photo_path);
-    
-    for (const key in userPrivateInfo) {
-      if (key !== 'req_user_selfie_photo_path' && key !== 'req_user_gov_id_photo_path') {
-        formData.append(key, userPrivateInfo[key]);
-      }
-    }
+    // Append text fields to FormData
+    Object.entries(allFields).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
   
-    // Append the files separately
+    // Append file fields separately (if present)
+    if (userBasicInfo.req_user_photo_path) {
+      formData.append('req_user_photo_path', userBasicInfo.req_user_photo_path);
+    }
     if (userPrivateInfo.req_user_selfie_photo_path) {
       formData.append('req_user_selfie_photo_path', userPrivateInfo.req_user_selfie_photo_path);
     }
@@ -146,38 +176,38 @@ function Register({ onRegistrationSuccess }) {
       formData.append('req_user_gov_id_photo_path', userPrivateInfo.req_user_gov_id_photo_path);
     }
   
-    // Log each key-value pair of the formData
+    // Debugging: Log FormData values
+    console.log("FormData Entries:");
     for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
+      console.log(`${key}:`, value);
     }
   
     try {
       document.body.style.cursor = 'wait';
       const resp = await httpClient.post('/api/user/registration', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
   
       if (resp.status === 409) {
-        Swal.fire('Failed!', 'Username already exists', 'failed');
+        Swal.fire('Failed!', 'Username already exists', 'error');
         return;
       }
   
       if (resp.status !== 201) {
-        Swal.fire('Failed!', 'Invalid', 'failed');
+        Swal.fire('Failed!', 'Invalid request', 'error');
         return;
       }
   
       Swal.fire('Success!', 'User Registration complete', 'success');
       onRegistrationSuccess();
-    } catch (e) {
-      console.error(e);
-      Swal.fire('Error!', 'error during registration', 'error');
+    } catch (error) {
+      console.error(error);
+      Swal.fire('Error!', 'Error during registration', 'error');
     } finally {
       document.body.style.cursor = 'default';
     }
   };
+  
   
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -214,7 +244,7 @@ function Register({ onRegistrationSuccess }) {
             name="req_user_username"
             value={userBasicInfo.req_user_username}
             required
-            onChange={handleInputChange}
+            onChange={handleBasicInputChange}
           />
         </div>
 
@@ -225,7 +255,7 @@ function Register({ onRegistrationSuccess }) {
             name="req_user_password"
             required
             value={userBasicInfo.req_user_password}
-            onChange={handleInputChange}
+            onChange={handleBasicInputChange}
           />
         </div>
 
@@ -236,7 +266,7 @@ function Register({ onRegistrationSuccess }) {
             name="req_user_firstname"
             required
             value={userBasicInfo.req_user_firstname}
-            onChange={handleInputChange}
+            onChange={handleBasicInputChange}
           />
         </div>
 
@@ -246,7 +276,7 @@ function Register({ onRegistrationSuccess }) {
             type="text"
             name="req_user_middlename"
             value={userBasicInfo.req_user_middlename}
-            onChange={handleInputChange}
+            onChange={handleBasicInputChange}
           />
         </div>
 
@@ -257,7 +287,7 @@ function Register({ onRegistrationSuccess }) {
             name="req_user_lastname"
             required
             value={userBasicInfo.req_user_lastname}
-            onChange={handleInputChange}
+            onChange={handleBasicInputChange}
           />
         </div>
 
@@ -267,7 +297,7 @@ function Register({ onRegistrationSuccess }) {
             type="text"
             name="req_user_suffix"
             value={userBasicInfo.req_user_suffix}
-            onChange={handleInputChange}
+            onChange={handleBasicInputChange}
           />
         </div>
 
@@ -278,7 +308,7 @@ function Register({ onRegistrationSuccess }) {
             name="req_user_gender"
             required
             value={userBasicInfo.req_user_gender}
-            onChange={handleInputChange}
+            onChange={handleBasicInputChange}
           />
         </div>
 
@@ -287,7 +317,7 @@ function Register({ onRegistrationSuccess }) {
           <input
             type="file"
             name="req_user_photo_path"
-            onChange={handleFileChange}
+            onChange={handleBasicFileChange}
           />
         </div>
 
@@ -311,7 +341,7 @@ function Register({ onRegistrationSuccess }) {
             name="req_user_house_number"
             required
             value={userPrivateInfo.req_user_house_number}
-            onChange={handleInputChange}
+            onChange={handlePrivateInputChange}
           />
         </div>
 
@@ -368,7 +398,7 @@ function Register({ onRegistrationSuccess }) {
                 type="text"
                 required
                 name="req_user_village_street"
-                onChange={handleInputChange}
+                onChange={handlePrivateInputChange}
               />
             </div>
 
@@ -379,7 +409,7 @@ function Register({ onRegistrationSuccess }) {
                 name="req_user_lot_number"
                 required
                 value={userPrivateInfo.req_user_lot_number}
-                onChange={handleInputChange}
+                onChange={handlePrivateInputChange}
               />
             </div>
 
@@ -390,11 +420,38 @@ function Register({ onRegistrationSuccess }) {
                 name="req_user_block_number"
                 required
                 value={userPrivateInfo.req_user_block_number}
-                onChange={handleInputChange}
+                onChange={handlePrivateInputChange}
               />
             </div>
           </>
         )}
+
+        <div className='input-con flex-col'>
+          <label>Date of birth</label>
+          <input
+            type="date"
+            name="req_user_birthday"
+            required
+            value={userPrivateInfo.req_user_birthday}
+            onChange={handlePrivateInputChange}
+          />
+        </div>
+
+        <div className='input-con flex-col'>
+          <label>Civil Status</label>
+          <select 
+            name="req_user_civil_status"
+            required
+            value={userPrivateInfo.req_user_civil_status}
+            onChange={handlePrivateInputChange}
+          >
+            <option value="Single">Single</option>
+            <option value="Married">Married</option>
+            <option value="Divorced">Divorced</option>
+            <option value="Separated">Separated</option>
+            <option value="Widowed">Widowed</option>
+          </select>
+        </div>
 
         <div className='input-con flex-col'>
           <label>Email address</label>
@@ -424,7 +481,7 @@ function Register({ onRegistrationSuccess }) {
             name="req_user_phone_number"
             required
             value={userPrivateInfo.req_user_phone_number}
-            onChange={handleInputChange}
+            onChange={handlePrivateInputChange}
           />
         </div>
 
@@ -434,7 +491,7 @@ function Register({ onRegistrationSuccess }) {
             type="text"
             name="req_user_phone_number2"
             value={userPrivateInfo.req_user_phone_number2}
-            onChange={handleInputChange}
+            onChange={handlePrivateInputChange}
           />
         </div>
 
@@ -444,7 +501,7 @@ function Register({ onRegistrationSuccess }) {
             type="file"
             name="req_user_selfie_photo_path"
             required
-            onChange={handleFileChange}
+            onChange={handlePrivateFileChange}
           />
         </div>
 
@@ -454,7 +511,7 @@ function Register({ onRegistrationSuccess }) {
             type="file"
             name="req_user_gov_id_photo_path"
             required
-            onChange={handleFileChange}
+            onChange={handlePrivateFileChange}
           />
         </div>
 

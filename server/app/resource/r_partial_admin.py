@@ -1,4 +1,4 @@
-from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins, PS_ins, ES_ins, R_ins, I_ins, session
+from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins, PS_ins, ES_ins, R_ins, I_ins, session, BSS_ins, VS_ins
 from .r_functions import require_user_session, get_current_user_privilege, get_current_user_username
 from datetime import datetime, timezone
 
@@ -11,6 +11,7 @@ from datetime import datetime, timezone
     UDS_ins = <UserDetailsService> object instance
     PS_ins = <PostService> object instance
     R_ins = <RequestService> object instance
+    BSS_ins = <BrgyStreetService> object instance
 """
 
 class UnverifiedUserData(Resource):
@@ -518,3 +519,149 @@ class IncidentManagement(Resource):
         if not result:
             return {"message": "failed to edit incident status"}, 400
         return {"message": "edit request status successful"}, 200
+    
+class BrgyStreetManagement(Resource):
+    @require_user_session
+    def get(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['partial_admin']:
+            abort(401, message="current user not allowed")      
+
+        brgy_street_id = request.args.get('req_brgy_stret_id')
+        data = BSS_ins.get_brgy_street_by_id(brgy_street_id)
+        if not data:
+            return {"message": "failed to get brgy street"}, 400
+        return data, 200
+
+    @require_user_session
+    def delete(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['partial_admin']:
+            abort(401, message="current user not allowed")  
+        brgy_street_id = request.args.get('req_brgy_street_id')
+        if brgy_street_id is None:
+            return {"message": "brgy street not found"}, 404
+        if not BSS_ins.delete_street(brgy_street_id):
+            return {"message": "failed to delete brgy street"}, 400
+        return {"message": "success delete brgy street"}, 200
+
+    @require_user_session
+    def put(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['partial_admin']:
+            abort(401, message="current user not allowed")  
+        put_parser = reqparse.RequestParser()
+        put_parser.add_argument('req_brgy_street_id', type=str, required=True, help="Id is required")
+        put_parser.add_argument('req_brgy_street_name', type=str, required=False)
+        put_parser.add_argument('req_brgy_street_purok', type=str, required=False)
+        args = put_parser.parse_args()
+        if not BSS_ins.edit_street(
+            id=args['req_brgy_street_id'],
+            street_name=args['req_brgy_street_name'],
+            purok=args['req_brgy_street_purok'],
+        ):
+            return {"message": "failed to edit brgy street"}, 400
+        
+        return {"message": "successful edit brgy street"}, 200
+
+    @require_user_session
+    def post(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['partial_admin']:
+            abort(401, message="current user not allowed")  
+        post_parser = reqparse.RequestParser()
+        post_parser.add_argument('req_brgy_street_name', type=str, required=True, help="Name is required")
+        post_parser.add_argument('req_brgy_street_purok', type=int, required=True, help="Purok is required")
+        args = post_parser.parse_args()
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        if not BSS_ins.insert_street(
+            street_name=args['req_brgy_street_name'],
+            purok=args['req_brgy_street_purok'],
+            user_id=current_user['user_id']
+        ):
+            return {"message": "failed to insert brgy street"}, 400
+
+        return {"message": "successful insert brgy street"}, 200
+    
+
+class VillageManagement(Resource):
+    @require_user_session
+    def get(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['partial_admin']:
+            abort(401, message="current user not allowed")  
+
+        village_id = request.args.get('req_village_id')
+
+        data = VS_ins.get_village_dict_by_id(village_id)
+        if not data:
+            return {"message": "failed get village"}, 400
+
+        return data, 200
+
+    @require_user_session
+    def post(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['partial_admin']:
+            abort(401, message="current user not allowed")  
+
+        post_parser = reqparse.RequestParser()
+        post_parser.add_argument('req_village_name', type=str, required=True, help="Name is required")
+        args = post_parser.parse_args()
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        if not VS_ins.insert_village(
+            village_name=args['req_village_name'],
+            user_id=current_user['user_id']
+        ):
+            return {"message": "failed to insert village"}, 400
+        return {"message": "successful insert village"}, 200
+    
+    @require_user_session
+    def put(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['partial_admin']:
+            abort(401, message="current user not allowed")  
+
+        put_parser = reqparse.RequestParser()
+        put_parser.add_argument('req_village_id', type=str, required=True, help="Id is required")
+        put_parser.add_argument('req_village_name', type=str, required=True, help="Name is required")
+        args = put_parser.parse_args()
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        if not VS_ins.edit_village(
+            id=args['req_village_id'],
+            village_name=args['req_village_name'],
+            user_id=current_user['user_id']
+        ):
+            return {"message": "failed to edit village"}, 400
+        return {"message": "successful edit village"}, 200
+
+    @require_user_session
+    def delete(self):
+        current_user_privelege = get_current_user_privilege()
+        if current_user_privelege is None:
+            abort(406, message="current user not found")    
+        if not current_user_privelege['partial_admin']:
+            abort(401, message="current user not allowed")  
+
+        village_id = request.args.get('req_village_id')
+        if village_id is None:
+            return {"message": "village not found"}, 404
+        if not VS_ins.delete_village(village_id):
+            return {"message": "failed to delete village"}, 400
+        return {"message": "success delete village"}, 200
+
+        

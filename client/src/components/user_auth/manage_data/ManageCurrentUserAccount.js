@@ -8,11 +8,19 @@ function ManageCurrentUserAccount(userInformation) {
             <div className="flex">
                 <div className="left-container flex-col">
                     <div className="img-con">
-                        <img 
+                        {!user_data.user_photo_path ? (
+                            <img 
+                                src={`https://i0.wp.com/digitalhealthskills.com/wp-content/uploads/2022/11/3da39-no-user-image-icon-27.png?fit=500%2C500&ssl=1`} 
+                                alt={`${user_data.user_firstname} 
+                                ${user_data.user_lastname}'s profile`} 
+                            />
+                        ) : (
+                            <img 
                                 src={`https://storage.googleapis.com/pklink/${user_data.user_photo_path.replace(/\\/g, "/")}`} 
                                 alt={`${user_data.user_firstname} 
                                 ${user_data.user_lastname}'s profile`} 
                             />
+                        )}
                     </div>
                     <div className="text-con">
                         <h4>{`${user_data.user_firstname} ${user_data.user_middlename?.[0] ?? ''}${user_data.user_middlename ? '.' : ''} ${user_data.user_lastname}`}</h4>

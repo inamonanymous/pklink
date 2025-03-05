@@ -70,6 +70,15 @@ class UserRegistration(Resource):
         print("display photo: ", user_photo)
         print("selfie: ", selfie)
         print("government : ", gov_id)
+
+        print('username: ', args['req_user_username'])
+        print('password: ', args['req_user_password'])
+        print('firstname: ', args['req_user_firstname'])
+        print('middlename: ', args['req_user_middlename'])
+        print('lastname: ', args['req_user_lastname'])
+        print('suffix: ', args['req_user_suffix'])
+        print('gender: ', args['req_user_gender'])
+
         user_data = {
             'username': args['req_user_username'],
             'password': args['req_user_password'],
@@ -79,20 +88,25 @@ class UserRegistration(Resource):
             'suffix': args['req_user_suffix'],
             'gender': args['req_user_gender']
         }
+        print(f"user data: {user_data}")
+
         details_data = {
-            'village_id': args['req_user_village_id'],
-            'brgy_street_id': args['req_user_brgy_street_id'],
+            'village_id': args['req_user_village_id'] if args['req_user_village_id'] else '',
+            'brgy_street_id': args['req_user_brgy_street_id'] if args['req_user_brgy_street_id'] else '',
             'house_number': args['req_user_house_number'],
-            'lot_number': args['req_user_lot_number'],
-            'block_number': args['req_user_block_number'],
-            'village_street': args['req_user_village_street'],
+            'lot_number': args['req_user_lot_number'] if args['req_user_lot_number'] else '',
+            'block_number': args['req_user_block_number'] if args['req_user_block_number'] else '',
+            'village_street': args['req_user_village_street'] if args['req_user_village_street'] else '',
             'email_address': args['req_user_email_address'],
             'phone_number': args['req_user_phone_number'],
             'phone_number2': args['req_user_phone_number2'],
             'birthday': args['req_user_birthday'],
-            'civil_status': args['req_user_civil_status'],
+            'civil_status': args['req_user_civil_status'] if args['req_user_civil_status'] else '',
         }
-        if not US_ins.insert_user_and_details(user_data, details_data, user_photo, selfie, gov_id):
+        print(f"Calling insert_user_and_details with user_data: {user_data}, details_data: {details_data}")
+        insert_user_details = US_ins.insert_user_and_details(user_data, details_data, user_photo, selfie, gov_id)
+
+        if not insert_user_details:
             return {"message": "registration unsuccessful"}, 406
         return {"message": "registration success"}, 201
 
