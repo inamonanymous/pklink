@@ -72,6 +72,8 @@ function ReportIncident() {
                             <p>Loading...</p>
                         ) : error ? (
                             <p>Error fetching data.</p>
+                        ) : allUserIncidents.length === 0 ? (
+                            <p>No document requests found.</p>
                         ) : (
                             <table className="table">
                                 <thead>
@@ -86,8 +88,7 @@ function ReportIncident() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {allUserIncidents.length > 0 ? (
-                                        allUserIncidents.map((incident) => (
+                                        {allUserIncidents.map((incident) => (
                                             <tr key={incident.incident_id}>
                                                 <td>{incident.incident_id}</td>
                                                 <td>{incident.description}</td>
@@ -132,12 +133,7 @@ function ReportIncident() {
                                                     )}
                                                 </td>
                                             </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                           No incidents found
-                                        </tr>
-                                    )}
+                                        ))}
                                 </tbody>
                             </table>
                         )}

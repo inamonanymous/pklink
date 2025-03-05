@@ -77,6 +77,8 @@ function HealthAssist() {
                             <p>Loading...</p>
                         ) : error ? (
                             <p>Error fetching data.</p>
+                        ) : allUserHealthRequests.length === 0 ? (
+                            <p>No document requests found.</p>
                         ) : (
                             <table className="table">
                                 <thead>
@@ -90,47 +92,41 @@ function HealthAssist() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {allUserHealthRequests.length > 0 ? (
-                                        allUserHealthRequests.map((request) => (
-                                            <tr key={request.health_request_id}>
-                                                <td>{request.request_id}</td>
-                                                <td>{request.support_type}</td>
-                                                <td>{request.description_text}</td>
-                                                <td>{request.status}</td>
-                                                <td>{new Date(request.date_created).toLocaleString()}</td>
-                                                <td>
-                                                    {request.status === "pending" && (
-                                                        <div className="btn-group">
-                                                            <button 
-                                                                className="btn btn-danger btn-sm"
-                                                                onClick={handleDeleteHealth}
-                                                                data-value={request.request_id}
-                                                            >
-                                                                Cancel
-                                                            </button>
-                                                            <button 
-                                                                className="btn btn-warning btn-sm"
-                                                                onClick={(e) => 
-                                                                    EditCurrentUserHealthAssistModal(
-                                                                        allUserHealthRequests,
-                                                                        request.request_id,
-                                                                        setRefreshRequests
-                                                                    )
-                                                                }
-                                                                data-value={request.request_id}
-                                                            >
-                                                                Edit
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="5">No requests found.</td>
+                                    {allUserHealthRequests.map((request) => (
+                                        <tr key={request.health_request_id}>
+                                            <td>{request.request_id}</td>
+                                            <td>{request.support_type}</td>
+                                            <td>{request.description_text}</td>
+                                            <td>{request.status}</td>
+                                            <td>{new Date(request.date_created).toLocaleString()}</td>
+                                            <td>
+                                                {request.status === "pending" && (
+                                                    <div className="btn-group">
+                                                        <button 
+                                                            className="btn btn-danger btn-sm"
+                                                            onClick={handleDeleteHealth}
+                                                            data-value={request.request_id}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button 
+                                                            className="btn btn-warning btn-sm"
+                                                            onClick={(e) => 
+                                                                EditCurrentUserHealthAssistModal(
+                                                                    allUserHealthRequests,
+                                                                    request.request_id,
+                                                                    setRefreshRequests
+                                                                )
+                                                            }
+                                                            data-value={request.request_id}
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </td>
                                         </tr>
-                                    )}
+                                    ))}
                                 </tbody>
                             </table>
                         )}

@@ -3,7 +3,18 @@ from flask_restful import Api
 from app.config import ApplicationConfig
 from app.ext import sess, cors, db, migrate
 from app.resource.r_user import UserAuth, UserRegistration, CheckSession, RegisteredVillages, RegisteredBrgyStreets, PostsData, EventsData, DocumentRequest, HealthSupportRequest, Incident
-from app.resource.r_partial_admin import UserVerification, UnverifiedUserData, PostManagement, EventManagement, DocumentRequestManagement, HealthSupportManagement, IncidentManagement
+from app.resource.r_partial_admin import (
+    UserVerification,
+    UnverifiedUserData,
+    PostManagement,
+    EventManagement,
+    DocumentRequestManagement,
+    HealthSupportManagement,
+    IncidentManagement,
+    BrgyStreetManagement,
+    VillageManagement
+)
+from app.resource.r_admin import ResidentTypeManagement
 
 from app.model.m_Admin import Admin
 from app.model.m_BrgyStreets import BrgyStreets
@@ -99,6 +110,10 @@ def create_app():
     api.add_resource(DocumentRequestManagement, '/api/partial_admin/document_requests')
     api.add_resource(HealthSupportManagement, '/api/partial_admin/health_support_requests')
     api.add_resource(IncidentManagement, '/api/partial_admin/incidents')
+    api.add_resource(BrgyStreetManagement, '/api/partial_admin/brgystreets')
+    api.add_resource(VillageManagement, '/api/partial_admin/villages')
+
+    api.add_resource(ResidentTypeManagement, '/api/admin/residenttype')
 
     with app.app_context():
         Users,

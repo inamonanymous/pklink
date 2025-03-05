@@ -11,6 +11,8 @@ import ManageDocumentReq from "./manage_data/ManageDocumentReq";
 import ManageHealthAssist from "./manage_data/ManageHealthAssist";
 import ManageReportIncident from "./manage_data/ManageReportIncidents";
 import ManageCurrentUserAccount from "./manage_data/ManageCurrentUserAccount";
+import ManageStreetsAndVillage from "./manage_data/ManageStreetsAndVillage";
+import ManageResidentType from "./manage_data/ManageResidentType";
 
 function ContentPanel({ currentView, userInformation }) {
     const renderContent = () => {
@@ -39,6 +41,10 @@ function ContentPanel({ currentView, userInformation }) {
             return <ManageHealthAssist />;
           case 'manage_incidents':
             return <ManageReportIncident />;
+          case 'manage_streets_villages':
+            return <ManageStreetsAndVillage />;
+          case 'manage_resident_type':
+            return <ManageResidentType />;
           /* case 'manage_forms':
             return <div>Create Form</div>; */
           case 'manage_my_account':

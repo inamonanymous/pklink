@@ -6,6 +6,19 @@
       "health_assistance": "Mang-hingi nang tulong Pangkalusugan",
       "report_issue": "I-ulat ang Isang Problema",
       "fill_forms": "Magpunan ng Mga Form"
+    },
+    "content_panel": {
+      "delete": "Burahin",
+      "edit": "Baguhin",
+      "document_requests": {
+        "create_request": "Humiling ng isang Dokumento",
+        "manage_my_requests": "Ayusin ang Aking mga Kahilingan",
+        "choose_document_type": "Piliin ang Uri ng Dokumento",
+        "description": "Paglalarawan",
+        "additional_info": "Karagdagang Impormasyon",
+        "reason": "Dahilan",
+        "proceed": "Magpatuloy"
+      }
     }
   }
   

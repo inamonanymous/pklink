@@ -4,8 +4,11 @@ import FetchData from "../FetchFunction";
 import Swal from "sweetalert2";
 import httpClient from "../../../httpClient";
 import EditCurrentUserDocumentReqModal from "../modals/put/EditCurrentUserDocumentReqModal";
+import { useTranslation } from 'react-i18next';
 
 function DocumentReq() {
+    const { t } = useTranslation();
+
     const [refreshRequests, setRefreshRequests] = useState(0);
     const { data: allUserDocumentRequestsData, error, loading } = FetchData("/api/user/document_requests", refreshRequests);
 
@@ -55,7 +58,7 @@ function DocumentReq() {
                         onClick={() => setActiveView("create") }
                         className={`btn ${activeView === "create" ? "btn-primary" : "btn-secondary"}`}
                     >
-                        Create Request
+                        {t('content_panel.document_requests.create_request')}
                     </button>
                     <button
                         onClick={() => {
@@ -64,7 +67,7 @@ function DocumentReq() {
                         }}
                         className={`btn ${activeView === "manage" ? "btn-primary" : "btn-secondary"}`}
                     >
-                        Manage My Requests
+                        {t('content_panel.document_requests.manage_my_requests')}
                     </button>
                 </div>
 
@@ -74,7 +77,7 @@ function DocumentReq() {
                     />
                 ) : (
                     <div className="manage-requests">
-                        <h3>Manage My Requests</h3>
+                        {t('content_panel.document_requests.manage_my_requests')}
                         <p>Here, you can view, track, or cancel your document requests.</p>
 
                         {loading ? (
@@ -116,7 +119,7 @@ function DocumentReq() {
                                                                 onClick={handleDeleteDocument}
                                                                 data-value={request.request_id}
                                                             >
-                                                                Delete
+                                                                {t('content_panel.delete')}
                                                             </button>
                                                             <button 
                                                                 className="btn btn-warning btn-sm"
@@ -129,7 +132,7 @@ function DocumentReq() {
                                                                 }
                                                                 data-value={request.request_id}
                                                             >
-                                                                Edit
+                                                                {t('content_panel.edit')}
                                                             </button>
                                                         </div>
                                                     )}

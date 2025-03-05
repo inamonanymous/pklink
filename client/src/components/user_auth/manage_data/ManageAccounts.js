@@ -214,7 +214,7 @@ function ManageAccounts() {
                         type="text"
                         value={searchQuery}
                         onChange={handleSearchChange}
-                        placeholder="Search by username"
+                        placeholder="Search by name"
                         className="search-input"
                     />
                     <ul className="flex-col">

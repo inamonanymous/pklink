@@ -3,6 +3,19 @@ from app.ext import db
 from functools import wraps
 USER_FOLDER = f"uploads/users"
 
+def require_user_admin(f):
+    @wraps(f)
+    def wrapper(self, *args, **kwargs):
+        if 'user_username' not in session:
+            abort(404, message="Not logged in")
+
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        if not AS_ins.get_admin_by_user_id(current_user['user_id']):
+            abort(401, message="Current user not admin")
+        return f(self, *args, **kwargs)
+    return wrapper
+
+
 #decorator in routes checking user session if active
 def require_user_session(f):
     """
@@ -59,7 +72,7 @@ def get_current_user_privilege() -> dict:
             'manage_post': True,
             'partial_admin': True,
             'manage_request': True,
-
+            'admin': True
         }
     elif resident_type: # If the user is a resident, assign specific privileges based on their type
         user_privileges = {

@@ -8,8 +8,11 @@ import cert_brgy from "../../../../img/cert_brgy.jpg";
 import cedula from "../../../../img/cedula.jpg";
 import cert_indigency from "../../../../img/cert_indigency.jpg";
 import business_permit from "../../../../img/business_permit.jpg";
+import { useTranslation } from 'react-i18next';
+
 
 const CreateDocumentReqModal = ({setRefreshRequests}) => {
+    const { t } = useTranslation();
     const [documentData, setDocumentData] = useState({
         req_document_type: "",
         req_additional_info: "",
@@ -85,7 +88,9 @@ const CreateDocumentReqModal = ({setRefreshRequests}) => {
     return (
         <div className='document-req-create flex-col'>
             <div className='text-con flex head'>
-                <h4>Choose Document Type</h4>
+                <h4>
+                    {t('content_panel.document_requests.choose_document_type')}
+                </h4>
                 <input 
                     ref={inputRef}
                     type="text" 
@@ -112,7 +117,9 @@ const CreateDocumentReqModal = ({setRefreshRequests}) => {
             <div className='form-con'>
                 <form className="document-form user-side-forms flex-col">
                     <div className="input-con flex-col">
-                        <label>Description</label>
+                        <label>
+                            {t('content_panel.document_requests.description')}
+                        </label>
                         <input 
                             type="text" 
                             name="req_description" 
@@ -123,7 +130,9 @@ const CreateDocumentReqModal = ({setRefreshRequests}) => {
                     </div>
 
                     <div className="input-con flex-col">
-                        <label>Additional Info</label>
+                        <label>
+                            {t('content_panel.document_requests.additional_info')}
+                        </label>
                         <input 
                             type="text" 
                             name="req_additional_info" 
@@ -134,7 +143,7 @@ const CreateDocumentReqModal = ({setRefreshRequests}) => {
                     </div>
 
                     <div className="input-con flex-col">
-                        <label>Reason</label>
+                        {t('content_panel.document_requests.reason')}
                         <input 
                             type="text" 
                             name="req_reason" 
@@ -147,7 +156,7 @@ const CreateDocumentReqModal = ({setRefreshRequests}) => {
             </div>
 
             <button className='large' onClick={handleSubmit}>
-                Proceed
+                {t('content_panel.document_requests.proceed')}
             </button>
         </div>
     );

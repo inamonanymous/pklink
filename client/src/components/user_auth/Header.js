@@ -25,6 +25,7 @@ const privilegedItems = [
     { name: 'Manage Health Assistance Requests', view: 'manage_health', privilege: 'manage_request', icon: 'bi-heart-pulse' },
     { name: 'Manage Report Incidents', view: 'manage_incidents', privilege: 'partial_admin', icon: 'bi-exclamation-triangle' },
     { name: 'Manage Streets and Villages', view: 'manage_streets_villages', privilege: 'partial_admin', icon: 'bi bi-geo-alt' },
+    { name: 'Manage Resident Type', view: 'manage_resident_type', privilege: 'admin', icon: 'bi bi-person-check' },
 ];
 
 function Header({ onViewChange, priveleges, activeView }) {
