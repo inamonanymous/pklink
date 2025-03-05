@@ -75,6 +75,8 @@ const CreateResidentTypeModal = ({ isResidentTypeModalOpen, setRefreshResidentTy
     }
   };
 
+  if (!isResidentTypeModalOpen) return null;
+
   return (
     <form onSubmit={handleSubmit} id="addResidentTypeForm">
       <div className="d-flex flex-column p-4">

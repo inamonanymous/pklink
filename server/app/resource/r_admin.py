@@ -1,4 +1,4 @@
-from app.resource import Resource, abort, reqparse, request, RTS_ins, US_ins
+from app.resource import Resource, abort, reqparse, request, RTS_ins, US_ins, R_ins
 from .r_functions import get_current_user_privilege, get_current_user_username, require_user_admin
 
 class ResidentTypeManagement(Resource):
@@ -107,3 +107,28 @@ class ResidentTypeManagement(Resource):
             return {"message": "Resident type not found or failed to delete"}, 404
 
         return {"message": "Resident type deleted successfully"}, 200
+
+
+class UserRegistrationStatsResource(Resource):
+    def get(self):
+        """ parser = reqparse.RequestParser()
+        parser.add_argument("span", type=str, choices=["daily", "monthly", "yearly"], default="daily") """
+        args = request.args.get('span')
+
+        stats = US_ins.get_registration_stats(args)
+        print(stats)
+        return {"data": stats}, 200
+    
+class UsersByResidentTypeResource(Resource):
+    def get(self):
+        stats = US_ins.get_users_by_resident_type()
+        print(stats)
+        return {"data": stats}, 200
+    
+class RequestStatisticsResource(Resource):
+    def get(self):
+        stats = R_ins.get_request_counts()
+        if stats is None:
+            return {"error": "Failed to retrieve request statistics"}, 500
+        print(stats)
+        return {"data": stats}, 200

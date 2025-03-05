@@ -26,6 +26,7 @@ const privilegedItems = [
     { name: 'Manage Report Incidents', view: 'manage_incidents', privilege: 'partial_admin', icon: 'bi-exclamation-triangle' },
     { name: 'Manage Streets and Villages', view: 'manage_streets_villages', privilege: 'partial_admin', icon: 'bi bi-geo-alt' },
     { name: 'Manage Resident Type', view: 'manage_resident_type', privilege: 'admin', icon: 'bi bi-person-check' },
+    { name: 'View Charts', view: 'view_charts', privilege: 'admin', icon: 'bi bi-bar-chart' },
 ];
 
 function Header({ onViewChange, priveleges, activeView }) {

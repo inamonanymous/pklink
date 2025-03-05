@@ -1,4 +1,4 @@
-from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins, PS_ins, ES_ins, R_ins, I_ins, session, BSS_ins, VS_ins
+from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins, PS_ins, ES_ins, R_ins, I_ins, session, BSS_ins, VS_ins, RTS_ins
 from .r_functions import require_user_session, get_current_user_privilege, get_current_user_username
 from datetime import datetime, timezone
 
@@ -91,6 +91,12 @@ class UserVerification(Resource):
         if user_details is None:
             return {"message": "invalid! no userdetails found"}, 404
         user['user_details_obj'] = user_details
+        user['user_resident_type'] = 'Registered Resident'
+        resident_type = RTS_ins.get_resident_type_by_id(user['resident_id'])
+        if resident_type:
+            user['user_resident_type'] = resident_type.resident_type_name
+        
+
         return user
         
 class PostManagement(Resource):
