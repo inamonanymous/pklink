@@ -5,8 +5,65 @@ from app.model.m_DocumentRequest import DocumentRequests
 from app.model.m_HealthSupportRequests import HealthSupportRequests
 from app.ext import db
 from datetime import datetime
+from sqlalchemy.sql import func
 
 class RequestsService:
+    def get_request_counts(self):
+        try:
+            # Requests Over Time (Daily, Monthly, Yearly)
+            daily_counts = db.session.query(
+                func.date_format(Requests.date_created, "%Y-%m-%d"), func.count(Requests.id)
+            ).group_by(func.date_format(Requests.date_created, "%Y-%m-%d")).all()
+
+            monthly_counts = db.session.query(
+                func.date_format(Requests.date_created, "%Y-%m"), func.count(Requests.id)
+            ).group_by(func.date_format(Requests.date_created, "%Y-%m")).all()
+
+            yearly_counts = db.session.query(
+                func.date_format(Requests.date_created, "%Y"), func.count(Requests.id)
+            ).group_by(func.date_format(Requests.date_created, "%Y")).all()
+
+            # Requests by Type
+            request_type_counts = db.session.query(Requests.request_type, func.count(Requests.id))\
+                .group_by(Requests.request_type)\
+                .all()
+
+            # Requests by Status
+            status_counts = db.session.query(Requests.status, func.count(Requests.id))\
+                .group_by(Requests.status)\
+                .all()
+
+            # Health Support Requests by Type
+            health_support_counts = db.session.query(HealthSupportRequests.support_type, func.count(HealthSupportRequests.id))\
+                .group_by(HealthSupportRequests.support_type)\
+                .all()
+
+            # Document Requests by Type
+            document_counts = db.session.query(DocumentRequests.document_type, func.count(DocumentRequests.id))\
+                .group_by(DocumentRequests.document_type)\
+                .all()
+
+            # Requests by Resident Type
+            resident_type_counts = db.session.query(ResidentType.resident_type_name, func.count(Requests.id))\
+                .join(Users, Requests.user_id == Users.id)\
+                .outerjoin(ResidentType, Users.resident_id == ResidentType.id)\
+                .group_by(ResidentType.resident_type_name)\
+                .all()
+            return {
+                "daily_counts": {date: count for date, count in daily_counts},
+                "monthly_counts": {month: count for month, count in monthly_counts},
+                "yearly_counts": {year: count for year, count in yearly_counts},
+                "request_type_counts": {rtype: count for rtype, count in request_type_counts},
+                "status_counts": {status: count for status, count in status_counts},
+                "health_support_counts": {stype: count for stype, count in health_support_counts},
+                "document_counts": {dtype: count for dtype, count in document_counts},
+                "resident_type_counts": {rtype: count for rtype, count in resident_type_counts},
+            }
+        except Exception as e:
+            print(f"Error retrieving request statistics: {e}")
+            return None
+
+
     def get_request_by_request_id(self, request_id):
         return Requests.query.filter_by(id=request_id).first()
 

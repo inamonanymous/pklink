@@ -1,12 +1,61 @@
 from app.service import check_password_hash, generate_password_hash, db, abort
 from app.model.m_Users import Users
 from app.model.m_UserDetails import UserDetails
+from app.model.m_ResidentType import ResidentType
 from app.service.s_functions import check_if_local, upload_image_to_gcs, generate_gcs_registration_image_path, check_image_validity
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.sql import func, text, case
 from app.service.s_functions import verify_face
 from datetime import datetime
 
 class UserService:
+    def get_users_by_resident_type(self):
+        query = (
+            db.session.query(
+                case(
+                    (Users.resident_id == None, "Registered Resident"),
+                    else_=ResidentType.resident_type_name
+                ).label("resident_type"),
+                func.count(Users.id).label("count")
+            )
+            .outerjoin(ResidentType, Users.resident_id == ResidentType.id)
+            .group_by("resident_type")
+        )
+
+        results = query.all()
+        return {
+            "labels": [row.resident_type for row in results],
+            "counts": [row.count for row in results],
+        }
+
+    def get_registration_stats(self, span="daily"):
+        """
+        Fetch user registration counts and last names based on the specified span: daily, monthly, or yearly.
+        """
+        span_mapping = {
+            "daily": "%Y-%m-%d",
+            "monthly": "%Y-%m",
+            "yearly": "%Y"
+        }
+
+        if span not in span_mapping:
+            abort(400, message="Invalid timespan. Choose from daily, monthly, or yearly.")
+
+        query = db.session.query(
+            func.date_format(Users.date_created, span_mapping[span]).label("date"),
+            func.count(Users.id).label("count"),
+            func.group_concat(Users.lastname).label("last_names")  # Collect last names as a CSV string
+        ).group_by(text("date")).order_by(text("date"))
+
+        results = query.all()
+
+        return {
+            "labels": [row.date for row in results],
+            "counts": [row.count for row in results],
+            "last_names": [row.last_names.split(",") if row.last_names else [] for row in results]  # Convert CSV to list
+        }
+
+
     #verify user authentication 
     # IF username 
     # AND password matched a row inside <Users> table

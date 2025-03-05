@@ -14,7 +14,12 @@ from app.resource.r_partial_admin import (
     BrgyStreetManagement,
     VillageManagement
 )
-from app.resource.r_admin import ResidentTypeManagement
+from app.resource.r_admin import (
+    ResidentTypeManagement, 
+    UserRegistrationStatsResource,
+    UsersByResidentTypeResource,
+    RequestStatisticsResource
+)
 
 from app.model.m_Admin import Admin
 from app.model.m_BrgyStreets import BrgyStreets
@@ -114,6 +119,9 @@ def create_app():
     api.add_resource(VillageManagement, '/api/partial_admin/villages')
 
     api.add_resource(ResidentTypeManagement, '/api/admin/residenttype')
+    api.add_resource(UserRegistrationStatsResource, '/api/admin/registration-stats')
+    api.add_resource(UsersByResidentTypeResource, '/api/admin/residenttype-stats')
+    api.add_resource(RequestStatisticsResource, '/api/admin/requests-stats')
 
     with app.app_context():
         Users,

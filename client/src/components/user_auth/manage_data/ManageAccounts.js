@@ -278,8 +278,8 @@ function ManageAccounts() {
                         </div>
                         <div className="text-con flex-col">
                             <h4>{`${individualUserInformation.user_firstname} ${individualUserInformation.user_middlename?.[0] ?? ''}${individualUserInformation.user_middlename ? '.' : ''} ${individualUserInformation.user_lastname}`}</h4>
-
                             <h6>{individualUserInformation.user_details_obj.email_address}</h6>
+                            <p className="alt-2">{individualUserInformation.user_resident_type}</p>
                         </div>
                     </div>
                         <div className="user-information">

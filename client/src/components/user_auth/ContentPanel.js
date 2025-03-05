@@ -13,6 +13,7 @@ import ManageReportIncident from "./manage_data/ManageReportIncidents";
 import ManageCurrentUserAccount from "./manage_data/ManageCurrentUserAccount";
 import ManageStreetsAndVillage from "./manage_data/ManageStreetsAndVillage";
 import ManageResidentType from "./manage_data/ManageResidentType";
+import ChartDashboard from "./request_data/ChartDashboard";
 
 function ContentPanel({ currentView, userInformation }) {
     const renderContent = () => {
@@ -45,6 +46,8 @@ function ContentPanel({ currentView, userInformation }) {
             return <ManageStreetsAndVillage />;
           case 'manage_resident_type':
             return <ManageResidentType />;
+          case 'view_charts':
+            return <ChartDashboard />;
           /* case 'manage_forms':
             return <div>Create Form</div>; */
           case 'manage_my_account':

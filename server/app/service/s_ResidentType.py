@@ -94,30 +94,20 @@ class ResidentTypeService:
         
         if not target_resident_type:
             return None
-        
-        if name:
-            target_resident_type.resident_type_name = name
-        if manage_post:
-            target_resident_type.manage_post = manage_post
-        if add_post:
-            target_resident_type.add_post = add_post
-        if manage_event:
-            target_resident_type.manage_event = manage_event
-        if add_event:
-            target_resident_type.add_event = add_event
-        if manage_announcement:
-            target_resident_type.manage_announcement = manage_announcement
-        if add_announcement:
-            target_resident_type.add_announcement = add_announcement
-        if view_accounts:
-            target_resident_type.view_accounts = view_accounts
-        if control_accounts:
-            target_resident_type.control_accounts = control_accounts
-        if partial_admin:
-            target_resident_type.partial_admin = partial_admin
-        if manage_request:
-            target_resident_type.manage_request = manage_request
+
+        target_resident_type.resident_type_name = name
+        target_resident_type.manage_post = manage_post
+        target_resident_type.add_post = add_post
+        target_resident_type.manage_event = manage_event
+        target_resident_type.add_event = add_event
+        target_resident_type.manage_announcement = manage_announcement
+        target_resident_type.add_announcement = add_announcement
+        target_resident_type.view_accounts = view_accounts
+        target_resident_type.control_accounts = control_accounts
+        target_resident_type.partial_admin = partial_admin
+        target_resident_type.manage_request = manage_request
         target_resident_type.modified_by=user_id
+        
         db.session.commit()
         return target_resident_type
 
