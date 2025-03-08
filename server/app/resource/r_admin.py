@@ -1,5 +1,50 @@
-from app.resource import Resource, abort, reqparse, request, RTS_ins, US_ins, R_ins
+from app.resource import Resource, abort, reqparse, request, RTS_ins, US_ins, R_ins, ES_ins, UDS_ins, I_ins
 from .r_functions import get_current_user_privilege, get_current_user_username, require_user_admin
+
+class UserManagement(Resource):
+    @require_user_admin
+    def delete(self):
+        user_id = request.args.get('req_user_id', None)
+        if not user_id:
+            return {"message": "user id is required"}, 400
+
+        
+        if not R_ins.delete_requests_by_user(user_id):
+            return {"message": "error deleting user requests data"}, 400
+        if not I_ins.delete_incidents_by_user(user_id):
+            return {"message": "error deleting user requests data"}, 400
+        if not ES_ins.delete_events_by_user(user_id):
+            return {"message": "error deleting user events data"}, 400
+        if not UDS_ins.delete_user_details_by_user(user_id):
+            return {"message": "error deleting user details"}, 400
+        if not US_ins.delete_user(user_id):
+            return {"message": "error deleting user"}, 400
+            
+
+        return {"message": "User successfully deleted"}, 200
+
+    @require_user_admin
+    def put(self):
+        put_parser = reqparse.RequestParser()
+        put_parser.add_argument('req_user_id', type=str, required=True, help='ID is required')
+        put_parser.add_argument('req_resident_type_id', type=str, required=False)
+        put_parser.add_argument('req_alter_type', type=str, required=True, help='Alter type is required')
+        args = put_parser.parse_args()
+        
+        if args['req_alter_type']=="assign":
+            if not args['req_resident_type_id']:
+                return {"message": 'Resident type ID is required'}, 400
+
+            if not US_ins.assign_user_resident_type(args['req_user_id'], args['req_resident_type_id']):
+                return {"message": "Error assigning resident to user"}, 400
+            return {"message": "Successfully assigned resident type to user"}, 200
+        elif args['req_alter_type']=="delete":
+            if not US_ins.delete_user_resident_type(args['req_user_id']):
+                return {"message": "Error deleting resident to user"}, 400
+            return {"message": "Successfully deleted resident type to user"}, 200
+
+        return {"message": "Alter type not recognized"}, 400
+
 
 class ResidentTypeManagement(Resource):
     @require_user_admin
@@ -7,6 +52,7 @@ class ResidentTypeManagement(Resource):
         data = RTS_ins.get_all_resident_type()
         return data, 200
 
+    #get individual data for resident type
     @require_user_admin
     def patch(self):
         patch_parser = reqparse.RequestParser()
@@ -54,7 +100,6 @@ class ResidentTypeManagement(Resource):
             return {"message": "Failed to create resident type"}, 500
 
         return {"message": "Resident type created successfully"}, 201
-
 
     @require_user_admin
     def put(self):

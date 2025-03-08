@@ -129,7 +129,6 @@ def delete_post_folder_from_gcs(user_id, post_id):
         return False
 
 
-
 def generate_gcs_post_image_path(user_id, post_id, image_ext):
     """
     Generates a GCS storage path for a given image.
@@ -226,6 +225,77 @@ def generate_gcs_incident_image_path(user_id, incident_id, image_ext):
     """
     return f"uploads/users/user_{user_id}/incidents/incident_{incident_id}/incident_image.{image_ext}"
 
+
+def delete_user_image_in_gcs(user_id):
+    """
+    Deletes the 'user_photo' file in the GCS path for a specific user.
+
+    Args:
+        user_id (int): Unique user ID.
+
+    Returns:
+        bool: True if deleted successfully, False if not found or failed.
+    """
+    try:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(GCS_BUCKET_NAME)
+        prefix = f"uploads/users/user_{user_id}/user_photo"
+
+        # List all files in the user's folder
+        blobs = list(bucket.list_blobs(prefix=prefix))
+
+        for blob in blobs:
+            file_name = blob.name  # Full GCS path
+            if "user_photo" in file_name:
+                # Delete the file
+                blob.delete()
+                print(f"User photo deleted: {file_name}")
+                return True  # Successfully deleted
+
+        print("No user photo found to delete.")
+        return False  # File not found
+
+    except Exception as e:
+        print(f"Error deleting user photo: {e}")
+        return False  # Deletion failed
+
+
+def update_user_image_in_gcs(user_id, new_image):
+    """
+    Updates the user image in GCS by deleting the old one and uploading a new one.
+
+    Args:
+        user_id (int): ID of the user.
+        new_image (FileStorage): The new image file uploaded by the user.
+
+    Returns:
+        str: GCS path of the new uploaded image, or an empty string if failed.
+    """
+    try:
+        image_ext = check_image_validity(new_image)
+        if not image_ext:
+            print("Invalid image file")
+            return None
+        
+        gcs_path = generate_gcs_registration_image_path(user_id, 'user_photo', image_ext)
+
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(GCS_BUCKET_NAME)
+        blob = bucket.blob(gcs_path)
+
+        if blob.exists():
+            blob.delete()
+            print(f"Old image deleted: {gcs_path}")
+
+        # Upload the new image
+        upload_image_to_gcs(new_image, gcs_path)
+        return gcs_path
+    
+    except Exception as e:
+        print(f"Error updating user image: {e}")
+        return None
+
+
 def generate_gcs_registration_image_path(user_id, image_type, image_ext):
     """
     Generates a GCS storage path for user registration images.
@@ -240,6 +310,48 @@ def generate_gcs_registration_image_path(user_id, image_type, image_ext):
     """
     return f"uploads/users/user_{user_id}/{image_type}.{image_ext}"
 
+
+def delete_user_directory_in_gcs(user_id):
+    """
+    Deletes all files inside 'uploads/users/user_<user_id>/' in GCS and ensures the folder is removed.
+
+    Args:
+        user_id (int): Unique user ID.
+
+    Returns:
+        bool: True if deleted successfully, False if not found or failed.
+    """
+    try:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(GCS_BUCKET_NAME)
+        prefix = f"uploads/users/user_{user_id}/"  # Path to the user's folder
+
+        # List all files in the user's directory
+        blobs = list(bucket.list_blobs(prefix=prefix))
+
+        if not blobs:
+            print(f"No files found for user {user_id}. Folder does not exist.")
+            return False  # No files found
+
+        # Delete all files
+        for blob in blobs:
+            blob.delete()
+            print(f"Deleted: {blob.name}")
+
+        # Ensure folder is deleted by attempting to remove "empty folder placeholders"
+        folder_blob = bucket.blob(prefix)
+        print(folder_blob)
+        if folder_blob.exists():
+            folder_blob.delete()
+            print(f"Deleted empty folder marker: {prefix}")
+
+        print(f"All files and folder 'uploads/users/user_{user_id}/' deleted successfully.")
+        return True  # Successfully deleted
+
+    except Exception as e:
+        print(f"Error deleting user directory: {e}")
+        return False  # Deletion failed
+    
 
 def check_image_validity(img):
     """

@@ -4,7 +4,7 @@ from app.model import get_uuid, dt
 class UserDetails(db.Model):
     __tablename__ = 'userdetails'
     id = db.Column(db.String(32), default=get_uuid, unique=True, primary_key=True)
-    user_id = db.Column(db.String(32), db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False, unique=True)
+    user_id = db.Column(db.String(32), db.ForeignKey('users.id'), nullable=False, unique=True)
     village_id = db.Column(db.String(32), db.ForeignKey('villages.id'), nullable=True)
     brgy_street_id = db.Column(db.String(32), db.ForeignKey('brgystreets.id'), nullable=True)
     house_number = db.Column(db.Integer, nullable=False)
@@ -22,6 +22,6 @@ class UserDetails(db.Model):
     last_modified = db.Column(db.DateTime, default=dt.datetime.now())
     modified_by = db.Column(db.String(255), nullable=False)
 
-    users = db.relationship('Users', foreign_keys=[user_id], backref=db.backref('userdetails', lazy=True, cascade='all, delete-orphan'))
+    users = db.relationship('Users', foreign_keys=[user_id], backref=db.backref('userdetails'))
     villages = db.relationship('Villages', foreign_keys=[village_id], backref=db.backref('userdetails'))
     streets = db.relationship('BrgyStreets', foreign_keys=[brgy_street_id], backref=db.backref('userdetails'))

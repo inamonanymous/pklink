@@ -44,7 +44,7 @@ function ManageStreetsAndVillage() {
             title: "Add Street",
             html: `
                 <input id="street-name" class="swal2-input" placeholder="Street Name" />
-                <input id="purok" class="swal2-input" placeholder="Purok" />
+                <input type="number" id="purok" class="swal2-input" placeholder="Purok" />
             `,
             showCancelButton: true,
             confirmButtonText: "Add",
@@ -104,26 +104,35 @@ function ManageStreetsAndVillage() {
             }
         });
     };
-
     // Handle Edit Street
-    const handleEditStreet = (id, name) => {
+    const handleEditStreet = (id, name, purok) => {
         Swal.fire({
             title: "Edit Street",
-            input: "text",
-            inputValue: name,
+            html: `
+                <input id="swal-input-street" class="swal2-input" placeholder="Street Name" value="${name}">
+                <input id="swal-input-purok" class="swal2-input" placeholder="Purok" value="${purok}">
+            `,
             showCancelButton: true,
             confirmButtonText: "Save",
+            preConfirm: () => {
+                const streetName = document.getElementById("swal-input-street").value;
+                const purokName = document.getElementById("swal-input-purok").value;
+
+                if (!streetName || !purokName) {
+                    Swal.showValidationMessage("Both fields are required!");
+                }
+                return { streetName, purokName };
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 httpClient.put('/api/partial_admin/brgystreets', {
                     req_brgy_street_id: id,
-                    req_brgy_street_name: result.value,
+                    req_brgy_street_name: result.value.streetName,
+                    req_brgy_street_purok: result.value.purokName,
                 })
                     .then((data) => {
                         Swal.fire("Updated!", data.message, "success");
-                        setRefreshLocations((prev) => {
-                            return !prev;
-                        });
+                        setRefreshLocations((prev) => !prev);
                     })
                     .catch((error) => {
                         Swal.fire("Error!", error.message || "Failed to edit street", "error");
@@ -131,6 +140,7 @@ function ManageStreetsAndVillage() {
             }
         });
     };
+
 
     // Handle Delete Village
     const handleDeleteVillage = (id) => {
@@ -204,11 +214,12 @@ function ManageStreetsAndVillage() {
     const streetColumns = [
         { name: "ID", selector: (row) => row.id, sortable: true },
         { name: "Street Name", selector: (row) => row.street_name, sortable: true },
+        { name: "Purok", selector: (row) => row.purok, sortable: true },
         {
             name: "Actions",
             cell: (row) => (
                 <>
-                    <button onClick={() => handleEditStreet(row.id, row.street_name)} className="text-blue-500 mr-2">Edit</button>
+                    <button onClick={() => handleEditStreet(row.id, row.street_name, row.purok)} className="text-blue-500 mr-2">Edit</button>
                     <button onClick={() => handleDeleteStreet(row.id)} className="text-red-500">Delete</button>
                 </>
             ),

@@ -2,13 +2,132 @@ from app.service import check_password_hash, generate_password_hash, db, abort
 from app.model.m_Users import Users
 from app.model.m_UserDetails import UserDetails
 from app.model.m_ResidentType import ResidentType
-from app.service.s_functions import check_if_local, upload_image_to_gcs, generate_gcs_registration_image_path, check_image_validity
+from app.service.s_functions import check_if_local, upload_image_to_gcs, generate_gcs_registration_image_path, check_image_validity, update_user_image_in_gcs, delete_user_image_in_gcs, delete_user_directory_in_gcs
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import func, text, case
 from app.service.s_functions import verify_face
 from datetime import datetime
 
 class UserService:
+    def change_password(self, user_id, old_password, new_password):
+        try:
+            # Get user by id
+            user = Users.query.filter_by(id=user_id).first()
+            if not user:
+                print("User not found")
+                return None
+            
+            # Verify the old password
+            if not check_password_hash(user.password, old_password):
+                print("Old password does not match")
+                return None
+            
+            # Generate a new password hash and update the user's password
+            user.password = generate_password_hash(new_password)
+            db.session.commit()
+            return user
+        except Exception as e:
+            print(f"Error changing password: {e}")
+            db.session.rollback()
+            return None
+
+    def delete_user(self, user_id):
+        try:
+            target_user = Users.query.filter_by(id=user_id).first()
+            if not target_user:
+                print('user cannot be found')
+                return False
+            
+            """ user_details = UserDetails.query.filter_by(user_id=target_user.id).first() """
+
+
+            db.session.delete(target_user)
+            db.session.commit()
+            delete_user_directory_in_gcs(target_user.id)
+            return True
+        except Exception as e:
+            #print(f'error at us.delete_user: {e}')
+            return False
+
+
+    def delete_user_resident_type(self, user_id):
+        try:
+            target_user = Users.query.filter_by(id=user_id).first()
+            if not (target_user and target_user.resident_id):
+                print('user cannot be found')
+                return None
+            target_user.resident_id = None
+            db.session.commit()
+            return target_user
+        except Exception as e:
+            print(f'error at us.delete_user_resident_type: {e}')
+            return None
+        
+
+    def assign_user_resident_type(self, user_id, resident_type_id):
+        try:
+            target_user = Users.query.filter_by(id=user_id).first()
+            target_resident_type = ResidentType.query.filter_by(id=resident_type_id).first()
+
+            if not (target_user and target_resident_type):
+                print('user and resident type cannot be found')
+                return None
+            target_user.resident_id = target_resident_type.id
+            db.session.commit()
+            return target_user
+        except Exception as e:
+            print(f'error at us.assign_user_resident_type: {e}')
+            return None
+        
+
+
+    def edit_user_photo(self, user_id, photo):
+        target_user = Users.query.filter_by(id=user_id).first()
+        if not (target_user and target_user.photo_path):
+            print('no user or photo found')
+            return  None
+        update_image = update_user_image_in_gcs(target_user.id, photo)
+        if not update_image:
+            print('user image failed to update')
+            return None
+        target_user.photo_path = update_image
+        db.session.commit()
+        return target_user
+    
+    def add_user_photo(self, user_id, photo):
+        target_user = Users.query.filter_by(id=user_id).first()
+        if not target_user:
+            print('no user found')
+            return None
+        if target_user.photo_path:
+            print('cant add photo, theres existing one')
+            return None
+        image_ext = check_image_validity(photo)
+        if not image_ext:
+            print('file not valid')
+            return None
+        
+        new_image_path = generate_gcs_registration_image_path(target_user.id, 'user_photo', image_ext)
+        upload_image_to_gcs(photo, new_image_path)
+        target_user.photo_path = new_image_path
+        db.session.commit()
+        return target_user
+        
+    def delete_user_photo(self, user_id):
+        target_user = Users.query.filter_by(id=user_id).first()
+        if not target_user:
+            print('no user found')
+            return False
+        if not target_user.photo_path:
+            print('cant delete photo, if theres nothing exists')
+            return False
+        if not delete_user_image_in_gcs(target_user.id):
+            print('error deleting user image')
+            return False
+        target_user.photo_path = None
+        db.session.commit()
+        return True
+
     def get_users_by_resident_type(self):
         query = (
             db.session.query(
@@ -87,8 +206,7 @@ class UserService:
                     middlename=user_data['middlename'],
                     lastname=user_data['lastname'],
                     suffix=user_data['suffix'],
-                    gender=user_data['gender'],
-                    date_created=datetime.now()
+                    gender=user_data['gender']
                 )
                 db.session.add(user_entry)
                 db.session.flush()
@@ -102,8 +220,7 @@ class UserService:
                     phone_number2 = details_data['phone_number2'],
                     birthday = details_data['birthday'],
                     civil_status = details_data['civil_status'],
-                    modified_by = user_entry.id,
-                    date_created=datetime.now()
+                    modified_by = user_entry.id
                 )
 
                 # Check if local, with explicit handling for ValueError
@@ -128,18 +245,19 @@ class UserService:
                 
                 selfie_ext = check_image_validity(selfie)
                 gov_id_ext = check_image_validity(gov_id)
-                user_photo_ext = ""
-                if user_photo:
+
+                if user_photo != "" or user_photo is not None:
+                    user_photo_ext = ""
                     user_photo_ext = check_image_validity(user_photo)
+                    if user_photo_ext:
+                        user_photo_path = generate_gcs_registration_image_path(user_entry.id, 'user_photo', user_photo_ext)
+                        user_entry.photo_path = user_photo_path
+                        print(upload_image_to_gcs(user_photo, user_photo_path))
+                        
                 
                 selfie_path = generate_gcs_registration_image_path(user_entry.id, 'selfie', selfie_ext)
                 gov_id_path = generate_gcs_registration_image_path(user_entry.id, 'gov_id', gov_id_ext)
 
-                user_photo_path = generate_gcs_registration_image_path(user_entry.id, 'user_photo', user_photo_ext)
-
-                if user_photo is not None:
-                    user_entry.photo_path = user_photo_path
-                    print(upload_image_to_gcs(user_photo, user_photo_path))
 
                 print(upload_image_to_gcs(selfie, selfie_path))
                 print(upload_image_to_gcs(gov_id, gov_id_path))

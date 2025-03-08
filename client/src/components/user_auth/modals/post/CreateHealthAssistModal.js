@@ -1,61 +1,82 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import httpClient from "../../../../httpClient";
 
+const supportTypes = [
+    "Pregnancy Check-up",
+    "General Check-up",
+    "Mental Health Support",
+    "Emergency Assistance",
+    "Chronic Disease Management",
+    "Pediatric Consultation",
+    "Elderly Care Support",
+    "Vaccination Request"
+]
 
-const CreateHealthAssistModal = () => {
-     const [healthSupportData, setHealthSupportData] = useState({
-            req_support_type: '',
-            req_additional_info: '',
-            req_description: '',
-        });
-        const [loading, setLoading] = useState(false);
-        const [message, setMessage] = useState('');
-    
-        const handleInputChange = (e) => {
-            const { name, value } = e.target;
-            setHealthSupportData((prevData) => ({
-                ...prevData,
-                [name]: value,
-            }));
-        };
-    
-        const handleSubmit = async (e) => {
-            e.preventDefault();
-            setLoading(true);
-            setMessage('');
-            console.log(healthSupportData);
-            try {
-                document.body.style.cursor = "wait";
-                const resp = await httpClient.post('/api/user/health_support_requests', healthSupportData);
-                if (resp.status === 201) {
-                    setMessage('Health support request successfully submitted.');
-                    setHealthSupportData({
-                        req_support_type: '',
-                        req_additional_info: '',
-                        req_description: '',
-                    });
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Your health assistance request has been successfully submitted.',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            } catch (error) {
-                console.error(error);
-                setMessage('Error submitting health support request.');
+const CreateHealthAssistModal = ({ setRefreshRequests }) => {
+    const [healthSupportData, setHealthSupportData] = useState({
+        req_support_type: '',
+        req_additional_info: '',
+        req_description: '',
+    });
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('');
+    const [customType, setCustomType] = useState(false);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setHealthSupportData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleSupportTypeChange = (e) => {
+        const value = e.target.value;
+        if (value === "Other") {
+            setCustomType(true);
+            setHealthSupportData((prev) => ({ ...prev, req_support_type: '' }));
+        } else {
+            setCustomType(false);
+            setHealthSupportData((prev) => ({ ...prev, req_support_type: value }));
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setMessage('');
+        try {
+            document.body.style.cursor = "wait";
+            const resp = await httpClient.post('/api/user/health_support_requests', healthSupportData);
+            if (resp.status === 201) {
+                setMessage('Health support request successfully submitted.');
+                setHealthSupportData({
+                    req_support_type: '',
+                    req_additional_info: '',
+                    req_description: '',
+                });
+                setRefreshRequests((prev) => !prev);
                 Swal.fire({
-                                title: 'Oops!',
-                                text: `${error.response.data.message}`,
-                                icon: 'error',
-                                confirmButtonText: 'Try Again'
-                            });
-            } finally {
-                document.body.style.cursor = "default";
-                setLoading(false);
+                    title: 'Success!',
+                    text: 'Your health assistance request has been successfully submitted.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
             }
-        };
+        } catch (error) {
+            setMessage('Error submitting health support request.');
+            Swal.fire({
+                title: 'Oops!',
+                text: error.response?.data?.message || 'Something went wrong.',
+                icon: 'error',
+                confirmButtonText: 'Try Again'
+            });
+        } finally {
+            document.body.style.cursor = "default";
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="health-assist-create flex-col">
@@ -66,13 +87,22 @@ const CreateHealthAssistModal = () => {
                 <form onSubmit={handleSubmit} className="user-side-forms flex-col">
                     <div className="input-con flex-col">
                         <label>Support Type</label>
-                        <input
-                            type="text"
-                            name="req_support_type"
-                            placeholder="Enter the support type"
-                            value={healthSupportData.req_support_type}
-                            onChange={handleInputChange}
-                        />
+                        <select onChange={handleSupportTypeChange} value={customType ? "Other" : healthSupportData.req_support_type}>
+                            <option value="">Select a support type</option>
+                            {supportTypes.map((type, index) => (
+                                <option key={index} value={type}>{type}</option>
+                            ))}
+                            <option value="Other">Other</option>
+                        </select>
+                        {customType && (
+                            <input
+                                type="text"
+                                name="req_support_type"
+                                placeholder="Enter your support type"
+                                value={healthSupportData.req_support_type}
+                                onChange={handleInputChange}
+                            />
+                        )}
                     </div>
                     <div className="input-con flex-col">
                         <label>Additional Info</label>
@@ -101,6 +131,6 @@ const CreateHealthAssistModal = () => {
             </div>
         </div>
     );
-}
+};
 
 export default CreateHealthAssistModal;

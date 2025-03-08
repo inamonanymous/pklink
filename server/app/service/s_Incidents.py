@@ -4,6 +4,16 @@ from app.model.m_Users import Users
 from app.service.s_functions import generate_gcs_incident_image_path, upload_image_to_gcs, check_image_validity, delete_incident_folder_from_gcs, update_incident_image_in_gcs
 
 class IncidentsService:
+    def delete_incidents_by_user(self, user_id):
+        try:
+            db.session.query(Incidents).filter_by(user_id=user_id).delete()
+            db.session.commit()
+            return True
+        except Exception as e:
+            print(f'error at delete incident by user: {e}')
+            return False
+
+
     def get_incident_by_incident_id(self, incident_id):
         return Incidents.query.filter_by(id=incident_id).first()
 

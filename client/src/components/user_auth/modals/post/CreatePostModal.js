@@ -75,50 +75,52 @@ const CreatePostModal = ({ isPostModalOpen, setRefreshPosts }) => {
   if (!isPostModalOpen) return null;
 
   return (
-      <form onSubmit={handleSubmit} id="addPostForm">
-        <div className="d-flex flex-column">
-          <h3>Create New Post</h3>
+    <div className="posts-create">
+        <form onSubmit={handleSubmit} id="addPostForm">
+          <div className="d-flex flex-column">
+            <h3>Create New Post</h3>
 
-          <div className="mb-3">
-            <input
-              type="text"
-              id="req_post_title_input"
-              name="req_post_title"
-              placeholder="Enter Title"
-              value={postData.req_post_title}
-              onChange={handleInputChange}
-              className="form-control"
-            />
-          </div>
+            <div className="mb-3">
+              <input
+                type="text"
+                id="req_post_title_input"
+                name="req_post_title"
+                placeholder="Enter Title"
+                value={postData.req_post_title}
+                onChange={handleInputChange}
+                className="form-control"
+              />
+            </div>
 
-          <div className="mb-3">
-            <textarea
-              id="req_post_content_input"
-              name="req_post_content"
-              placeholder="Enter Content"
-              rows="5"
-              value={postData.req_post_content}
-              onChange={handleInputChange}
-              className="form-control"
-            ></textarea>
-          </div>
+            <div className="mb-3">
+              <textarea
+                id="req_post_content_input"
+                name="req_post_content"
+                placeholder="Enter Content"
+                rows="5"
+                value={postData.req_post_content}
+                onChange={handleInputChange}
+                className="form-control"
+              ></textarea>
+            </div>
 
-          <div className="mb-3">
-            <input
-              type="file"
-              name="req_post_photo"
-              onChange={handleFileChange}
-              className="form-control"
-            />
-          </div>
+            <div className="mb-3">
+              <input
+                type="file"
+                name="req_post_photo"
+                onChange={handleFileChange}
+                className="form-control"
+              />
+            </div>
 
-          <div className="d-flex justify-content-end gap-2">
-            <button type="submit" className="btn btn-primary">
-              Submit
-            </button>
+            <div className="d-flex justify-content-end gap-2">
+              <button type="submit" className="btn btn-primary">
+                Submit
+              </button>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
   );
 };
 
