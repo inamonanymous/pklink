@@ -3,8 +3,10 @@
 }
 :root {
     --dark-gray: #282828;
+    --light-gray: ##d7d7d7;
     --cream: #EDE1C2;
     --white-black-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0.55%, rgba(255, 255, 255, 0.0128453) 96.81%, rgba(255, 255, 255, 0) 100%);
+    --white-black-gradient-opposite: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0.55%, rgba(0, 0, 0, 0.0128453) 96.81%, rgba(0, 0, 0, 0) 100%);
     --sf-pro-font: 'SF Pro Display';
 }
 
@@ -63,6 +65,27 @@ HEADER-USER AUTH ==============================
 
 #header-ua nav > ul .img-con svg path {
     transition: fill 0.2s ease; /* Smooth transition */
+}
+
+#header-ua .user-nav span.total-notif {
+    color: white;
+    padding: 5px;
+    position: absolute;
+    bottom: -25px;
+    left: -15px;
+}
+
+#header-ua .user-nav span.total-notif::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: red;
+    border-radius: 50%;
+    z-index: -1;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* Change color on hover */
@@ -250,7 +273,35 @@ HEADER-USER AUTH ==============================
     transform: translateY(-2px);
 }
 
+#header-ua .notif-dropdown {
+    position: absolute;
+    background-color: var(--dark-gray);
+    top: 50px;
+    right: -10px; /* Adjust as needed based on your layout */
+    padding: 10px;
+    width: max-content;
+    border-radius: 8px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.2s ease-in-out;
+}
 
+#header-ua .notif-dropdown .notif-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+#header-ua .notif-dropdown .notif-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
 
 #header-ua .menu-dropdown {
     position: absolute;
@@ -425,20 +476,46 @@ MANAGE-CURRENT-USER-ACCOUNT-USER AUTH ==============================
 
 #manage-current-user-account .left-container {
     text-align: center;
+    align-items: center;
 }
 
 #manage-current-user-account .left-container .img-con {
     width: 275px;
     height: 275px; /* Set a fixed height to match the width */
     overflow: hidden; /* Ensures no overflow outside the border-radius */
+    position: relative;
     margin-bottom: 40px;
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+.photo-overlay {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 30%;
+    background: rgba(128, 128, 128, 0.5);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.img-con:hover .photo-overlay {
+    background: rgba(0, 0, 0, 0.6);
+}
+
 
 #manage-current-user-account .left-container .img-con img {
     width: 100%;
     height: 100%;
     object-fit: cover; /* Ensures the image fills without distortion */
-    border-radius: 100%;
 }
 
 #manage-current-user-account .left-container .text-con h4 {
@@ -462,6 +539,34 @@ MANAGE-CURRENT-USER-ACCOUNT-USER AUTH ==============================
     width: 1px;
     background: white;
     left: -85px;
+}
+
+#manage-current-user-account .right-container .user-file-submissions {
+    gap: 20px;
+}
+
+#manage-current-user-account .right-container .user-file-submissions .img-con {
+    width: 250px;
+    height: 250px;
+    margin-top: 15px;
+    height: 250px;
+    overflow: hidden;
+}
+
+#manage-current-user-account .right-container .user-file-submissions .img-con a{
+    height: 100%;
+    width: 100%;
+}
+
+
+#manage-current-user-account .right-container .user-file-submissions .img-con img {
+    object-fit: cover;
+    transition: 0.3s;
+    filter: brightness(50%);
+}
+
+#manage-current-user-account .right-container .user-file-submissions .img-con img:hover {
+    filter: brightness(100%);
 }
 
 #manage-current-user-account .right-container .data-container .text-con.head {
@@ -633,7 +738,11 @@ MANAGE-ACCOUTNS-USER AUTH ==============================
 }
 
 #manage-accounts .manage-individual-account .user-information .basic-info {
-    gap: 20px;
+ /*    gap: 20px; */
+}
+
+#manage-accounts .manage-individual-account .user-information .basic-info .text-con:not(:last-of-type) {
+    margin-bottom: 20px;
 }
 
 #manage-accounts .manage-individual-account .user-information .basic-info .text-con {
@@ -707,13 +816,54 @@ MANAGE-ACCOUTNS-USER AUTH ==============================
 }
 
 #manage-accounts .manage-individual-account .user-information div h4 {
-    margin-bottom: 10px;
+    margin-bottom: 40px;
 }
 
-#manage-accounts .manage-individual-account .user-information button {
+#manage-accounts .manage-individual-account .user-information .controls.button-con button {
     margin-top: 40px;
     padding: 10px 20px;
     border-radius: 5px;
+}
+
+
+#manage-accounts .manage-individual-account .user-information button.slick-arrow {
+    transform: scale(1.5);
+}
+
+#manage-accounts .manage-individual-account .user-information button.slick-arrow.slick-prev {
+    left: -50px
+}
+
+#manage-accounts .manage-individual-account .user-information button.slick-arrow.slick-next {
+    right: -50px
+}
+
+#manage-accounts .manage-individual-account .user-information .user-file-submissions .flex{
+    gap: 20px;
+}
+
+#manage-accounts .manage-individual-account .user-information .user-file-submissions .img-con {
+    width: 250px;
+    height: 250px;
+    margin-top: 15px;
+    height: 250px;
+    overflow: hidden;
+}
+
+#manage-accounts .manage-individual-account .user-information .user-file-submissions .img-con a{
+    height: 100%;
+    width: 100%;
+}
+
+
+#manage-accounts .manage-individual-account .user-information .user-file-submissions .img-con img {
+    object-fit: cover;
+    transition: 0.3s;
+    filter: brightness(50%);
+}
+
+#manage-accounts .manage-individual-account .user-information .user-file-submissions .img-con img:hover {
+    filter: brightness(100%);
 }
 
 /* 
@@ -753,6 +903,11 @@ POSTS-USER AUTH ==============================
 #posts-con {
     width: 760px;
     height: 800px;
+}
+
+#posts-con .btn-group {
+    z-index: 100;
+    width: 100%;
 }
 
 #posts-con > div {
@@ -1108,7 +1263,8 @@ form.user-side-forms .input-con label {
 }
 
 form.user-side-forms .input-con input, 
-form.user-side-forms .input-con textarea {
+form.user-side-forms .input-con textarea,
+ form.user-side-forms .input-con select {
     background: black;
     padding: 15px 0 15px 15px;
     border-radius: 5px;

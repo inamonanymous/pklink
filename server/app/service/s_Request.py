@@ -8,6 +8,38 @@ from datetime import datetime
 from sqlalchemy.sql import func
 
 class RequestsService:
+    def count_in_progress_requests(self, user_id):
+        try:
+            ha_count = Requests.query.filter_by(user_id=user_id, status='in_progress', request_type='health_support').count()
+            dr_count = Requests.query.filter_by(user_id=user_id, status='in_progress', request_type='document_request').count()
+            return dr_count, ha_count
+        except Exception as e:
+            print(f"Error counting in_progress requests: {e}")
+            return 0
+
+
+    def delete_requests_by_user(self, user_id):
+        try:
+            db.session.query(Requests).filter_by(user_id=user_id).delete()
+            all_user = Requests.query.filter_by(user_id=user_id).all()
+            for i in all_user:
+                if i.request_type=='health_support':
+                    all_health = HealthSupportRequests.query.filter_by(request_id=i.id).all()
+                    for x in all_health:
+                        db.session.delete(x)
+                    
+                elif i.request_type=='document_request':
+                    all_docs = DocumentRequests.query.filter_by(request_id=i.id).all()
+                    for j in all_docs:
+                        db.session.delete(j)
+                db.session.delete(i)
+            db.session.commit()
+            return True
+        except Exception as e:
+            print(f'errpr at delete_requests_by_user: {e}')
+            return False
+
+
     def get_request_counts(self):
         try:
             # Requests Over Time (Daily, Monthly, Yearly)

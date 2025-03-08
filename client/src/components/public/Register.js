@@ -303,13 +303,19 @@ function Register({ onRegistrationSuccess }) {
 
         <div className='input-con flex-col'>
           <label>Gender</label>
-          <input
-            type="text"
-            name="req_user_gender"
-            required
-            value={userBasicInfo.req_user_gender}
-            onChange={handleBasicInputChange}
-          />
+          <div className='input-con flex-col'>
+            <label>Civil Status</label>
+            <select 
+              name="req_user_gender"
+              required
+              value={userBasicInfo.req_user_gender}
+              onChange={handleBasicInputChange}
+            >
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="unsaid">Rather not say</option>
+            </select>
+          </div>
         </div>
 
         <div className='input-con flex-col'>

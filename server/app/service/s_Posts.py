@@ -1,5 +1,6 @@
 from app.model.m_Posts import Posts
 from app.model.m_Users import Users
+from app.model.m_Announcements import Announcements
 from app.model.m_ResidentType import ResidentType
 from app.ext import db
 from app.service.s_functions import generate_gcs_post_image_path, upload_image_to_gcs, check_image_validity, delete_post_folder_from_gcs, update_post_image_in_gcs
@@ -35,6 +36,13 @@ class PostsService:
 
     def delete_post(self, post_id):
         post = Posts.query.filter_by(id=post_id).first()
+        announcement = Announcements.query.filter_by(posts_id=post.id).first()
+
+        if announcement is None:
+            return False
+        
+        db.session.delete(announcement)
+        db.session.commit()
         if post is None:
             return False
 
@@ -116,7 +124,7 @@ class PostsService:
 
         return posts_list
 
-    def get_post_details_by_user_id(self, user_id):
+    def get_all_post_by_user_id(self, user_id):
         # Perform the query using Posts.query
         query = Posts.query\
             .join(Users, Posts.created_by == Users.id)\

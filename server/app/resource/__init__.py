@@ -11,8 +11,10 @@ from app.service.s_Posts import PostsService
 from app.service.s_Events import EventService
 from app.service.s_Request import RequestsService
 from app.service.s_Incidents import IncidentsService
+from app.service.s_Announcements import AnnouncementsService
 
 AS_ins = AdminService()
+AN_ins = AnnouncementsService()
 BSS_ins = BrgyStreetService()
 RTS_ins = ResidentTypeService()
 UDS_ins = UserDetailsService()

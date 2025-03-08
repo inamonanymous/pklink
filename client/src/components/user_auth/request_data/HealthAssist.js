@@ -1,49 +1,65 @@
-import { useEffect, useState } from "react";
-import CreateHealthAssistModal from "../modals/post/CreateHealthAssistModal";
+import React, { useState } from "react";
+import DataTable from "react-data-table-component";
 import FetchData from "../FetchFunction";
-import Swal from "sweetalert2";
 import httpClient from "../../../httpClient";
+import Swal from "sweetalert2";
+import CreateHealthAssistModal from "../modals/post/CreateHealthAssistModal";
 import EditCurrentUserHealthAssistModal from "../modals/put/EditCurrentUserHealthAssistModal";
+import { useTranslation } from 'react-i18next';
 
 function HealthAssist() {
+    const { t } = useTranslation();
     const [refreshRequests, setRefreshRequests] = useState(0);
     const { data: allUserHealthRequests, error, loading } = FetchData("/api/user/health_support_requests", refreshRequests);
     const [activeView, setActiveView] = useState("create");
 
-    const handleDeleteHealth = async (e) => {
-            e.preventDefault();
-            const id = e.currentTarget.getAttribute('data-value');
-            const confirmDialogue = await Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you want to continue deleting this request?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
+    const handleDeleteHealth = async (id) => {
+        const confirmDialogue = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to continue deleting this request?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+    
+        if (!confirmDialogue.isConfirmed) return;
+
+        try {
+            document.body.style.cursor = 'wait';
+            await httpClient.delete('/api/user/health_support_requests', {
+                params: { req_request_id: id }
             });
-        
-            if (!confirmDialogue.isConfirmed) {
-                return;
-            }
-            try {
-                document.body.style.cursor = 'wait';
-                const resp = await httpClient.delete('/api/user/health_support_requests', {
-                    params: { req_request_id: id }
-                });
-                setRefreshRequests((prev) => !prev);
-                Swal.fire('Deleted!', 'The request has been deleted.', 'success')
-            } catch (error) {
-                console.error(error);
-                let errorMsg = 'An error occurred while deleting the request.';
-                if (error.response?.status === 403) errorMsg = 'Current user is not allowed.';
-                if (error.response?.status === 404) errorMsg = 'Target request not found.';
-                if (error.response?.status === 400) errorMsg = 'Invalid request.';
-        
-                Swal.fire('Error', errorMsg, 'error');
-            } finally {
-                document.body.style.cursor = 'default';
-            }
-        };
+            setRefreshRequests((prev) => !prev);
+            Swal.fire('Deleted!', 'The request has been deleted.', 'success');
+        } catch (error) {
+            Swal.fire('Error', 'An error occurred while deleting the request.', 'error');
+        } finally {
+            document.body.style.cursor = 'default';
+        }
+    };
+
+    const columns = [
+        { name: "Request ID", selector: row => row.request_id, sortable: true },
+        { name: "Support Type", selector: row => row.support_type, sortable: true },
+        { name: "Description", selector: row => row.description_text, sortable: true },
+        { name: "Status", selector: row => row.status, sortable: true },
+        { name: "Date Created", selector: row => new Date(row.date_created).toLocaleString(), sortable: true },
+        {
+            name: "Actions", cell: row => (
+                row.status === "pending" ? (
+                    <div className="btn-group">
+                        <button className="btn btn-danger btn-sm" onClick={() => handleDeleteHealth(row.request_id)}>
+                            Cancel
+                        </button>
+                        <button className="btn btn-warning btn-sm" onClick={() => EditCurrentUserHealthAssistModal(allUserHealthRequests, row.request_id, setRefreshRequests)}>
+                            Edit
+                        </button>
+                    </div>
+                ) : null
+            )
+        }
+    ];
 
     return (    
         <div id="health-assist-con">
@@ -53,7 +69,7 @@ function HealthAssist() {
                         onClick={() => setActiveView("create")}
                         className={`btn ${activeView === "create" ? "btn-primary" : "btn-secondary"}`}
                     >
-                        Create Request
+                        {t('content_panel.health_support.request_assistance')}
                     </button>
                     <button
                         onClick={() => {
@@ -62,7 +78,7 @@ function HealthAssist() {
                         }}
                         className={`btn ${activeView === "manage" ? "btn-primary" : "btn-secondary"}`}
                     >
-                        Manage My Requests
+                        {t('content_panel.health_support.manage_my_requests')}
                     </button>
                 </div>
 
@@ -70,9 +86,6 @@ function HealthAssist() {
                     <CreateHealthAssistModal setRefreshRequests={setRefreshRequests} />
                 ) : (
                     <div className="manage-requests">
-                        <h3>Manage My Requests</h3>
-                        <p>Here, you can view, track, or cancel your health support requests.</p>
-                        
                         {loading ? (
                             <p>Loading...</p>
                         ) : error ? (
@@ -80,55 +93,13 @@ function HealthAssist() {
                         ) : allUserHealthRequests.length === 0 ? (
                             <p>No document requests found.</p>
                         ) : (
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>Request ID</th>
-                                        <th>Support Type</th>
-                                        <th>Description</th>
-                                        <th>Status</th>
-                                        <th>Date Created</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {allUserHealthRequests.map((request) => (
-                                        <tr key={request.health_request_id}>
-                                            <td>{request.request_id}</td>
-                                            <td>{request.support_type}</td>
-                                            <td>{request.description_text}</td>
-                                            <td>{request.status}</td>
-                                            <td>{new Date(request.date_created).toLocaleString()}</td>
-                                            <td>
-                                                {request.status === "pending" && (
-                                                    <div className="btn-group">
-                                                        <button 
-                                                            className="btn btn-danger btn-sm"
-                                                            onClick={handleDeleteHealth}
-                                                            data-value={request.request_id}
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                        <button 
-                                                            className="btn btn-warning btn-sm"
-                                                            onClick={(e) => 
-                                                                EditCurrentUserHealthAssistModal(
-                                                                    allUserHealthRequests,
-                                                                    request.request_id,
-                                                                    setRefreshRequests
-                                                                )
-                                                            }
-                                                            data-value={request.request_id}
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            <DataTable
+                                title="Health Support Requests"
+                                columns={columns}
+                                data={allUserHealthRequests}
+                                pagination
+                                highlightOnHover
+                            />
                         )}
                     </div>
                 )}

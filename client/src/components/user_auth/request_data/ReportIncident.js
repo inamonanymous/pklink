@@ -4,8 +4,9 @@ import CreateIncidentModal from "../modals/post/CreateIncidentModal";
 import httpClient from "../../../httpClient";
 import Swal from "sweetalert2";
 import EditCurrentUserIncident from "../modals/put/EditCurrentUserIncidents";
-
+import { useTranslation } from 'react-i18next';
 function ReportIncident() {
+    const { t } = useTranslation();
     const [refreshIncidents, setRefreshIncidents] = useState(0);
     const [activeView, setActiveView] = useState("create");    
     const { data: allUserIncidents, error, loading } = FetchData("/api/user/incidents", refreshIncidents);
@@ -49,7 +50,7 @@ function ReportIncident() {
                         onClick={() => setActiveView("create")}
                         className={`btn ${activeView === "create" ? "btn-primary" : "btn-secondary"}`}
                     >
-                        Create Incident
+                        {t('content_panel.incident.create_incident')}
                     </button>
                     <button
                         onClick={() => {
@@ -58,7 +59,7 @@ function ReportIncident() {
                         }}
                         className={`btn ${activeView === "manage" ? "btn-primary" : "btn-secondary"}`}
                     >
-                        Manage My Incidents
+                        {t('content_panel.incident.manage_my_incidents')}
                     </button>
                 </div>
 
@@ -66,7 +67,6 @@ function ReportIncident() {
                     <CreateIncidentModal />
                 ) : (
                     <div className="manage-incidents">
-                        <h3>Manage My Incidents</h3>
                         
                         {loading ? (
                             <p>Loading...</p>

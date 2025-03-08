@@ -2,7 +2,20 @@ from flask import Flask, request, send_from_directory
 from flask_restful import Api
 from app.config import ApplicationConfig
 from app.ext import sess, cors, db, migrate
-from app.resource.r_user import UserAuth, UserRegistration, CheckSession, RegisteredVillages, RegisteredBrgyStreets, PostsData, EventsData, DocumentRequest, HealthSupportRequest, Incident
+from app.resource.r_user import (
+    UserAuth,
+    UserRegistration, 
+    CheckSession, 
+    RegisteredVillages,
+    RegisteredBrgyStreets, 
+    PostsData, 
+    EventsData, 
+    DocumentRequest, 
+    HealthSupportRequest, 
+    Incident, 
+    Announcement,
+    Notification
+)
 from app.resource.r_partial_admin import (
     UserVerification,
     UnverifiedUserData,
@@ -12,13 +25,15 @@ from app.resource.r_partial_admin import (
     HealthSupportManagement,
     IncidentManagement,
     BrgyStreetManagement,
-    VillageManagement
+    VillageManagement,
+    AnnouncementManacement
 )
 from app.resource.r_admin import (
     ResidentTypeManagement, 
     UserRegistrationStatsResource,
     UsersByResidentTypeResource,
-    RequestStatisticsResource
+    RequestStatisticsResource,
+    UserManagement
 )
 
 from app.model.m_Admin import Admin
@@ -107,9 +122,12 @@ def create_app():
     api.add_resource(DocumentRequest, '/api/user/document_requests')
     api.add_resource(HealthSupportRequest, '/api/user/health_support_requests')
     api.add_resource(Incident, '/api/user/incidents')
+    api.add_resource(Announcement, '/api/user/announcements')
+    api.add_resource(Notification, '/api/user/notif')
 
     api.add_resource(UnverifiedUserData, '/api/partial_admin/unverified_users')
     api.add_resource(UserVerification, '/api/partial_admin/verify')
+    api.add_resource(AnnouncementManacement, '/api/partial_admin/announcements')
     api.add_resource(PostManagement, '/api/partial_admin/posts')
     api.add_resource(EventManagement, '/api/partial_admin/events')
     api.add_resource(DocumentRequestManagement, '/api/partial_admin/document_requests')
@@ -118,6 +136,7 @@ def create_app():
     api.add_resource(BrgyStreetManagement, '/api/partial_admin/brgystreets')
     api.add_resource(VillageManagement, '/api/partial_admin/villages')
 
+    api.add_resource(UserManagement, '/api/admin/manage_users')
     api.add_resource(ResidentTypeManagement, '/api/admin/residenttype')
     api.add_resource(UserRegistrationStatsResource, '/api/admin/registration-stats')
     api.add_resource(UsersByResidentTypeResource, '/api/admin/residenttype-stats')

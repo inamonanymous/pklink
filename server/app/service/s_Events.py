@@ -2,14 +2,33 @@ from app.model.m_Events import Events
 from app.model.m_Users import Users
 from app.model.m_ResidentType import ResidentType
 from app.service import db
-
+from datetime import datetime
 
 class EventService:
+    def count_upcoming_events(self):
+        try:
+            now = datetime.now()
+            count = Events.query.filter(Events.event_date >= now).count()
+            return count
+        except Exception as e:
+            print(f"Error counting upcoming events: {e}")
+            return 0
+
+    def delete_events_by_user(self, user_id):
+        try:
+            db.session.query(Events).filter_by(created_by=user_id).delete()
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            return False
+
+
     def edit_event(self, event_id, title=None, description=None, event_date=None, start_time=None, end_time=None, location=None):
         target_event = Events.query.filter_by(id=event_id).first()
         if target_event is None:
             return None
-        
+
         update_data = {
             "title": title,
             "description": description,
@@ -19,13 +38,18 @@ class EventService:
             "location": location
         }
 
-        # Loop through dictionary and update only non-None fields
+        print("Before Update:", target_event.__dict__)  # Debugging
+        print("event start", end_time)
+        print("event end:", start_time)
+        # Apply updates
         for key, value in update_data.items():
             if value is not None:
                 setattr(target_event, key, value)
-        print(target_event)
+
+        print("After Update:", target_event.__dict__)  # Debugging
         db.session.commit()
-        return target_event  # Return updated event
+        
+        return target_event
 
 
 

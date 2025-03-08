@@ -2,8 +2,10 @@ import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import FetchData from '../FetchFunction'; // Import the FetchData function
+import { useTranslation } from 'react-i18next';
 
 function Events() {
+    const { t } = useTranslation();
     const [date, setDate] = useState(new Date());
 
     const { data: allEventsData, error, loading } = FetchData('/api/user/events');
@@ -51,21 +53,29 @@ function Events() {
                 {eventsForSelectedDate.length > 0 ? (
                     eventsForSelectedDate.map((event) => (
                         <div key={event.event_id} className='text-con'>
-                            <h4 className='event-title'>{event.event_title}</h4>
-                            <h5 className='event-description'>{event.event_description}</h5>
-                            <h6 className='event-date'>Date: {formatDate(date)}</h6>
+                            <h4 className='event-title'>
+                                <strong>{t('content_panel.events.title')}:</strong> {event.event_title}
+                            </h4>
+                            <h5 className='event-description'>
+                                <strong>{t('content_panel.events.description')}:</strong> {event.event_description}
+                            </h5>
+                            <h6 className='event-date'>
+                                <strong>Date:</strong> {formatDate(date)}
+                            </h6>
                             <div className='text-con'>
-                                <h6 className='event-location'>Location: {event.event_location}</h6>
+                                <h6 className='event-location'>
+                                    <strong>{t('content_panel.events.location')}:</strong> {event.event_location}
+                                </h6>
                                 <h6 className='event-time'>
-                                    Time: {event.event_start_time} - {event.event_end_time}
+                                    <strong>{t('content_panel.events.time')}:</strong> {event.event_start_time} - {event.event_end_time}
                                 </h6>
                             </div>
                         </div>
                     ))
                 ) : (
                     <div className='text-con'>
-                        <h4>No Events</h4>
-                        <p>Please select a date with events.</p>
+                        <h4>{t('content_panel.events.no_events')}</h4>
+                        <p>{t('content_panel.events.instruction')}</p>
                     </div>
                 )}
             </div>

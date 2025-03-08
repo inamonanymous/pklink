@@ -1,11 +1,21 @@
 from app.model.m_UserDetails import UserDetails
 from app.service.s_Villages import VillagesService
 from app.service.s_BrgyStreet import BrgyStreetService
+from app.ext import db
 
 vs_ins = VillagesService()
 bss_ins = BrgyStreetService()
 
 class UserDetailsService:
+    def delete_user_details_by_user(self, user_id):
+        try:
+            db.session.query(UserDetails).filter_by(user_id=user_id).delete()
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            return False
+
     #GET user details with location or village information by targeting user id
     #returned as dictionary {}
     def get_user_details_dict_by_user_id(self, user_id):

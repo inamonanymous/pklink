@@ -1,4 +1,4 @@
-from app.resource import Resource, abort, reqparse, session, request, VUS_ins, ES_ins, US_ins, UDS_ins, VS_ins, BSS_ins, PS_ins, R_ins, I_ins
+from app.resource import Resource, abort, reqparse, session, request, VUS_ins, ES_ins, US_ins, UDS_ins, VS_ins, BSS_ins, PS_ins, R_ins, I_ins, AN_ins
 from .r_functions import require_user_session, get_current_user_username, get_current_user_privilege
 
 #--------------- Variable Values ---------------#
@@ -13,6 +13,7 @@ from .r_functions import require_user_session, get_current_user_username, get_cu
     PS_ins = <PostsService> object instance
     R_ins = <RequestsService> object instance
     I_ins = <IncidentsService> object instance
+    AN_ins = <AnnouncementssService> object instance
 """
 
 #User authentication api
@@ -52,6 +53,36 @@ class UserAuth(Resource):
         }
         return user_and_user_details_combined, 200
 
+    @require_user_session
+    def patch(self):
+        user_id = request.form.get('req_user_id', None)
+        new_photo = request.files.get('req_user_photo_path', None)
+        alter_type = request.form.get('req_alter_type', None)
+
+        if not new_photo:
+            print(True)
+            print(new_photo)
+            if alter_type!='delete':
+                return {"message": "req_alter_type not received well"}, 400
+            if not US_ins.delete_user_photo(user_id):
+                return {"message": "error deleting user photo"}, 400
+            return {"message": "user photo successfully deleted"}, 200
+
+        if not user_id:
+            return {"message": "req_user_id is required"}, 405
+        
+        if alter_type=='edit':
+            if not US_ins.edit_user_photo(user_id, new_photo):
+                return {"message": "error on updating user photo"}, 400
+            return {"message": "user photo successfully edited"}, 200
+        elif alter_type=='add':
+            if not US_ins.add_user_photo(user_id, new_photo):
+                return {"message": "error adding user photo"}, 400
+            return {"message": "user photo successfully added"}, 200
+        
+            
+        return {"message": "req_alter_type expected different results"}, 400
+
 
 #User registration
 class UserRegistration(Resource):
@@ -62,7 +93,7 @@ class UserRegistration(Resource):
             return {"error": "Both selfie and government ID are required."}, 400
 
         args = request.form
-        user_photo = request.files.get('req_user_photo_path', None)  # Set to None if not provided
+        user_photo = request.files.get('req_user_photo_path', "")  # Set to None if not provided
             
         
         selfie = request.files['req_user_selfie_photo_path']
@@ -415,6 +446,30 @@ class HealthSupportRequest(Resource):
             return {'message': 'deletion unuccessful'}, 405
         return {'message': 'deletion successful'}, 200
 
+class Notification(Resource):
+    @require_user_session
+    def get(self):
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        document_request_in_progress_count, health_support_request_count = R_ins.count_in_progress_requests(current_user['user_id'])
+        announcements_count = AN_ins.count_current_published_announcements()
+        upcoming_events_count = ES_ins.count_upcoming_events()
+        request_in_progress_count = document_request_in_progress_count + health_support_request_count
+        total_count = request_in_progress_count + announcements_count + upcoming_events_count
+        data = {
+            "request_in_progress_count": request_in_progress_count,
+            "document_request_in_progress_count": document_request_in_progress_count,
+            "health_support_in_progress_count": health_support_request_count,
+            "announcements_count": announcements_count,
+            "upcoming_events_count": upcoming_events_count,
+            "total_count" : total_count
+        }
+        return data, 200
+
+class Announcement(Resource):
+    def get(self):
+        data = AN_ins.get_all_announcements()
+        return data, 200
+
 class EventsData(Resource):
     def get(self):
         data = ES_ins.get_all_events_dict()
@@ -423,6 +478,12 @@ class EventsData(Resource):
 class PostsData(Resource):
     def get(self):
         data = PS_ins.get_all_posts_dict()
+        return data, 200
+    
+    @require_user_session
+    def patch(self):
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
+        data = PS_ins.get_all_post_by_user_id(current_user['user_id'])
         return data, 200
 
 class RegisteredVillages(Resource):

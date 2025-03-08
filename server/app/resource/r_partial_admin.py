@@ -1,4 +1,4 @@
-from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins, PS_ins, ES_ins, R_ins, I_ins, session, BSS_ins, VS_ins, RTS_ins
+from app.resource import Resource, abort, reqparse, request, VUS_ins, AS_ins, US_ins, UDS_ins, PS_ins, ES_ins, R_ins, I_ins, session, BSS_ins, VS_ins, RTS_ins, AN_ins
 from .r_functions import require_user_session, get_current_user_privilege, get_current_user_username
 from datetime import datetime, timezone
 
@@ -11,7 +11,11 @@ from datetime import datetime, timezone
     UDS_ins = <UserDetailsService> object instance
     PS_ins = <PostService> object instance
     R_ins = <RequestService> object instance
+    I_ins = <IncidentService> object instance
     BSS_ins = <BrgyStreetService> object instance
+    VS_ins = <VillageService> object instance
+    RTS_ins = <ResidentTypeService> object instance
+    AN_ins = <AnnouncementsService> object instance
 """
 
 class UnverifiedUserData(Resource):
@@ -99,6 +103,95 @@ class UserVerification(Resource):
 
         return user
         
+class AnnouncementManacement(Resource):
+    @require_user_session
+    def get(self):
+        current_user_privilege = get_current_user_privilege()
+        if current_user_privilege is None:
+            abort(406, message="Current user not found")    
+        if not current_user_privilege['manage_announcement']:
+            abort(401, message="Current user not allowed")    
+        data = AN_ins.get_all_announcements()
+        return data, 200
+
+
+    @require_user_session
+    def post(self):
+        current_user_privilege = get_current_user_privilege()
+        if current_user_privilege is None:
+            abort(406, message="Current user not found")    
+        if not current_user_privilege['add_announcement']:
+            abort(401, message="Current user not allowed")    
+        post_parser = reqparse.RequestParser()
+        post_parser.add_argument('req_posts_id', type=str, required=True, help="Post ID is required")
+        post_parser.add_argument('req_announcement_category', type=str, required=True, help="Category is required")
+        args = post_parser.parse_args()
+
+        new_announcement = AN_ins.insert_announcement(args['req_posts_id'], args['req_announcement_category'])
+        if new_announcement is None:
+            return {"message": "error inserting announcement"}, 400
+        
+        return {"message": "announcement inserted successfully"}, 200
+
+    @require_user_session
+    def put(self):
+        current_user_privilege = get_current_user_privilege()
+        if current_user_privilege is None:
+            abort(406, message="Current user not found")    
+        if not current_user_privilege['manage_announcement']:
+            abort(401, message="Current user not allowed")    
+        put_parser = reqparse.RequestParser()
+        put_parser.add_argument('req_announcement_id', type=str, required=True, help="Announcement ID is required")
+        put_parser.add_argument('req_announcement_category', type=str)
+        put_parser.add_argument('req_announcement_publish_date', type=str)
+        put_parser.add_argument('req_announcement_is_published', type=bool)
+        args = put_parser.parse_args()
+        edited_announcement = AN_ins.edit_announcement(
+            announcement_id=args['req_announcement_id'],
+            category=args['req_announcement_category'],
+            publish_date=args['req_announcement_publish_date'],
+            is_published=args['req_announcement_is_published']
+        )
+        print(args['req_announcement_is_published'])
+        if edited_announcement is None:
+            return {"message": "edit announcement failed"}, 400
+        return {"message": "announcement edited successfully"}, 200
+    
+
+    @require_user_session
+    def delete(self):
+        current_user_privilege = get_current_user_privilege()
+        if current_user_privilege is None:
+            abort(406, message="Current user not found")    
+        if not current_user_privilege['manage_announcement']:
+            abort(401, message="Current user not allowed")    
+        announcement_id = request.args.get('req_announcement_id', None)
+
+        if announcement_id is None:
+            return {"message": "Announcement ID is required"}, 400
+
+        if not AN_ins.delete_announcement(announcement_id):
+            return {"message": "delete announcement failed"}, 400
+        return {"message": "announcement deleted successfully"}, 200
+
+
+    @require_user_session
+    def patch(self):
+        current_user_privilege = get_current_user_privilege()
+        if current_user_privilege is None:
+            abort(406, message="Current user not found")    
+        if not current_user_privilege['manage_announcement']:
+            abort(401, message="Current user not allowed")    
+        patch_parser = reqparse.RequestParser()
+        patch_parser.add_argument('req_announcement_id', type=str, required=True, help="Announcement ID is required")
+        args = patch_parser.parse_args()
+        data = AN_ins.get_announcement_by_id(args['req_announcement_id'])
+        if data is None:
+            return {"message": "no announcement found"}, 404
+        return data, 200
+
+    
+
 class PostManagement(Resource):
     @require_user_session
     def put(self):
@@ -175,6 +268,26 @@ class PostManagement(Resource):
         )
         return {"post added": "post"}, 200
 
+def validate_event_data(event_date, start_time, end_time):
+    # Validate date format and check if it's in the past
+    try:
+        if event_date:
+            event_date_obj = datetime.strptime(event_date, "%Y-%m-%d").date()
+            current_date = datetime.now().date()
+            if event_date_obj < current_date:
+                return {"message": "Event date cannot be in the past."}, 400
+
+        # Validate time format and ensure start_time < end_time
+        start_time_obj = datetime.strptime(start_time, "%H:%M").time()
+        end_time_obj = datetime.strptime(end_time, "%H:%M").time()
+
+        if start_time_obj >= end_time_obj:
+            return {"message": "Start time must be earlier than end time."}, 400
+        return None  # No errors
+    except Exception as e:
+        print(f'error at validate event data: {e}')
+        return {"message": f"error at {e}."}, 400
+
 class EventManagement(Resource):
     @require_user_session
     def put(self):
@@ -189,11 +302,24 @@ class EventManagement(Resource):
         put_parser.add_argument("req_event_title", type=str, required=False)
         put_parser.add_argument("req_event_description", type=str, required=False)
         put_parser.add_argument("req_event_date", type=str, required=False)
-        put_parser.add_argument("req_start_time", type=str, required=False)
-        put_parser.add_argument("req_end_time", type=str, required=False)
+        put_parser.add_argument("req_event_start_time", type=str, required=False)
+        put_parser.add_argument("req_event_end_time", type=str, required=False)
         put_parser.add_argument("req_location", type=str, required=False)
         
         args = put_parser.parse_args()
+
+        print(args.get('req_event_date'))
+        print(args.get('req_event_start_time'))
+        print(args.get('req_event_end_time'))
+        # Run validation only if date and both time fields are provided and non-empty
+        if args.get('req_event_start_time') and args.get('req_event_end_time'):
+            validation_error = validate_event_data(
+                args['req_event_date'],
+                args['req_event_start_time'],
+                args['req_event_end_time']
+            )
+            if validation_error:
+                return validation_error
 
         # Call edit_event method from EventService
         updated_event = ES_ins.edit_event(
@@ -201,18 +327,15 @@ class EventManagement(Resource):
             title=args.get("req_event_title"),
             description=args.get("req_event_description"),
             event_date=args.get("req_event_date"),
-            start_time=args.get("req_start_time"),
-            end_time=args.get("req_end_time"),
+            start_time=args.get("req_event_start_time"),
+            end_time=args.get("req_event_end_time"),
             location=args.get("req_location")
         )
-        print(args.get('req_event_title'))
-        print(updated_event.title)
+        
         if not updated_event:
             return {"message": "Event not found"}, 404
         
         return {"message": "Event updated successfully"}, 200
-
-
 
     @require_user_session
     def post(self):
@@ -232,30 +355,10 @@ class EventManagement(Resource):
         
         args = post_parser.parse_args()
 
-        try:
-            event_date = datetime.strptime(args['req_event_date'], '%Y-%m-%d').date()  # Convert to date object
-        except ValueError:
-            print("hello date")
-            return {"message": "Invalid date format. Use YYYY-MM-DD."}, 400
+        validation_error = validate_event_data(args['req_event_date'], args['req_event_start_time'], args['req_event_end_time'])
+        if validation_error:
+            return validation_error
 
-        # Validate and parse the start time
-        try:
-            start_time = datetime.strptime(args['req_event_start_time'], '%H:%M').time()  # Convert to time object
-        except ValueError:
-            print("hello time")
-            return {"message": "Invalid start time format. Use HH:MM."}, 400
-
-        # Validate and parse the end time
-        try:
-            end_time = datetime.strptime(args['req_event_end_time'], '%H:%M').time()  # Convert to time object
-        except ValueError:
-            print("hello time")
-            return {"message": "Invalid end time format. Use HH:MM."}, 400
-
-        print(f"args {args}")
-        print(f"event date: {event_date}")
-        print(f"start time: {start_time}")
-        print(f"end time: {end_time}")
         user = US_ins.get_user_dict_by_username(session.get('user_username'))
 
         if not ES_ins.insert_event(
@@ -270,7 +373,6 @@ class EventManagement(Resource):
         ):
             return {"message": "event insertion error"}, 405
             
-
         return {"message": "insert complete"}, 201
 
     @require_user_session
@@ -567,10 +669,12 @@ class BrgyStreetManagement(Resource):
         put_parser.add_argument('req_brgy_street_name', type=str, required=False)
         put_parser.add_argument('req_brgy_street_purok', type=str, required=False)
         args = put_parser.parse_args()
+        current_user = US_ins.get_user_dict_by_username(get_current_user_username())
         if not BSS_ins.edit_street(
             id=args['req_brgy_street_id'],
             street_name=args['req_brgy_street_name'],
             purok=args['req_brgy_street_purok'],
+            user_id=current_user['user_id']
         ):
             return {"message": "failed to edit brgy street"}, 400
         

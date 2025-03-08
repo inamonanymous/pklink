@@ -14,8 +14,10 @@ import ManageCurrentUserAccount from "./manage_data/ManageCurrentUserAccount";
 import ManageStreetsAndVillage from "./manage_data/ManageStreetsAndVillage";
 import ManageResidentType from "./manage_data/ManageResidentType";
 import ChartDashboard from "./request_data/ChartDashboard";
+import ManageAnnouncements from "./manage_data/ManageAnnouncements";
+import UserSettings from "./UserSettings";
 
-function ContentPanel({ currentView, userInformation }) {
+function ContentPanel({ currentView, userInformation, privileges }) {
     const renderContent = () => {
         switch (currentView) {
           case 'posts':
@@ -31,9 +33,11 @@ function ContentPanel({ currentView, userInformation }) {
           case 'forms':
             return <Forms />;
           case 'manage_accounts':
-            return <ManageAccounts /> ;
+            return <ManageAccounts privileges={privileges} /> ;
           case 'manage_events':
             return <ManageEvents />;
+          case 'manage_announcements':
+            return <ManageAnnouncements />;
           case 'manage_posts':
             return <ManagePosts />;
           case 'manage_document_req':
@@ -48,6 +52,8 @@ function ContentPanel({ currentView, userInformation }) {
             return <ManageResidentType />;
           case 'view_charts':
             return <ChartDashboard />;
+          case 'user_settings':
+            return <UserSettings />;
           /* case 'manage_forms':
             return <div>Create Form</div>; */
           case 'manage_my_account':
